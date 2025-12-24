@@ -10,7 +10,7 @@
           in a complete fullstack application demo
         </p>
         <div class="hero-actions">
-          <RouterLink to="/register" class="btn btn-primary">Get Started</RouterLink>
+          <RouterLink to="/login" class="btn btn-primary">Get Started</RouterLink>
           <RouterLink to="/dashboard" class="btn btn-secondary">View Demo</RouterLink>
         </div>
       </div>
@@ -212,8 +212,7 @@
         <h2>Ready to Explore?</h2>
         <p>Start generating metrics, logs, and traces in seconds</p>
         <div class="cta-actions">
-          <RouterLink to="/register" class="btn btn-primary btn-large">Create Account</RouterLink>
-          <RouterLink to="/signin" class="btn btn-outline btn-large">Sign In</RouterLink>
+          <RouterLink to="/login" class="btn btn-primary btn-large">Get Started</RouterLink>
         </div>
       </div>
     </section>
@@ -259,17 +258,17 @@ import { RouterLink } from 'vue-router'
 }
 
 .hero-title {
-  font-family: 'Castoro', serif;
-  font-size: 3.5rem;
-  font-weight: 400;
-  font-style: italic;
+  font-family: 'Roboto', sans-serif;
+  font-size: 32px;
+  font-weight: 600;
   margin-bottom: 1.5rem;
   line-height: 1.2;
 }
 
 .hero-subtitle {
-  font-family: 'Outfit', sans-serif;
-  font-size: 1.25rem;
+  font-family: 'Inter', sans-serif;
+  font-size: 1rem;
+  font-weight: 400;
   margin-bottom: 2.5rem;
   line-height: 1.6;
   opacity: 0.95;
@@ -407,24 +406,24 @@ import { RouterLink } from 'vue-router'
 /* Features Section */
 .features {
   padding: 6rem 0;
-  background: #f8f9fa;
+  background: #0b0b0b;
 }
 
 .section-title {
-  font-family: 'Castoro', serif;
-  font-size: 2.5rem;
-  font-weight: 400;
-  font-style: italic;
+  font-family: 'Roboto', sans-serif;
+  font-size: 24px;
+  font-weight: 600;
   text-align: center;
   margin-bottom: 1rem;
-  color: #344767;
+  color: #ffffff;
 }
 
 .section-subtitle {
-  font-family: 'Outfit', sans-serif;
-  font-size: 1.125rem;
+  font-family: 'Inter', sans-serif;
+  font-size: 1rem;
+  font-weight: 400;
   text-align: center;
-  color: #67748e;
+  color: #ffffff;
   margin-bottom: 4rem;
   max-width: 700px;
   margin-left: auto;
@@ -438,10 +437,10 @@ import { RouterLink } from 'vue-router'
 }
 
 .feature-card {
-  background: white;
+  background: #151515;
   border-radius: 1rem;
   padding: 2.5rem;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
   transition:
     transform 0.2s ease,
     box-shadow 0.2s ease;
@@ -476,16 +475,15 @@ import { RouterLink } from 'vue-router'
 }
 
 .feature-card h3 {
-  font-family: 'Castoro', serif;
-  font-size: 1.5rem;
-  font-weight: 400;
-  font-style: italic;
+  font-family: 'Roboto', sans-serif;
+  font-size: 20px;
+  font-weight: 600;
   margin-bottom: 1rem;
-  color: #344767;
+  color: #ffffff;
 }
 
 .feature-card > p {
-  color: #67748e;
+  color: #ffffff;
   line-height: 1.6;
   margin-bottom: 1.5rem;
 }
@@ -498,7 +496,7 @@ import { RouterLink } from 'vue-router'
 
 .feature-list li {
   padding: 0.5rem 0;
-  color: #67748e;
+  color: #ffffff;
   padding-left: 1.5rem;
   position: relative;
 }
@@ -514,7 +512,7 @@ import { RouterLink } from 'vue-router'
 /* How It Works Section */
 .how-it-works {
   padding: 6rem 0;
-  background: white;
+  background: #0b0b0b;
 }
 
 .steps {
@@ -547,16 +545,15 @@ import { RouterLink } from 'vue-router'
 }
 
 .step-content h3 {
-  font-family: 'Castoro', serif;
-  font-size: 1.5rem;
-  font-weight: 400;
-  font-style: italic;
+  font-family: 'Roboto', sans-serif;
+  font-size: 20px;
+  font-weight: 600;
   margin-bottom: 0.5rem;
-  color: #344767;
+  color: #ffffff;
 }
 
 .step-content p {
-  color: #67748e;
+  color: #ffffff;
   line-height: 1.6;
   font-size: 1.125rem;
 }
@@ -564,7 +561,7 @@ import { RouterLink } from 'vue-router'
 /* Architecture Section */
 .architecture {
   padding: 6rem 0;
-  background: #f8f9fa;
+  background: #0b0b0b;
 }
 
 .architecture-grid {
@@ -575,11 +572,11 @@ import { RouterLink } from 'vue-router'
 }
 
 .arch-item {
-  background: white;
+  background: #151515;
   border-radius: 1rem;
   padding: 2rem;
   text-align: center;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
   transition: transform 0.2s ease;
 }
 
@@ -593,16 +590,15 @@ import { RouterLink } from 'vue-router'
 }
 
 .arch-item h4 {
-  font-family: 'Castoro', serif;
-  font-size: 1.25rem;
-  font-weight: 400;
-  font-style: italic;
+  font-family: 'Roboto', sans-serif;
+  font-size: 18px;
+  font-weight: 600;
   margin-bottom: 0.5rem;
-  color: #344767;
+  color: #ffffff;
 }
 
 .arch-item p {
-  color: #67748e;
+  color: #ffffff;
   font-size: 0.9375rem;
 }
 
@@ -615,10 +611,9 @@ import { RouterLink } from 'vue-router'
 }
 
 .cta h2 {
-  font-family: 'Castoro', serif;
-  font-size: 2.5rem;
-  font-weight: 400;
-  font-style: italic;
+  font-family: 'Roboto', sans-serif;
+  font-size: 24px;
+  font-weight: 600;
   margin-bottom: 1rem;
 }
 

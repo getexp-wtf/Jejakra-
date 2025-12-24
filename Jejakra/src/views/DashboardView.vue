@@ -35,22 +35,13 @@
             </svg>
             <span>Profile</span>
           </RouterLink>
-          <RouterLink to="/signin" class="nav-link" active-class="active">
+          <RouterLink to="/login" class="nav-link" active-class="active">
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
               <path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"></path>
               <polyline points="10 17 15 12 10 7"></polyline>
               <line x1="15" y1="12" x2="3" y2="12"></line>
             </svg>
-            <span>Sign In</span>
-          </RouterLink>
-          <RouterLink to="/register" class="nav-link" active-class="active">
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-              <path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
-              <circle cx="8.5" cy="7" r="4"></circle>
-              <line x1="20" y1="8" x2="20" y2="14"></line>
-              <line x1="23" y1="11" x2="17" y2="11"></line>
-            </svg>
-            <span>Sign Up</span>
+            <span>Login</span>
           </RouterLink>
         </div>
       </nav>
@@ -67,24 +58,39 @@
     <!-- Main Content -->
     <div class="main-content">
       <header class="top-header">
-        <div class="breadcrumb">Pages / Dashboard</div>
-        <div class="header-right">
-          <div class="search-box">
-            <input type="text" placeholder="Type here..." />
-          </div>
-          <button class="icon-button">
+        <div class="header-left">
+          <button class="menu-toggle">
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-              <path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"></path>
-              <polyline points="10 17 15 12 10 7"></polyline>
-              <line x1="15" y1="12" x2="3" y2="12"></line>
+              <line x1="3" y1="12" x2="21" y2="12"></line>
+              <line x1="3" y1="6" x2="21" y2="6"></line>
+              <line x1="3" y1="18" x2="21" y2="18"></line>
             </svg>
           </button>
+          <div class="search-box">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <circle cx="11" cy="11" r="8"></circle>
+              <path d="m21 21-4.35-4.35"></path>
+            </svg>
+            <input type="text" placeholder="Search..." />
+          </div>
+        </div>
+        <div class="header-right">
           <button class="icon-button">
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
               <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path>
               <path d="M13.73 21a2 2 0 0 1-3.46 0"></path>
             </svg>
+            <span class="notification-badge">3</span>
           </button>
+          <button class="icon-button">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <circle cx="12" cy="12" r="10"></circle>
+              <polyline points="12 6 12 12 16 14"></polyline>
+            </svg>
+          </button>
+          <div class="user-menu">
+            <div class="user-avatar-small">JD</div>
+          </div>
         </div>
       </header>
 
@@ -109,29 +115,29 @@ import { RouterLink, RouterView } from 'vue-router'
   bottom: 0;
   width: 100%;
   height: 100vh;
-  background: #f0f2f5;
+  background: #0b0b0b;
   overflow: hidden;
 }
 
 /* Sidebar */
 .sidebar {
   width: 280px;
-  background: white;
+  background: #0b0b0b;
   display: flex;
   flex-direction: column;
-  box-shadow: 0 0 10px rgba(0, 0, 0, 0.05);
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
 }
 
 .sidebar-header {
   padding: 1.5rem 1.25rem;
-  border-bottom: 1px solid #e9ecef;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
 }
 
 .logo {
-  font-family: 'Poppins', sans-serif;
+  font-family: 'Roboto', sans-serif;
   font-size: 1.125rem;
   font-weight: 700;
-  color: #344767;
+  color: #ffffff;
   margin: 0;
 }
 
@@ -148,7 +154,7 @@ import { RouterLink, RouterView } from 'vue-router'
 .nav-section-title {
   font-size: 0.75rem;
   font-weight: 700;
-  color: #67748e;
+  color: #ffffff;
   text-transform: uppercase;
   letter-spacing: 0.5px;
   padding: 0.5rem 1rem;
@@ -160,7 +166,7 @@ import { RouterLink, RouterView } from 'vue-router'
   align-items: center;
   gap: 0.75rem;
   padding: 0.75rem 1rem;
-  color: #67748e;
+  color: #ffffff;
   text-decoration: none;
   border-radius: 0.5rem;
   margin-bottom: 0.25rem;
@@ -170,8 +176,8 @@ import { RouterLink, RouterView } from 'vue-router'
 }
 
 .nav-link:hover {
-  background: #f8f9fa;
-  color: #344767;
+  background: rgba(255, 255, 255, 0.05);
+  color: #ffffff;
 }
 
 .nav-link.active {
@@ -182,7 +188,7 @@ import { RouterLink, RouterView } from 'vue-router'
 
 .sidebar-footer {
   padding: 1.5rem 1.25rem;
-  border-top: 1px solid #e9ecef;
+  border-top: 1px solid rgba(255, 255, 255, 0.05);
 }
 
 .help-section {
@@ -194,7 +200,7 @@ import { RouterLink, RouterView } from 'vue-router'
 .help-title {
   font-size: 0.75rem;
   font-weight: 700;
-  color: #344767;
+  color: rgba(255, 255, 255, 0.7);
   text-transform: uppercase;
   letter-spacing: 0.5px;
 }
@@ -234,55 +240,92 @@ import { RouterLink, RouterView } from 'vue-router'
   display: flex;
   flex-direction: column;
   overflow: hidden;
+  background: #0b0b0b;
 }
 
 .top-header {
-  background: linear-gradient(310deg, #17ad37 0%, #17ad37 100%);
+  background: #151515;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
   padding: 1rem 2rem;
   display: flex;
   justify-content: space-between;
   align-items: center;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
-.breadcrumb {
-  color: white;
-  font-weight: 600;
-  font-size: 0.875rem;
-}
-
-.header-right {
+.header-left {
   display: flex;
   align-items: center;
   gap: 1rem;
 }
 
-.search-box input {
-  padding: 0.5rem 1rem;
+.menu-toggle {
+  background: transparent;
   border: none;
-  border-radius: 0.5rem;
-  background: rgba(255, 255, 255, 0.2);
-  color: white;
+  color: #ffffff;
+  width: 36px;
+  height: 36px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.menu-toggle:hover {
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.search-box {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.625rem 1rem;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 8px;
+  width: 300px;
+  transition: all 0.2s ease;
+}
+
+.search-box:focus-within {
+  border-color: rgba(255, 255, 255, 0.2);
+  background: rgba(255, 255, 255, 0.08);
+}
+
+.search-box svg {
+  color: rgba(255, 255, 255, 0.6);
+  flex-shrink: 0;
+}
+
+.search-box input {
+  flex: 1;
+  background: none;
+  border: none;
+  color: #ffffff;
+  font-family: 'Inter', sans-serif;
   font-size: 0.875rem;
-  width: 200px;
+  outline: none;
 }
 
 .search-box input::placeholder {
-  color: rgba(255, 255, 255, 0.7);
+  color: rgba(255, 255, 255, 0.5);
 }
 
-.search-box input:focus {
-  outline: none;
-  background: rgba(255, 255, 255, 0.3);
+.header-right {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
 }
 
 .icon-button {
-  background: rgba(255, 255, 255, 0.2);
-  border: none;
-  color: white;
-  width: 36px;
-  height: 36px;
-  border-radius: 0.5rem;
+  position: relative;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  color: rgba(255, 255, 255, 0.8);
+  width: 40px;
+  height: 40px;
+  border-radius: 8px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -291,13 +334,54 @@ import { RouterLink, RouterView } from 'vue-router'
 }
 
 .icon-button:hover {
-  background: rgba(255, 255, 255, 0.3);
+  background: rgba(255, 255, 255, 0.1);
+  border-color: rgba(255, 255, 255, 0.2);
+  color: #ffffff;
+}
+
+.notification-badge {
+  position: absolute;
+  top: -4px;
+  right: -4px;
+  background: #f5576c;
+  color: white;
+  font-size: 0.625rem;
+  font-weight: 600;
+  padding: 0.125rem 0.375rem;
+  border-radius: 10px;
+  min-width: 18px;
+  text-align: center;
+}
+
+.user-menu {
+  margin-left: 0.5rem;
+}
+
+.user-avatar-small {
+  width: 40px;
+  height: 40px;
+  border-radius: 8px;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: 'Roboto', sans-serif;
+  font-weight: 600;
+  font-size: 0.875rem;
+  cursor: pointer;
+  transition: transform 0.2s ease;
+}
+
+.user-avatar-small:hover {
+  transform: scale(1.05);
 }
 
 .dashboard-content {
   flex: 1;
   padding: 2rem;
   overflow-y: auto;
+  background: #0b0b0b;
 }
 
 @media (max-width: 1024px) {
@@ -326,7 +410,11 @@ import { RouterLink, RouterView } from 'vue-router'
     align-items: flex-start;
   }
 
-  .search-box input {
+  .search-box {
+    width: 100%;
+  }
+
+  .header-left {
     width: 100%;
   }
 }

@@ -1,32 +1,58 @@
 <template>
   <div class="dashboard-overview">
-    <!-- Summary Cards -->
+    <!-- Page Header -->
+    <div class="page-header">
+      <div class="header-content">
+        <div>
+          <h1 class="page-title">Dashboard</h1>
+          <p class="page-subtitle">Welcome back! Here's what's happening with your metrics today.</p>
+        </div>
+        <div class="header-actions">
+          <button class="action-button">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <circle cx="12" cy="12" r="10"></circle>
+              <polyline points="12 6 12 12 16 14"></polyline>
+            </svg>
+            Last 30 days
+          </button>
+          <button class="action-button primary">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <line x1="12" y1="5" x2="12" y2="19"></line>
+              <line x1="5" y1="12" x2="19" y2="12"></line>
+            </svg>
+            New Report
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Metrics Grid -->
     <div class="metrics-grid">
       <div class="metric-card">
         <div class="metric-header">
-          <div class="metric-title">TODAY'S MONEY</div>
-          <div class="metric-icon wallet">
-            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-              <rect x="1" y="4" width="22" height="16" rx="2" ry="2"></rect>
-              <line x1="1" y1="10" x2="23" y2="10"></line>
+          <div class="metric-title">Total Revenue</div>
+          <div class="metric-icon revenue">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <line x1="12" y1="2" x2="12" y2="22"></line>
+              <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path>
             </svg>
           </div>
         </div>
         <div class="metric-value">$53,000</div>
         <div class="metric-change positive">
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
             <polyline points="23 6 13.5 15.5 8.5 10.5 1 18"></polyline>
             <polyline points="17 6 23 6 23 12"></polyline>
           </svg>
-          <span>+55% since yesterday</span>
+          <span>+55% from last month</span>
         </div>
       </div>
 
       <div class="metric-card">
         <div class="metric-header">
-          <div class="metric-title">TODAY'S USERS</div>
+          <div class="metric-title">Active Users</div>
           <div class="metric-icon users">
-            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
               <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
               <circle cx="9" cy="7" r="4"></circle>
               <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
@@ -36,19 +62,19 @@
         </div>
         <div class="metric-value">2,300</div>
         <div class="metric-change positive">
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
             <polyline points="23 6 13.5 15.5 8.5 10.5 1 18"></polyline>
             <polyline points="17 6 23 6 23 12"></polyline>
           </svg>
-          <span>+3% since last week</span>
+          <span>+3% from last week</span>
         </div>
       </div>
 
       <div class="metric-card">
         <div class="metric-header">
-          <div class="metric-title">NEW CLIENTS</div>
-          <div class="metric-icon clients">
-            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <div class="metric-title">New Customers</div>
+          <div class="metric-icon customers">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
               <path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
               <circle cx="8.5" cy="7" r="4"></circle>
               <line x1="20" y1="8" x2="20" y2="14"></line>
@@ -58,31 +84,30 @@
         </div>
         <div class="metric-value">+3,462</div>
         <div class="metric-change negative">
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
             <polyline points="23 18 13.5 8.5 8.5 13.5 1 6"></polyline>
             <polyline points="17 18 23 18 23 12"></polyline>
           </svg>
-          <span>-2% since last quarter</span>
+          <span>-2% from last quarter</span>
         </div>
       </div>
 
       <div class="metric-card">
         <div class="metric-header">
-          <div class="metric-title">SALES</div>
-          <div class="metric-icon sales">
-            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-              <line x1="12" y1="2" x2="12" y2="22"></line>
-              <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path>
+          <div class="metric-title">Conversion Rate</div>
+          <div class="metric-icon conversion">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"></polyline>
             </svg>
           </div>
         </div>
-        <div class="metric-value">$103,430</div>
-        <div class="metric-change negative">
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <polyline points="23 18 13.5 8.5 8.5 13.5 1 6"></polyline>
-            <polyline points="17 18 23 18 23 12"></polyline>
+        <div class="metric-value">3.24%</div>
+        <div class="metric-change positive">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <polyline points="23 6 13.5 15.5 8.5 10.5 1 18"></polyline>
+            <polyline points="17 6 23 6 23 12"></polyline>
           </svg>
-          <span>-5% than last month</span>
+          <span>+0.5% from last month</span>
         </div>
       </div>
     </div>
@@ -91,15 +116,26 @@
     <div class="content-grid">
       <!-- Left Column -->
       <div class="left-column">
-        <!-- Sales Overview Chart -->
+        <!-- Revenue Chart -->
         <div class="chart-card">
           <div class="card-header">
-            <h3>Sales overview</h3>
+            <div>
+              <h3>Revenue Overview</h3>
+              <p class="card-subtitle">Monthly revenue performance</p>
+            </div>
+            <div class="card-actions">
+              <button class="icon-btn">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <circle cx="12" cy="12" r="1"></circle>
+                  <circle cx="19" cy="12" r="1"></circle>
+                  <circle cx="5" cy="12" r="1"></circle>
+                </svg>
+              </button>
+            </div>
           </div>
           <div class="chart-container">
             <div class="chart-placeholder">
-              <svg width="100%" height="300" viewBox="0 0 800 300" class="chart-svg">
-                <!-- Chart background -->
+              <svg width="100%" height="320" viewBox="0 0 800 320" class="chart-svg">
                 <defs>
                   <linearGradient id="chartGradient" x1="0%" y1="0%" x2="0%" y2="100%">
                     <stop offset="0%" style="stop-color:#17ad37;stop-opacity:0.3" />
@@ -108,178 +144,244 @@
                 </defs>
                 
                 <!-- Grid lines -->
-                <line x1="50" y1="50" x2="50" y2="250" stroke="#e9ecef" stroke-width="1"/>
-                <line x1="50" y1="250" x2="750" y2="250" stroke="#e9ecef" stroke-width="1"/>
+                <line x1="60" y1="40" x2="60" y2="280" stroke="rgba(255,255,255,0.1)" stroke-width="1"/>
+                <line x1="60" y1="280" x2="760" y2="280" stroke="rgba(255,255,255,0.1)" stroke-width="1"/>
                 
                 <!-- Chart line -->
-                <path d="M 100 200 Q 200 180 300 150 T 500 100 T 700 80" 
+                <path d="M 100 240 Q 200 200 300 160 T 500 100 T 700 60" 
                       fill="none" 
                       stroke="#17ad37" 
                       stroke-width="3" 
                       stroke-linecap="round"/>
                 
-                <!-- Fill area under line -->
-                <path d="M 100 200 Q 200 180 300 150 T 500 100 T 700 80 L 700 250 L 100 250 Z" 
+                <!-- Fill area -->
+                <path d="M 100 240 Q 200 200 300 160 T 500 100 T 700 60 L 700 280 L 100 280 Z" 
                       fill="url(#chartGradient)"/>
                 
                 <!-- Data points -->
-                <circle cx="100" cy="200" r="4" fill="#17ad37"/>
-                <circle cx="300" cy="150" r="4" fill="#17ad37"/>
-                <circle cx="500" cy="100" r="4" fill="#17ad37"/>
-                <circle cx="700" cy="80" r="4" fill="#17ad37"/>
+                <circle cx="100" cy="240" r="5" fill="#17ad37"/>
+                <circle cx="300" cy="160" r="5" fill="#17ad37"/>
+                <circle cx="500" cy="100" r="5" fill="#17ad37"/>
+                <circle cx="700" cy="60" r="5" fill="#17ad37"/>
                 
                 <!-- X-axis labels -->
-                <text x="150" y="270" fill="#67748e" font-size="12" text-anchor="middle">Apr</text>
-                <text x="300" y="270" fill="#67748e" font-size="12" text-anchor="middle">Jun</text>
-                <text x="450" y="270" fill="#67748e" font-size="12" text-anchor="middle">Aug</text>
-                <text x="600" y="270" fill="#67748e" font-size="12" text-anchor="middle">Oct</text>
-                <text x="750" y="270" fill="#67748e" font-size="12" text-anchor="middle">Dec</text>
+                <text x="150" y="300" fill="rgba(255,255,255,0.6)" font-size="11" text-anchor="middle" font-family="Inter">Jan</text>
+                <text x="300" y="300" fill="rgba(255,255,255,0.6)" font-size="11" text-anchor="middle" font-family="Inter">Mar</text>
+                <text x="450" y="300" fill="rgba(255,255,255,0.6)" font-size="11" text-anchor="middle" font-family="Inter">May</text>
+                <text x="600" y="300" fill="rgba(255,255,255,0.6)" font-size="11" text-anchor="middle" font-family="Inter">Jul</text>
+                <text x="750" y="300" fill="rgba(255,255,255,0.6)" font-size="11" text-anchor="middle" font-family="Inter">Sep</text>
               </svg>
             </div>
           </div>
         </div>
 
-        <!-- Sales by Country Table -->
+        <!-- Recent Activity Table -->
         <div class="table-card">
           <div class="card-header">
-            <h3>Sales by Country</h3>
+            <div>
+              <h3>Recent Activity</h3>
+              <p class="card-subtitle">Latest transactions and events</p>
+            </div>
+            <button class="view-all-link">View All</button>
           </div>
-          <table class="sales-table">
-            <thead>
-              <tr>
-                <th>Country</th>
-                <th>Sales</th>
-                <th>Value</th>
-                <th>Bounce</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr>
-                <td>
-                  <div class="country-info">
-                    <span class="country-flag">🇺🇸</span>
-                    <span>United States</span>
-                  </div>
-                </td>
-                <td>2500</td>
-                <td>$230,900</td>
-                <td>29.9%</td>
-              </tr>
-              <tr>
-                <td>
-                  <div class="country-info">
-                    <span class="country-flag">🇩🇪</span>
-                    <span>Germany</span>
-                  </div>
-                </td>
-                <td>3900</td>
-                <td>$440,000</td>
-                <td>40.22%</td>
-              </tr>
-              <tr>
-                <td>
-                  <div class="country-info">
-                    <span class="country-flag">🇬🇧</span>
-                    <span>Great Britain</span>
-                  </div>
-                </td>
-                <td>1400</td>
-                <td>$190,700</td>
-                <td>23.44%</td>
-              </tr>
-              <tr>
-                <td>
-                  <div class="country-info">
-                    <span class="country-flag">🇧🇷</span>
-                    <span>Brasil</span>
-                  </div>
-                </td>
-                <td>562</td>
-                <td>$143,960</td>
-                <td>32.14%</td>
-              </tr>
-            </tbody>
-          </table>
+          <div class="table-container">
+            <table class="activity-table">
+              <thead>
+                <tr>
+                  <th>User</th>
+                  <th>Action</th>
+                  <th>Date</th>
+                  <th>Status</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>
+                    <div class="user-cell">
+                      <div class="user-avatar">JD</div>
+                      <div>
+                        <div class="user-name">John Doe</div>
+                        <div class="user-email">john@example.com</div>
+                      </div>
+                    </div>
+                  </td>
+                  <td>Subscription</td>
+                  <td>2 hours ago</td>
+                  <td><span class="status-badge success">Active</span></td>
+                </tr>
+                <tr>
+                  <td>
+                    <div class="user-cell">
+                      <div class="user-avatar">JS</div>
+                      <div>
+                        <div class="user-name">Jane Smith</div>
+                        <div class="user-email">jane@example.com</div>
+                      </div>
+                    </div>
+                  </td>
+                  <td>Payment</td>
+                  <td>5 hours ago</td>
+                  <td><span class="status-badge success">Completed</span></td>
+                </tr>
+                <tr>
+                  <td>
+                    <div class="user-cell">
+                      <div class="user-avatar">MJ</div>
+                      <div>
+                        <div class="user-name">Mike Johnson</div>
+                        <div class="user-email">mike@example.com</div>
+                      </div>
+                    </div>
+                  </td>
+                  <td>Upgrade</td>
+                  <td>1 day ago</td>
+                  <td><span class="status-badge pending">Pending</span></td>
+                </tr>
+                <tr>
+                  <td>
+                    <div class="user-cell">
+                      <div class="user-avatar">SW</div>
+                      <div>
+                        <div class="user-name">Sarah Williams</div>
+                        <div class="user-email">sarah@example.com</div>
+                      </div>
+                    </div>
+                  </td>
+                  <td>Subscription</td>
+                  <td>2 days ago</td>
+                  <td><span class="status-badge success">Active</span></td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
         </div>
       </div>
 
       <!-- Right Column -->
       <div class="right-column">
-        <!-- 3D Shapes Card -->
-        <div class="feature-card">
-          <div class="shapes-container">
-            <div class="shape shape-1"></div>
-            <div class="shape shape-2"></div>
-            <div class="shape shape-3"></div>
+        <!-- Revenue Sources -->
+        <div class="sources-card">
+          <div class="card-header">
+            <div>
+              <h3>Revenue Sources</h3>
+              <p class="card-subtitle">Breakdown by source</p>
+            </div>
           </div>
-          <div class="feature-content">
-            <h4>Faster way to create web pages</h4>
-            <p class="quote">"That's my skill. I'm not really specifically talented at anything except for the ability to learn."</p>
-            <p class="author">- Michael Endacott</p>
+          <div class="sources-list">
+            <div class="source-item">
+              <div class="source-info">
+                <div class="source-icon web">🌐</div>
+                <div>
+                  <div class="source-name">Web</div>
+                  <div class="source-value">$24,500</div>
+                </div>
+              </div>
+              <div class="source-percentage">46%</div>
+            </div>
+            <div class="source-item">
+              <div class="source-info">
+                <div class="source-icon mobile">📱</div>
+                <div>
+                  <div class="source-name">Mobile</div>
+                  <div class="source-value">$18,200</div>
+                </div>
+              </div>
+              <div class="source-percentage">34%</div>
+            </div>
+            <div class="source-item">
+              <div class="source-info">
+                <div class="source-icon api">🔌</div>
+                <div>
+                  <div class="source-name">API</div>
+                  <div class="source-value">$10,300</div>
+                </div>
+              </div>
+              <div class="source-percentage">20%</div>
+            </div>
           </div>
         </div>
 
-        <!-- Categories Card -->
-        <div class="categories-card">
+        <!-- Geography Breakdown -->
+        <div class="geo-card">
           <div class="card-header">
-            <h3>Categories</h3>
+            <div>
+              <h3>Top Countries</h3>
+              <p class="card-subtitle">Revenue by geography</p>
+            </div>
           </div>
-          <div class="categories-list">
-            <div class="category-item">
-              <div class="category-icon devices">
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                  <rect x="5" y="2" width="14" height="20" rx="2" ry="2"></rect>
-                  <line x1="12" y1="18" x2="12.01" y2="18"></line>
-                </svg>
+          <div class="geo-list">
+            <div class="geo-item">
+              <div class="geo-info">
+                <span class="geo-flag">🇺🇸</span>
+                <span class="geo-name">United States</span>
               </div>
-              <div class="category-content">
-                <div class="category-title">Devices</div>
-                <div class="category-description">250 in stock, 346+ sold</div>
-              </div>
-            </div>
-
-            <div class="category-item">
-              <div class="category-icon tickets">
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                  <line x1="9" y1="12" x2="15" y2="12"></line>
-                  <path d="M21 12c.552 0 1-.448 1-1s-.448-1-1-1-1 .448-1 1 .448 1 1 1z"></path>
-                  <path d="M3 12c-.552 0-1-.448-1-1s.448-1 1-1 1 .448 1 1-.448 1-1 1z"></path>
-                  <rect x="3" y="7" width="18" height="10" rx="2"></rect>
-                </svg>
-              </div>
-              <div class="category-content">
-                <div class="category-title">Tickets</div>
-                <div class="category-description">123 closed, 15 open</div>
+              <div class="geo-stats">
+                <div class="geo-value">$230,900</div>
+                <div class="geo-bar">
+                  <div class="geo-bar-fill" style="width: 100%"></div>
+                </div>
               </div>
             </div>
-
-            <div class="category-item">
-              <div class="category-icon logs">
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                  <polyline points="4 7 4 4 20 4 20 7"></polyline>
-                  <line x1="9" y1="20" x2="15" y2="20"></line>
-                  <line x1="12" y1="4" x2="12" y2="20"></line>
-                </svg>
+            <div class="geo-item">
+              <div class="geo-info">
+                <span class="geo-flag">🇩🇪</span>
+                <span class="geo-name">Germany</span>
               </div>
-              <div class="category-content">
-                <div class="category-title">Error logs</div>
-                <div class="category-description">1 is active, 40 closed</div>
+              <div class="geo-stats">
+                <div class="geo-value">$190,700</div>
+                <div class="geo-bar">
+                  <div class="geo-bar-fill" style="width: 82%"></div>
+                </div>
               </div>
             </div>
+            <div class="geo-item">
+              <div class="geo-info">
+                <span class="geo-flag">🇬🇧</span>
+                <span class="geo-name">United Kingdom</span>
+              </div>
+              <div class="geo-stats">
+                <div class="geo-value">$143,960</div>
+                <div class="geo-bar">
+                  <div class="geo-bar-fill" style="width: 62%"></div>
+                </div>
+              </div>
+            </div>
+            <div class="geo-item">
+              <div class="geo-info">
+                <span class="geo-flag">🇧🇷</span>
+                <span class="geo-name">Brazil</span>
+              </div>
+              <div class="geo-stats">
+                <div class="geo-value">$98,400</div>
+                <div class="geo-bar">
+                  <div class="geo-bar-fill" style="width: 42%"></div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
 
-            <div class="category-item">
-              <div class="category-icon users">
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                  <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
-                  <circle cx="9" cy="7" r="4"></circle>
-                  <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
-                  <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
-                </svg>
-              </div>
-              <div class="category-content">
-                <div class="category-title">Happy Users</div>
-                <div class="category-description">430</div>
-              </div>
+        <!-- Quick Stats -->
+        <div class="stats-card">
+          <div class="card-header">
+            <h3>Quick Stats</h3>
+          </div>
+          <div class="stats-grid">
+            <div class="stat-item">
+              <div class="stat-label">Avg. Session</div>
+              <div class="stat-value">4m 32s</div>
+            </div>
+            <div class="stat-item">
+              <div class="stat-label">Bounce Rate</div>
+              <div class="stat-value">24.5%</div>
+            </div>
+            <div class="stat-item">
+              <div class="stat-label">Page Views</div>
+              <div class="stat-value">12.4K</div>
+            </div>
+            <div class="stat-item">
+              <div class="stat-label">Return Rate</div>
+              <div class="stat-value">68.2%</div>
             </div>
           </div>
         </div>
@@ -296,25 +398,90 @@
   max-width: 100%;
 }
 
+/* Page Header */
+.page-header {
+  margin-bottom: 2rem;
+}
+
+.header-content {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 2rem;
+}
+
+.page-title {
+  font-family: 'Roboto', sans-serif;
+  font-size: 32px;
+  font-weight: 600;
+  color: #ffffff;
+  margin-bottom: 0.5rem;
+}
+
+.page-subtitle {
+  font-family: 'Inter', sans-serif;
+  font-size: 16px;
+  font-weight: 400;
+  color: rgba(255, 255, 255, 0.7);
+}
+
+.header-actions {
+  display: flex;
+  gap: 0.75rem;
+}
+
+.action-button {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.625rem 1rem;
+  background: #151515;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 8px;
+  color: #ffffff;
+  font-family: 'Inter', sans-serif;
+  font-size: 0.875rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.action-button:hover {
+  background: #1a1a1a;
+  border-color: rgba(255, 255, 255, 0.2);
+}
+
+.action-button.primary {
+  background: linear-gradient(310deg, #17ad37 0%, #17ad37 100%);
+  border-color: #17ad37;
+  color: white;
+}
+
+.action-button.primary:hover {
+  background: linear-gradient(310deg, #15a033 0%, #15a033 100%);
+  box-shadow: 0 4px 12px rgba(23, 173, 55, 0.3);
+}
+
 /* Metrics Grid */
 .metrics-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
   gap: 1.5rem;
   margin-bottom: 2rem;
 }
 
 .metric-card {
-  background: white;
-  border-radius: 0.75rem;
+  background: #151515;
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  border-radius: 12px;
   padding: 1.5rem;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  transition: all 0.2s ease;
 }
 
 .metric-card:hover {
+  border-color: rgba(255, 255, 255, 0.1);
   transform: translateY(-2px);
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
 }
 
 .metric-header {
@@ -325,93 +492,162 @@
 }
 
 .metric-title {
-  font-size: 0.875rem;
-  font-weight: 600;
-  color: #67748e;
+  font-family: 'Inter', sans-serif;
+  font-size: 0.8125rem;
+  font-weight: 500;
+  color: rgba(255, 255, 255, 0.7);
   text-transform: uppercase;
   letter-spacing: 0.5px;
 }
 
 .metric-icon {
-  width: 48px;
-  height: 48px;
-  border-radius: 0.5rem;
+  width: 40px;
+  height: 40px;
+  border-radius: 10px;
   display: flex;
   align-items: center;
   justify-content: center;
-  background: linear-gradient(310deg, #17ad37 0%, #17ad37 100%);
+  flex-shrink: 0;
+}
+
+.metric-icon.revenue {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
   color: white;
-  box-shadow: 0 4px 6px rgba(23, 173, 55, 0.25);
+}
+
+.metric-icon.users {
+  background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+  color: white;
+}
+
+.metric-icon.customers {
+  background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+  color: white;
+}
+
+.metric-icon.conversion {
+  background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%);
+  color: white;
 }
 
 .metric-value {
-  font-size: 1.75rem;
+  font-family: 'Roboto', sans-serif;
+  font-size: 28px;
   font-weight: 700;
-  color: #344767;
+  color: #ffffff;
   margin-bottom: 0.5rem;
 }
 
 .metric-change {
   display: flex;
   align-items: center;
-  gap: 0.25rem;
-  font-size: 0.875rem;
-  font-weight: 600;
+  gap: 0.375rem;
+  font-family: 'Inter', sans-serif;
+  font-size: 0.8125rem;
+  font-weight: 500;
 }
 
 .metric-change.positive {
-  color: #17ad37;
+  color: #43e97b;
 }
 
 .metric-change.negative {
-  color: #ea0606;
+  color: #f5576c;
 }
 
 /* Content Grid */
 .content-grid {
   display: grid;
-  grid-template-columns: 1fr 400px;
+  grid-template-columns: 1fr 380px;
   gap: 1.5rem;
 }
 
-.left-column {
-  display: flex;
-  flex-direction: column;
-  gap: 1.5rem;
-}
-
+.left-column,
 .right-column {
   display: flex;
   flex-direction: column;
   gap: 1.5rem;
 }
 
-/* Chart Card */
+/* Cards */
 .chart-card,
 .table-card,
-.feature-card,
-.categories-card {
-  background: white;
-  border-radius: 0.75rem;
+.sources-card,
+.geo-card,
+.stats-card {
+  background: #151515;
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  border-radius: 12px;
   padding: 1.5rem;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
 }
 
 .card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
   margin-bottom: 1.5rem;
   padding-bottom: 1rem;
-  border-bottom: 1px solid #e9ecef;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
 }
 
 .card-header h3 {
-  font-family: 'Castoro', serif;
-  font-size: 1.125rem;
-  font-weight: 400;
-  font-style: italic;
-  color: #344767;
+  font-family: 'Roboto', sans-serif;
+  font-size: 18px;
+  font-weight: 600;
+  color: #ffffff;
+  margin: 0 0 0.25rem 0;
+}
+
+.card-subtitle {
+  font-family: 'Inter', sans-serif;
+  font-size: 0.8125rem;
+  color: rgba(255, 255, 255, 0.6);
   margin: 0;
 }
 
+.card-actions {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.icon-btn {
+  background: transparent;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 6px;
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: rgba(255, 255, 255, 0.7);
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.icon-btn:hover {
+  background: rgba(255, 255, 255, 0.05);
+  border-color: rgba(255, 255, 255, 0.2);
+  color: #ffffff;
+}
+
+.view-all-link {
+  background: none;
+  border: none;
+  color: #17ad37;
+  font-family: 'Inter', sans-serif;
+  font-size: 0.875rem;
+  font-weight: 500;
+  cursor: pointer;
+  text-decoration: none;
+  transition: color 0.2s ease;
+}
+
+.view-all-link:hover {
+  color: #15a033;
+  text-decoration: underline;
+}
+
+/* Chart */
 .chart-container {
   width: 100%;
 }
@@ -427,174 +663,236 @@
 }
 
 /* Table */
-.sales-table {
+.table-container {
+  overflow-x: auto;
+}
+
+.activity-table {
   width: 100%;
   border-collapse: collapse;
 }
 
-.sales-table thead {
-  border-bottom: 1px solid #e9ecef;
+.activity-table thead {
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
 }
 
-.sales-table th {
+.activity-table th {
   text-align: left;
   padding: 0.75rem 0;
+  font-family: 'Inter', sans-serif;
   font-size: 0.75rem;
-  font-weight: 700;
-  color: #67748e;
+  font-weight: 600;
+  color: rgba(255, 255, 255, 0.7);
   text-transform: uppercase;
   letter-spacing: 0.5px;
 }
 
-.sales-table td {
+.activity-table td {
   padding: 1rem 0;
-  border-bottom: 1px solid #f8f9fa;
-  color: #344767;
-  font-weight: 500;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+  font-family: 'Inter', sans-serif;
+  font-size: 0.875rem;
+  color: #ffffff;
 }
 
-.sales-table tbody tr:last-child td {
+.activity-table tbody tr:last-child td {
   border-bottom: none;
 }
 
-.country-info {
+.user-cell {
   display: flex;
   align-items: center;
-  gap: 0.5rem;
+  gap: 0.75rem;
 }
 
-.country-flag {
-  font-size: 1.25rem;
-}
-
-/* Feature Card */
-.feature-card {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  color: white;
-  min-height: 400px;
-  display: flex;
-  flex-direction: column;
-  justify-content: space-between;
-}
-
-.shapes-container {
-  height: 200px;
-  position: relative;
-  margin-bottom: 2rem;
-}
-
-.shape {
-  position: absolute;
-  border-radius: 50%;
-  opacity: 0.8;
-}
-
-.shape-1 {
-  width: 80px;
-  height: 80px;
-  background: rgba(255, 255, 255, 0.3);
-  top: 20px;
-  left: 20px;
-}
-
-.shape-2 {
-  width: 120px;
-  height: 120px;
-  background: rgba(255, 255, 255, 0.2);
-  top: 60px;
-  right: 30px;
-}
-
-.shape-3 {
-  width: 60px;
-  height: 60px;
-  background: rgba(255, 255, 255, 0.25);
-  bottom: 40px;
-  left: 50%;
-  transform: translateX(-50%);
-}
-
-.feature-content h4 {
-  font-family: 'Castoro', serif;
-  font-size: 1.25rem;
-  font-weight: 400;
-  font-style: italic;
-  margin-bottom: 1rem;
-  color: white;
-}
-
-.quote {
-  font-size: 1rem;
-  line-height: 1.6;
-  font-style: italic;
-  margin-bottom: 1rem;
-  opacity: 0.95;
-}
-
-.author {
-  font-size: 0.875rem;
-  opacity: 0.8;
-}
-
-/* Categories Card */
-.categories-list {
-  display: flex;
-  flex-direction: column;
-  gap: 1.5rem;
-}
-
-.category-item {
-  display: flex;
-  align-items: flex-start;
-  gap: 1rem;
-}
-
-.category-icon {
+.user-avatar {
   width: 40px;
   height: 40px;
-  border-radius: 0.5rem;
+  border-radius: 8px;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
   display: flex;
   align-items: center;
   justify-content: center;
+  font-family: 'Roboto', sans-serif;
+  font-weight: 600;
+  font-size: 0.875rem;
   flex-shrink: 0;
 }
 
-.category-icon.devices {
-  background: linear-gradient(310deg, #17ad37 0%, #17ad37 100%);
-  color: white;
+.user-name {
+  font-weight: 500;
+  color: #ffffff;
+  margin-bottom: 0.125rem;
 }
 
-.category-icon.tickets {
-  background: linear-gradient(310deg, #fb6340 0%, #fb6340 100%);
-  color: white;
+.user-email {
+  font-size: 0.8125rem;
+  color: rgba(255, 255, 255, 0.6);
 }
 
-.category-icon.logs {
-  background: linear-gradient(310deg, #11cdef 0%, #11cdef 100%);
-  color: white;
+.status-badge {
+  display: inline-block;
+  padding: 0.25rem 0.75rem;
+  border-radius: 12px;
+  font-family: 'Inter', sans-serif;
+  font-size: 0.75rem;
+  font-weight: 500;
 }
 
-.category-icon.users {
-  background: linear-gradient(310deg, #ffd600 0%, #ffd600 100%);
-  color: white;
+.status-badge.success {
+  background: rgba(67, 233, 123, 0.2);
+  color: #43e97b;
 }
 
-.category-content {
-  flex: 1;
+.status-badge.pending {
+  background: rgba(255, 193, 7, 0.2);
+  color: #ffc107;
 }
 
-.category-title {
-  font-family: 'Castoro', serif;
-  font-size: 1rem;
-  font-weight: 400;
-  font-style: italic;
-  color: #344767;
+/* Revenue Sources */
+.sources-list {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+}
+
+.source-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1rem;
+  background: rgba(255, 255, 255, 0.02);
+  border-radius: 8px;
+  transition: background 0.2s ease;
+}
+
+.source-item:hover {
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.source-info {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.source-icon {
+  width: 40px;
+  height: 40px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.25rem;
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.source-name {
+  font-family: 'Inter', sans-serif;
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: #ffffff;
   margin-bottom: 0.25rem;
 }
 
-.category-description {
+.source-value {
+  font-family: 'Roboto', sans-serif;
+  font-size: 1rem;
+  font-weight: 600;
+  color: #ffffff;
+}
+
+.source-percentage {
+  font-family: 'Roboto', sans-serif;
+  font-size: 1rem;
+  font-weight: 600;
+  color: rgba(255, 255, 255, 0.7);
+}
+
+/* Geography */
+.geo-list {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+}
+
+.geo-item {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.geo-info {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.geo-flag {
+  font-size: 1.5rem;
+}
+
+.geo-name {
+  font-family: 'Inter', sans-serif;
   font-size: 0.875rem;
-  color: #67748e;
+  font-weight: 500;
+  color: #ffffff;
+}
+
+.geo-stats {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.geo-value {
+  font-family: 'Roboto', sans-serif;
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: rgba(255, 255, 255, 0.7);
+}
+
+.geo-bar {
+  height: 6px;
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 3px;
+  overflow: hidden;
+}
+
+.geo-bar-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #17ad37 0%, #43e97b 100%);
+  border-radius: 3px;
+  transition: width 0.3s ease;
+}
+
+/* Quick Stats */
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 1rem;
+}
+
+.stat-item {
+  padding: 1rem;
+  background: rgba(255, 255, 255, 0.02);
+  border-radius: 8px;
+  text-align: center;
+}
+
+.stat-label {
+  font-family: 'Inter', sans-serif;
+  font-size: 0.75rem;
+  color: rgba(255, 255, 255, 0.6);
+  margin-bottom: 0.5rem;
+}
+
+.stat-value {
+  font-family: 'Roboto', sans-serif;
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: #ffffff;
 }
 
 @media (max-width: 1400px) {
@@ -604,12 +902,20 @@
 }
 
 @media (max-width: 768px) {
+  .header-content {
+    flex-direction: column;
+  }
+
   .metrics-grid {
     grid-template-columns: 1fr;
   }
 
   .content-grid {
     grid-template-columns: 1fr;
+  }
+
+  .stats-grid {
+    grid-template-columns: repeat(2, 1fr);
   }
 }
 </style>

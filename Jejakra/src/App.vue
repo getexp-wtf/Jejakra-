@@ -18,8 +18,7 @@ const isDashboardRoute = computed(
       <nav class="header-nav">
         <RouterLink to="/">Home</RouterLink>
         <RouterLink to="/about">About</RouterLink>
-        <RouterLink to="/register">Register</RouterLink>
-        <RouterLink to="/signin">Sign In</RouterLink>
+        <RouterLink to="/login">Login</RouterLink>
       </nav>
     </div>
   </header>
@@ -52,8 +51,8 @@ const isDashboardRoute = computed(
 }
 
 .logo {
-  font-family: 'Poppins', sans-serif;
-  font-size: 1.75rem;
+  font-family: 'Roboto', sans-serif;
+  font-size: 1.5rem;
   font-weight: 700;
   margin: 0;
   background: linear-gradient(310deg, #17ad37 0%, #17ad37 100%);
@@ -72,10 +71,10 @@ const isDashboardRoute = computed(
 .header-nav a {
   display: inline-block;
   padding: 0.5rem 1.25rem;
-  color: var(--color-text);
+  color: #ffffff;
   text-decoration: none;
   border-radius: 0.5rem;
-  font-family: 'Outfit', sans-serif;
+  font-family: 'Inter', sans-serif;
   font-weight: 500;
   font-size: 0.9375rem;
   transition: all 0.2s ease;
@@ -99,10 +98,10 @@ const isDashboardRoute = computed(
 
   .logo {
     font-size: 26px;
-    font-weight: 800;
+    font-weight: 700;
     text-decoration: none;
     cursor: pointer;
-    font-family: 'Poppins', sans-serif;
+    font-family: 'Roboto', sans-serif;
   }
 
   .header-nav {

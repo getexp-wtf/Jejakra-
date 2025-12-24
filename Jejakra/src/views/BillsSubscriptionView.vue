@@ -34,19 +34,19 @@
 }
 
 .page-header h2 {
-  font-family: 'Castoro', serif;
-  font-size: 2rem;
-  font-weight: 400;
-  font-style: italic;
+  font-family: 'Roboto', sans-serif;
+  font-size: 24px;
+  font-weight: 600;
   color: var(--color-heading);
   margin-bottom: 0.5rem;
 }
 
 .page-subtitle {
-  font-family: 'Outfit', sans-serif;
+  font-family: 'Inter', sans-serif;
+  font-size: 16px;
+  font-weight: 400;
   color: var(--color-text);
   opacity: 0.7;
-  font-size: 1.125rem;
 }
 
 .bills-content {
@@ -74,10 +74,9 @@
 }
 
 .placeholder-card h3 {
-  font-family: 'Castoro', serif;
-  font-size: 1.5rem;
-  font-weight: 400;
-  font-style: italic;
+  font-family: 'Roboto', sans-serif;
+  font-size: 20px;
+  font-weight: 600;
   color: var(--color-heading);
   margin-bottom: 1rem;
 }
