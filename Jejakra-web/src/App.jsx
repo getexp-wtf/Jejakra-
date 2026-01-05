@@ -1,9 +1,13 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import './App.css'
 
 function App() {
   const [currentPage, setCurrentPage] = useState('main')
   const [activeTab, setActiveTab] = useState('login')
+  const [isLoggedIn, setIsLoggedIn] = useState(false)
+  const [userRole, setUserRole] = useState(null) // 'Super Admin', 'Doctors/Consultant', 'Patient'
+  const [dashboardView, setDashboardView] = useState('home') // 'home', 'appointment-list', 'patient-list', 'today-appointments', 'food-classes', 'meal-plan', 'exercise-plan', 'settings'
+  const [appointmentFilter, setAppointmentFilter] = useState('today') // 'today', 'week', 'month'
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [confirmPassword, setConfirmPassword] = useState('')
@@ -34,6 +38,10 @@ function App() {
     e.preventDefault()
     // Handle email login logic here
     console.log('Email login:', { email, password })
+    // Set logged in state, role as Super Admin, and redirect to dashboard
+    setIsLoggedIn(true)
+    setUserRole('Super Admin')
+    setCurrentPage('dashboard')
   }
 
   const handleEmailRegister = (e) => {
@@ -44,16 +52,28 @@ function App() {
       return
     }
     console.log('Email register:', { email, password })
+    // Set logged in state, role as Super Admin, and redirect to dashboard
+    setIsLoggedIn(true)
+    setUserRole('Super Admin')
+    setCurrentPage('dashboard')
   }
 
   const handleGithubLogin = () => {
     // Handle GitHub SSO login logic here
     console.log('GitHub SSO login')
+    // Set logged in state, role as Super Admin, and redirect to dashboard
+    setIsLoggedIn(true)
+    setUserRole('Super Admin')
+    setCurrentPage('dashboard')
   }
 
   const handleGoogleLogin = () => {
     // Handle Google SSO login logic here
     console.log('Google SSO login')
+    // Set logged in state, role as Super Admin, and redirect to dashboard
+    setIsLoggedIn(true)
+    setUserRole('Super Admin')
+    setCurrentPage('dashboard')
   }
 
   // Validation functions
@@ -281,6 +301,27 @@ function App() {
     setValidationErrors({ height: '', weight: '', age: '' })
   }
 
+  // Reset BMI when navigating away from main page
+  useEffect(() => {
+    if (currentPage !== 'main') {
+      // Reset BMI when navigating to login or any other page
+      if (bmiCalculated) {
+        setBmiCalculated(false)
+        setBmiResult(null)
+        setIsTransitioning(false)
+      }
+    }
+  }, [currentPage, bmiCalculated])
+
+  // Reset BMI when user clicks on navigation links/logo from result view
+  const handleNavigation = (targetPage) => {
+    if (bmiCalculated && targetPage === 'main') {
+      // User is navigating back to main from result view - reset BMI
+      clearBMI()
+    }
+    setCurrentPage(targetPage)
+  }
+
   const handleEdit = () => {
     setIsTransitioning(true)
     setTimeout(() => {
@@ -476,7 +517,7 @@ function App() {
         {/* Logo - Left Side */}
         <div 
           className="logo-container"
-          onClick={() => setCurrentPage('main')}
+          onClick={() => handleNavigation('main')}
           style={{ cursor: 'pointer' }}
         >
           <div className="logo-icon">J</div>
@@ -485,6 +526,9 @@ function App() {
         
         {/* Navigation Links - Right Side */}
         <div className="nav-links">
+          <a href="#" className="nav-link" onClick={(e) => { e.preventDefault(); handleNavigation('main'); }}>
+            Home
+          </a>
           <a href="#" className="nav-link" onClick={(e) => { e.preventDefault(); console.log('Pricing clicked'); }}>
             Pricing
           </a>
@@ -494,7 +538,7 @@ function App() {
           <button
             type="button"
             className="nav-button"
-            onClick={() => setCurrentPage('login')}
+            onClick={() => handleNavigation('login')}
           >
             Login
           </button>
@@ -816,7 +860,15 @@ function App() {
                   </button>
                   <button 
                     className="bmi-action-btn bmi-action-secondary"
-                    onClick={() => setCurrentPage('login')}
+                    onClick={() => {
+                      if (isLoggedIn) {
+                        // If already logged in, redirect to dashboard
+                        setCurrentPage('dashboard')
+                      } else {
+                        // If not logged in, redirect to login page
+                        handleNavigation('login')
+                      }
+                    }}
                   >
                     <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                       <circle cx="12" cy="12" r="10"/>
@@ -843,7 +895,8 @@ function App() {
             <ul className="footer-links">
               <li><a href="#" onClick={(e) => { e.preventDefault(); console.log('Pricing clicked'); }}>Pricing</a></li>
               <li><a href="#" onClick={(e) => { e.preventDefault(); console.log('Feature clicked'); }}>Feature</a></li>
-              <li><a href="#" onClick={() => setCurrentPage('login')}>Login</a></li>
+              <li><a href="#" onClick={(e) => { e.preventDefault(); handleNavigation('login'); }}>Login</a></li>
+              <li><a href="#" onClick={(e) => { e.preventDefault(); handleNavigation('main'); }}>Home</a></li>
             </ul>
           </div>
           <div className="footer-section">
@@ -876,7 +929,7 @@ function App() {
         {/* Logo - Top Left */}
         <div 
           className="logo-container logo-top-left"
-          onClick={() => setCurrentPage('main')}
+          onClick={() => handleNavigation('main')}
           style={{ cursor: 'pointer' }}
         >
           <div className="logo-icon">J</div>
@@ -896,9 +949,554 @@ function App() {
     </div>
   )
 
+  // Dashboard Page Component
+  const renderDashboard = () => (
+    <div className="dashboard-page">
+      <div className="dashboard-layout">
+        {/* Left Sidebar */}
+        <aside className="dashboard-sidebar">
+          <div className="sidebar-header">
+            <button className="sidebar-menu-btn">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                <line x1="3" y1="6" x2="21" y2="6"/>
+                <line x1="3" y1="12" x2="21" y2="12"/>
+                <line x1="3" y1="18" x2="21" y2="18"/>
+              </svg>
+            </button>
+            <input 
+              type="text" 
+              className="sidebar-search" 
+              placeholder="Search for patients or medicine"
+            />
+          </div>
+          
+          <nav className="sidebar-nav">
+            <a 
+              href="#" 
+              className={`sidebar-nav-item ${dashboardView === 'home' ? 'active' : ''}`}
+              onClick={(e) => { e.preventDefault(); setDashboardView('home'); }}
+            >
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>
+                <polyline points="9 22 9 12 15 12 15 22"/>
+              </svg>
+              <span>Home</span>
+            </a>
+            <a 
+              href="#" 
+              className={`sidebar-nav-item ${dashboardView === 'appointment-list' ? 'active' : ''}`}
+              onClick={(e) => { e.preventDefault(); setDashboardView('appointment-list'); }}
+            >
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                <line x1="12" y1="5" x2="12" y2="19"/>
+                <line x1="5" y1="12" x2="19" y2="12"/>
+              </svg>
+              <span>Appointment List</span>
+            </a>
+            <a 
+              href="#" 
+              className={`sidebar-nav-item ${dashboardView === 'patient-list' ? 'active' : ''}`}
+              onClick={(e) => { e.preventDefault(); setDashboardView('patient-list'); }}
+            >
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+                <circle cx="12" cy="7" r="4"/>
+              </svg>
+              <span>Patient Lists</span>
+            </a>
+            <a 
+              href="#" 
+              className={`sidebar-nav-item ${dashboardView === 'today-appointments' ? 'active' : ''}`}
+              onClick={(e) => { e.preventDefault(); setDashboardView('today-appointments'); }}
+            >
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/>
+              </svg>
+              <span>Today's Appointment</span>
+            </a>
+            <a 
+              href="#" 
+              className={`sidebar-nav-item ${dashboardView === 'food-classes' ? 'active' : ''}`}
+              onClick={(e) => { e.preventDefault(); setDashboardView('food-classes'); }}
+            >
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+                <polyline points="14 2 14 8 20 8"/>
+                <line x1="16" y1="13" x2="8" y2="13"/>
+                <line x1="16" y1="17" x2="8" y2="17"/>
+                <polyline points="10 9 9 9 8 9"/>
+              </svg>
+              <span>Food Classes</span>
+            </a>
+            <a 
+              href="#" 
+              className={`sidebar-nav-item ${dashboardView === 'meal-plan' ? 'active' : ''}`}
+              onClick={(e) => { e.preventDefault(); setDashboardView('meal-plan'); }}
+            >
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/>
+              </svg>
+              <span>Meal Plan</span>
+            </a>
+            <a 
+              href="#" 
+              className={`sidebar-nav-item ${dashboardView === 'exercise-plan' ? 'active' : ''}`}
+              onClick={(e) => { e.preventDefault(); setDashboardView('exercise-plan'); }}
+            >
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                <circle cx="12" cy="12" r="3"/>
+                <path d="M12 1v6m0 6v6M5.64 5.64l4.24 4.24m4.24 4.24l4.24 4.24M1 12h6m6 0h6M5.64 18.36l4.24-4.24m4.24-4.24l4.24-4.24"/>
+              </svg>
+              <span>Exercise Plan</span>
+            </a>
+          </nav>
+          
+          <div 
+            className={`sidebar-profile ${dashboardView === 'settings' ? 'active' : ''}`}
+            onClick={() => setDashboardView('settings')}
+            style={{ cursor: 'pointer' }}
+          >
+            <div className="profile-avatar">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                <circle cx="12" cy="12" r="3"/>
+                <path d="M12 1v6m0 6v6M5.64 5.64l4.24 4.24m4.24 4.24l4.24 4.24M1 12h6m6 0h6M5.64 18.36l4.24-4.24m4.24-4.24l4.24-4.24"/>
+              </svg>
+            </div>
+            <span style={{ fontSize: '0.875rem', textAlign: 'center', color: dashboardView === 'settings' ? '#4caf50' : '#666', fontWeight: dashboardView === 'settings' ? '600' : 'normal' }}>Settings</span>
+          </div>
+        </aside>
+
+        {/* Main Content */}
+        <main className="dashboard-main">
+          {dashboardView === 'home' && (
+            <>
+              <div className="dashboard-header">
+                <h1 className="dashboard-greeting">Hello, {userRole || 'User'}!</h1>
+                <select className="dashboard-filter">
+                  <option>This month</option>
+                  <option>This week</option>
+                  <option>This year</option>
+                </select>
+              </div>
+
+              {/* KPI Cards */}
+              <div className="dashboard-kpis">
+                <div className="kpi-card kpi-purple">
+                  <div className="kpi-icon kpi-icon-purple">
+                    <div className="kpi-dot"></div>
+                  </div>
+                  <div className="kpi-content">
+                    <h3 className="kpi-title">placeholder#8</h3>
+                    <p className="kpi-value">120</p>
+                    <p className="kpi-subtitle">4 not confirmed</p>
+                  </div>
+                </div>
+                
+                <div className="kpi-card kpi-green">
+                  <div className="kpi-icon kpi-icon-green">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                      <polyline points="20 6 9 17 4 12"/>
+                    </svg>
+                  </div>
+                  <div className="kpi-content">
+                    <h3 className="kpi-title">placeholder#9</h3>
+                    <p className="kpi-value">72</p>
+                    <p className="kpi-subtitle">▲ 3.4% vs last month</p>
+                  </div>
+                </div>
+                
+                <div className="kpi-card kpi-orange">
+                  <div className="kpi-icon kpi-icon-orange">
+                    <div className="kpi-dot"></div>
+                  </div>
+                  <div className="kpi-content">
+                    <h3 className="kpi-title">placeholder#10</h3>
+                    <p className="kpi-value">3,450 $</p>
+                    <p className="kpi-subtitle">▲ 5.5% vs last month</p>
+                  </div>
+                </div>
+              </div>
+
+              {/* Bottom Section */}
+              <div className="dashboard-bottom">
+                <div className="dashboard-card sales-card">
+                  <h2 className="card-title">placeholder#11</h2>
+                  <p className="sales-text">You have sold <strong>48 products</strong> this month.</p>
+                  <div className="sales-chart">
+                    <svg width="100%" height="120" viewBox="0 0 300 120" className="chart-svg">
+                      <polyline
+                        points="0,100 50,90 100,70 150,50 200,40 250,35 300,32"
+                        fill="none"
+                        stroke="#34d399"
+                        strokeWidth="3"
+                      />
+                      <text x="250" y="30" fontSize="12" fill="#34d399" fontWeight="600">32</text>
+                      <text x="240" y="115" fontSize="10" fill="#666">10 Dec</text>
+                    </svg>
+                  </div>
+                  <button className="chart-arrow-btn">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                      <polyline points="9 18 15 12 9 6"/>
+                    </svg>
+                  </button>
+                </div>
+
+                <div className="quick-actions">
+                  <button className="quick-action-btn">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                      <line x1="12" y1="5" x2="12" y2="19"/>
+                      <line x1="5" y1="12" x2="19" y2="12"/>
+                    </svg>
+                    <span>placeholder#12</span>
+                  </button>
+                  <button className="quick-action-btn">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                      <path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"/>
+                      <line x1="7" y1="7" x2="7.01" y2="7"/>
+                    </svg>
+                    <span>placeholder#13</span>
+                  </button>
+                  <button className="quick-action-btn">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                      <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>
+                    </svg>
+                    <span>placeholder#14</span>
+                  </button>
+                  <button className="quick-action-btn">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                      <circle cx="12" cy="12" r="10"/>
+                      <polyline points="12 6 12 12 16 14"/>
+                    </svg>
+                    <span>placeholder#15</span>
+                  </button>
+                </div>
+              </div>
+            </>
+          )}
+
+          {dashboardView === 'appointment-list' && (
+            <div className="view-container">
+              <h2 className="view-title">Create Appointment</h2>
+              <form className="appointment-form">
+                <div className="form-row">
+                  <div className="form-group">
+                    <label>Patient Name</label>
+                    <input type="text" placeholder="Enter patient name" />
+                  </div>
+                  <div className="form-group">
+                    <label>Date</label>
+                    <input type="date" />
+                  </div>
+                </div>
+                <div className="form-row">
+                  <div className="form-group">
+                    <label>Time</label>
+                    <input type="time" />
+                  </div>
+                  <div className="form-group">
+                    <label>Type</label>
+                    <select>
+                      <option>Consultation</option>
+                      <option>Check-up</option>
+                      <option>Follow-up</option>
+                    </select>
+                  </div>
+                </div>
+                <div className="form-group">
+                  <label>Notes</label>
+                  <textarea rows="4" placeholder="Enter appointment notes"></textarea>
+                </div>
+                <button type="submit" className="submit-btn">Create Appointment</button>
+              </form>
+            </div>
+          )}
+
+          {dashboardView === 'patient-list' && (
+            <div className="view-container">
+              <h2 className="view-title">Patient Lists</h2>
+              <div className="table-container">
+                <table className="data-table">
+                  <thead>
+                    <tr>
+                      <th>ID</th>
+                      <th>Name</th>
+                      <th>Contact</th>
+                      <th>Next of Kin</th>
+                      <th>Disease Type</th>
+                      <th>Visit Type</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr>
+                      <td>P001</td>
+                      <td>John Doe</td>
+                      <td>john@example.com</td>
+                      <td>Jane Doe</td>
+                      <td>Diabetes</td>
+                      <td>Regular</td>
+                    </tr>
+                    <tr>
+                      <td>P002</td>
+                      <td>Mary Smith</td>
+                      <td>mary@example.com</td>
+                      <td>Tom Smith</td>
+                      <td>Hypertension</td>
+                      <td>Emergency</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          )}
+
+          {dashboardView === 'today-appointments' && (
+            <div className="view-container">
+              <div className="view-header">
+                <h2 className="view-title">Today's Appointment</h2>
+                <select 
+                  className="dashboard-filter" 
+                  value={appointmentFilter}
+                  onChange={(e) => setAppointmentFilter(e.target.value)}
+                >
+                  <option value="today">Today</option>
+                  <option value="week">This Week</option>
+                  <option value="month">This Month</option>
+                </select>
+              </div>
+              <div className="appointments-list">
+                <div className="appointment-item">
+                  <div className="appointment-time">9:00 AM</div>
+                  <div className="appointment-details">
+                    <h3>John Doe - Consultation</h3>
+                    <p>Regular check-up</p>
+                  </div>
+                </div>
+                <div className="appointment-item">
+                  <div className="appointment-time">10:30 AM</div>
+                  <div className="appointment-details">
+                    <h3>Mary Smith - Follow-up</h3>
+                    <p>Diabetes management</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {dashboardView === 'food-classes' && (
+            <div className="view-container">
+              <h2 className="view-title">Food Classes</h2>
+              <div className="food-pyramid">
+                <div className="pyramid-tier tier-small">
+                  <div className="tier-label">Fats & Oils (Use Sparingly)</div>
+                </div>
+                <div className="pyramid-tier tier-small">
+                  <div className="tier-label">Milk, Yogurt & Cheese (2-3 servings)</div>
+                  <div className="tier-label">Meat, Poultry, Fish, Beans & Nuts (2-3 servings)</div>
+                </div>
+                <div className="pyramid-tier tier-medium">
+                  <div className="tier-label">Vegetables (3-5 servings)</div>
+                  <div className="tier-label">Fruits (2-4 servings)</div>
+                </div>
+                <div className="pyramid-tier tier-large">
+                  <div className="tier-label">Bread, Cereal, Rice & Pasta (6-11 servings)</div>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {dashboardView === 'meal-plan' && (
+            <div className="view-container">
+              <h2 className="view-title">Create Meal Plan</h2>
+              <form className="meal-plan-form">
+                <div className="form-group">
+                  <label>Plan Name</label>
+                  <input type="text" placeholder="Enter meal plan name" />
+                </div>
+                <div className="form-group">
+                  <label>Duration (days)</label>
+                  <input type="number" placeholder="Number of days" />
+                </div>
+                <div className="form-group">
+                  <label>Daily Meals</label>
+                  <div className="meals-input">
+                    <textarea rows="6" placeholder="Enter breakfast, lunch, dinner, snacks..."></textarea>
+                  </div>
+                </div>
+                <button type="submit" className="submit-btn">Create Meal Plan</button>
+              </form>
+            </div>
+          )}
+
+          {dashboardView === 'exercise-plan' && (
+            <div className="view-container">
+              <h2 className="view-title">Create Exercise Plan</h2>
+              <form className="exercise-plan-form">
+                <div className="form-group">
+                  <label>Plan Name</label>
+                  <input type="text" placeholder="Enter exercise plan name" />
+                </div>
+                <div className="form-group">
+                  <label>Duration (weeks)</label>
+                  <input type="number" placeholder="Number of weeks" />
+                </div>
+                <div className="form-group">
+                  <label>Weekly Schedule</label>
+                  <div className="exercise-input">
+                    <textarea rows="6" placeholder="Enter daily exercises and routines..."></textarea>
+                  </div>
+                </div>
+                <button type="submit" className="submit-btn">Create Exercise Plan</button>
+              </form>
+            </div>
+          )}
+
+          {dashboardView === 'settings' && (
+            <div className="view-container">
+              <h2 className="view-title">Settings</h2>
+              <div className="settings-menu">
+                <button className="settings-item" onClick={() => alert('Change Profile clicked')}>
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                    <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+                    <circle cx="12" cy="7" r="4"/>
+                  </svg>
+                  <span>Change Profile</span>
+                </button>
+                <button className="settings-item" onClick={() => alert('Change Password clicked')}>
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                    <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/>
+                    <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+                  </svg>
+                  <span>Change Password</span>
+                </button>
+                <button className="settings-item" onClick={() => alert('Unbind Email clicked')}>
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                    <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/>
+                    <polyline points="22,6 12,13 2,6"/>
+                  </svg>
+                  <span>Unbind Email</span>
+                </button>
+                <button 
+                  className="settings-item settings-logout"
+                  onClick={() => {
+                    setIsLoggedIn(false)
+                    setUserRole(null)
+                    handleNavigation('main')
+                  }}
+                >
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                    <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/>
+                    <polyline points="16 17 21 12 16 7"/>
+                    <line x1="21" y1="12" x2="9" y2="12"/>
+                  </svg>
+                  <span>Log Out</span>
+                </button>
+              </div>
+            </div>
+          )}
+        </main>
+
+        {/* Right Sidebar - Schedule */}
+        <aside className="dashboard-schedule">
+          <div className="schedule-header">
+            <div className="schedule-views">
+              <button className="view-btn active">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                  <line x1="8" y1="6" x2="21" y2="6"/>
+                  <line x1="8" y1="12" x2="21" y2="12"/>
+                  <line x1="8" y1="18" x2="21" y2="18"/>
+                  <line x1="3" y1="6" x2="3.01" y2="6"/>
+                  <line x1="3" y1="12" x2="3.01" y2="12"/>
+                  <line x1="3" y1="18" x2="3.01" y2="18"/>
+                </svg>
+              </button>
+              <button className="view-btn">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                  <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/>
+                  <line x1="16" y1="2" x2="16" y2="6"/>
+                  <line x1="8" y1="2" x2="8" y2="6"/>
+                  <line x1="3" y1="10" x2="21" y2="10"/>
+                </svg>
+              </button>
+            </div>
+            <div className="schedule-nav">
+              <button className="nav-arrow">‹</button>
+              <span className="schedule-date">Today, 12 Dec.</span>
+              <button className="nav-arrow">›</button>
+            </div>
+            <div className="schedule-actions">
+              <button className="action-icon-btn">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                  <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/>
+                  <path d="M13.73 21a2 2 0 0 1-3.46 0"/>
+                </svg>
+              </button>
+              <button className="action-icon-btn">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                  <circle cx="12" cy="12" r="1"/>
+                  <circle cx="19" cy="12" r="1"/>
+                  <circle cx="5" cy="12" r="1"/>
+                </svg>
+              </button>
+            </div>
+          </div>
+
+          <div className="schedule-timeline">
+            <div className="timeline-current" style={{ top: '25%' }}>
+              <div className="current-line"></div>
+              <div className="current-time">9:15</div>
+            </div>
+            
+            <div className="schedule-item schedule-item-orange" style={{ top: '0%' }}>
+              <div className="schedule-time">8:00 - 8:30 am</div>
+              <div className="schedule-title">placeholder#16</div>
+              <div className="schedule-patient">Carla Middler</div>
+            </div>
+            
+            <div className="schedule-item schedule-item-green" style={{ top: '8%' }}>
+              <div className="schedule-time">8:30 - 9:00 am</div>
+              <div className="schedule-title">placeholder#17</div>
+              <div className="schedule-patient">Edward Johanson</div>
+            </div>
+            
+            <div className="schedule-item schedule-item-purple" style={{ top: '20%' }}>
+              <div className="schedule-time">9:30 - 10:00 am</div>
+              <div className="schedule-title">placeholder#18</div>
+              <div className="schedule-patient">Ellie Rogers</div>
+            </div>
+            
+            <div className="schedule-item schedule-item-green" style={{ top: '35%' }}>
+              <div className="schedule-time">10:30 - 11:00 am</div>
+              <div className="schedule-title">placeholder#19</div>
+              <div className="schedule-patient">Carla Middler</div>
+            </div>
+            
+            <div className="schedule-item schedule-item-orange" style={{ top: '50%' }}>
+              <div className="schedule-time">11:00 - 11:45 am</div>
+              <div className="schedule-title">placeholder#20</div>
+              <div className="schedule-patient">Lily Brown</div>
+            </div>
+            
+            <div className="schedule-item schedule-item-green" style={{ top: '65%' }}>
+              <div className="schedule-time">11:45 - 12:15 pm</div>
+              <div className="schedule-title">placeholder#21</div>
+              <div className="schedule-patient">Kamila Kozlowska</div>
+            </div>
+          </div>
+
+          <button className="schedule-add-btn">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+              <line x1="12" y1="5" x2="12" y2="19"/>
+              <line x1="5" y1="12" x2="19" y2="12"/>
+            </svg>
+          </button>
+        </aside>
+      </div>
+    </div>
+  )
+
   return (
     <>
-      {currentPage === 'main' ? renderMainPage() : renderLoginPage()}
+      {currentPage === 'main' ? renderMainPage() : currentPage === 'dashboard' ? renderDashboard() : renderLoginPage()}
     </>
   )
 }
