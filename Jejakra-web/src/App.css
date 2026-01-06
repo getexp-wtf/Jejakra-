@@ -2430,6 +2430,25 @@ p, span, label, input, textarea, select, button {
   display: flex;
   flex-direction: column;
   border-right: 1px solid rgba(0, 0, 0, 0.08);
+  transition: width 0.3s ease;
+  width: 280px;
+  min-width: 280px;
+}
+
+.dashboard-sidebar.collapsed {
+  width: 80px;
+  min-width: 80px;
+}
+
+.dashboard-sidebar.collapsed .sidebar-search,
+.dashboard-sidebar.collapsed .sidebar-nav-item span,
+.dashboard-sidebar.collapsed .sidebar-profile span {
+  display: none;
+}
+
+.dashboard-sidebar.collapsed .sidebar-nav-item {
+  justify-content: center;
+  padding: 12px;
 }
 
 .sidebar-header {
@@ -2479,6 +2498,53 @@ p, span, label, input, textarea, select, button {
 }
 
 .sidebar-nav-item.active {
+  background: #e8f5e9;
+  color: #4caf50;
+  font-weight: 600;
+}
+
+.sidebar-nav-item.expanded {
+  background: rgba(0, 0, 0, 0.04);
+}
+
+.sidebar-nav-group {
+  display: flex;
+  flex-direction: column;
+}
+
+.submenu-arrow {
+  margin-left: auto;
+  transition: transform 0.3s ease;
+}
+
+.sidebar-nav-item.expanded .submenu-arrow {
+  transform: rotate(180deg);
+}
+
+.sidebar-submenu {
+  display: flex;
+  flex-direction: column;
+  margin-left: 32px;
+  margin-top: 4px;
+  gap: 4px;
+}
+
+.sidebar-submenu-item {
+  padding: 8px 16px;
+  border-radius: 6px;
+  text-decoration: none;
+  color: #666;
+  font-size: 0.875rem;
+  font-family: 'Outfit', sans-serif;
+  transition: all 0.2s;
+}
+
+.sidebar-submenu-item:hover {
+  background: rgba(0, 0, 0, 0.04);
+  color: #0f172a;
+}
+
+.sidebar-submenu-item.active {
   background: #e8f5e9;
   color: #4caf50;
   font-weight: 600;
@@ -2923,7 +2989,7 @@ p, span, label, input, textarea, select, button {
   font-size: 2rem;
   font-weight: 600;
   color: #0f172a;
-  margin: 0 0 32px 0;
+  margin: 0;
   font-family: 'Outfit', sans-serif;
 }
 
@@ -2934,11 +3000,506 @@ p, span, label, input, textarea, select, button {
   margin-bottom: 32px;
 }
 
+.view-header-actions {
+  display: flex;
+  gap: 16px;
+  align-items: center;
+}
+
+.create-btn {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 24px;
+  background: #2F6FED;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-size: 0.9rem;
+  font-weight: 600;
+  font-family: 'Outfit', sans-serif;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.create-btn:hover {
+  background: #1e5fd4;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(47, 111, 237, 0.3);
+}
+
 /* Appointment Form */
+/* Modern Form Styles */
+.modern-form {
+  padding: 0;
+}
+
+.modern-form-group {
+  margin-bottom: 24px;
+}
+
+.modern-label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: #0f172a;
+  margin-bottom: 10px;
+  font-family: 'Outfit', sans-serif;
+  transition: color 0.2s ease;
+}
+
+.modern-label svg {
+  color: #2F6FED;
+  flex-shrink: 0;
+}
+
+.input-wrapper-modern,
+.textarea-wrapper-modern {
+  position: relative;
+}
+
+.modern-input,
+.modern-textarea {
+  width: 100%;
+  padding: 14px 16px;
+  border: 2px solid #e5e7eb;
+  border-radius: 12px;
+  font-size: 0.95rem;
+  font-family: 'Outfit', sans-serif;
+  color: #0f172a;
+  background: #fafafa;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  box-sizing: border-box;
+}
+
+/* Date and Time Input Placeholder Styling */
+.date-time-input-wrapper {
+  position: relative;
+}
+
+.date-time-input-wrapper::after {
+  content: attr(data-placeholder);
+  position: absolute;
+  left: 16px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: #9ca3af;
+  pointer-events: none;
+  font-size: 0.95rem;
+  font-family: 'Outfit', sans-serif;
+  transition: opacity 0.2s ease;
+  z-index: 1;
+  opacity: 1;
+}
+
+.date-time-input-wrapper input:focus ~ *,
+.date-time-input-wrapper input:valid ~ * {
+  opacity: 1;
+}
+
+/* Hide placeholder on focus or when input has value */
+.date-time-input-wrapper input:focus::after,
+.date-time-input-wrapper input:not([value=""])::after {
+  opacity: 0;
+}
+
+/* Use a class-based approach for better compatibility */
+.date-time-input-wrapper.has-value::after,
+.date-time-input-wrapper.is-focused::after {
+  opacity: 0;
+}
+
+.modern-input:focus,
+.modern-textarea:focus {
+  outline: none;
+  border-color: #2F6FED;
+  background: white;
+  box-shadow: 0 0 0 4px rgba(47, 111, 237, 0.1);
+  transform: translateY(-1px);
+}
+
+.modern-input::placeholder,
+.modern-textarea::placeholder {
+  color: #9ca3af;
+  font-weight: 400;
+}
+
+.modern-input:hover:not(:focus),
+.modern-textarea:hover:not(:focus) {
+  border-color: #d1d5db;
+  background: white;
+}
+
+.modern-input:valid:not(:placeholder-shown),
+.modern-textarea:valid:not(:placeholder-shown) {
+  border-color: #10b981;
+  background: #f0fdf4;
+}
+
+.modern-input:invalid:not(:placeholder-shown):not(:focus),
+.modern-textarea:invalid:not(:placeholder-shown):not(:focus) {
+  border-color: #ef4444;
+  background: #fef2f2;
+}
+
+/* Form Group Animation */
+.modern-form-group {
+  animation: fadeInUp 0.4s ease forwards;
+  opacity: 0;
+}
+
+.modern-form-group:nth-child(1) { animation-delay: 0.1s; }
+.modern-form-group:nth-child(2) { animation-delay: 0.2s; }
+.modern-form-group:nth-child(3) { animation-delay: 0.3s; }
+.modern-form-group:nth-child(4) { animation-delay: 0.4s; }
+.modern-form-group:nth-child(5) { animation-delay: 0.5s; }
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Enhanced Modal Content */
+.modal-content form {
+  padding: 0;
+}
+
+.modal-content .modern-form {
+  padding: 0;
+}
+
+.select-wrapper-modern {
+  position: relative;
+}
+
+.modern-select {
+  width: 100%;
+  padding: 14px 48px 14px 16px;
+  border: 2px solid #e5e7eb;
+  border-radius: 12px;
+  font-size: 0.95rem;
+  font-family: 'Outfit', sans-serif;
+  color: #0f172a;
+  background: #fafafa;
+  cursor: pointer;
+  appearance: none;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  box-sizing: border-box;
+}
+
+.modern-select:focus {
+  outline: none;
+  border-color: #2F6FED;
+  background: white;
+  box-shadow: 0 0 0 4px rgba(47, 111, 237, 0.1);
+  transform: translateY(-1px);
+}
+
+.modern-select:hover:not(:focus) {
+  border-color: #d1d5db;
+  background: white;
+}
+
+.select-arrow {
+  position: absolute;
+  right: 16px;
+  top: 50%;
+  transform: translateY(-50%);
+  pointer-events: none;
+  color: #6b7280;
+  transition: transform 0.3s ease;
+}
+
+.select-wrapper-modern:focus-within .select-arrow {
+  transform: translateY(-50%) rotate(180deg);
+  color: #2F6FED;
+}
+
+.modern-textarea {
+  resize: vertical;
+  min-height: 120px;
+  line-height: 1.6;
+}
+
+.modern-btn-primary {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  background: linear-gradient(135deg, #2F6FED 0%, #1e5fd4 100%);
+  color: white;
+  border: none;
+  border-radius: 12px;
+  padding: 14px 32px;
+  min-width: 120px;
+  font-size: 1rem;
+  font-weight: 600;
+  font-family: 'Outfit', sans-serif;
+  cursor: pointer;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: 0 4px 12px rgba(47, 111, 237, 0.3);
+  position: relative;
+  overflow: hidden;
+  box-sizing: border-box;
+}
+
+.modern-btn-primary::before {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 0;
+  height: 0;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.3);
+  transform: translate(-50%, -50%);
+  transition: width 0.6s, height 0.6s;
+}
+
+.modern-btn-primary:hover::before {
+  width: 300px;
+  height: 300px;
+}
+
+.modern-btn-primary:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(47, 111, 237, 0.4);
+}
+
+.modern-btn-primary:active {
+  transform: translateY(0);
+}
+
+.modern-btn-primary svg {
+  position: relative;
+  z-index: 1;
+}
+
+.modern-btn-secondary {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 14px 32px;
+  min-width: 120px;
+  background: white;
+  color: #6b7280;
+  border: 2px solid #e5e7eb;
+  border-radius: 12px;
+  font-size: 1rem;
+  font-weight: 600;
+  font-family: 'Outfit', sans-serif;
+  cursor: pointer;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  box-sizing: border-box;
+}
+
+.modern-btn-secondary:hover {
+  background: #f9fafb;
+  border-color: #d1d5db;
+  color: #0f172a;
+  transform: translateY(-1px);
+}
+
+.modern-btn-secondary:active {
+  transform: translateY(0);
+}
+
+/* Appointment Form Redesign */
+.appointment-form-redesign {
+  background: white;
+}
+
+.appointment-form-redesign .modern-label {
+  font-size: 1rem;
+  font-weight: 600;
+  color: #0f172a;
+  margin-bottom: 12px;
+}
+
+.appointment-form-redesign .modern-label svg {
+  display: none;
+}
+
+/* Date Picker */
+.date-picker-wrapper {
+  position: relative;
+}
+
+.date-picker-input {
+  width: 100%;
+  padding: 14px 16px;
+  border: 2px solid #e5e7eb;
+  border-radius: 12px;
+  background: white;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  font-family: 'Outfit', sans-serif;
+}
+
+.date-picker-input:hover {
+  border-color: #2F6FED;
+}
+
+.date-picker-input svg {
+  color: #6b7280;
+  flex-shrink: 0;
+}
+
+.date-value {
+  color: #0f172a;
+  font-size: 0.95rem;
+}
+
+.date-placeholder {
+  color: #9ca3af;
+  font-size: 0.95rem;
+}
+
+.date-picker-backdrop {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 9;
+}
+
+.date-picker-calendar {
+  position: absolute;
+  top: calc(100% + 8px);
+  left: 0;
+  right: 0;
+  z-index: 10;
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.15);
+  padding: 16px;
+}
+
+.calendar-input {
+  width: 100%;
+  padding: 12px;
+  border: 2px solid #e5e7eb;
+  border-radius: 8px;
+  font-size: 1rem;
+  font-family: 'Outfit', sans-serif;
+}
+
+/* Time Slots */
+.time-slots-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 12px;
+}
+
+.time-slot-btn {
+  padding: 14px 20px;
+  border: 2px solid #e5e7eb;
+  border-radius: 12px;
+  background: white;
+  color: #2F6FED;
+  font-size: 0.95rem;
+  font-weight: 600;
+  font-family: 'Outfit', sans-serif;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  text-align: center;
+}
+
+.time-slot-btn:hover {
+  border-color: #2F6FED;
+  background: #f0f7ff;
+}
+
+.time-slot-btn.active {
+  background: #2F6FED;
+  color: white;
+  border-color: #2F6FED;
+}
+
+/* Visit Type Buttons */
+.visit-type-buttons {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 12px;
+}
+
+.visit-type-btn {
+  padding: 14px 20px;
+  border: 2px solid #e5e7eb;
+  border-radius: 12px;
+  background: white;
+  color: #2F6FED;
+  font-size: 0.95rem;
+  font-weight: 600;
+  font-family: 'Outfit', sans-serif;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  text-align: center;
+}
+
+.visit-type-btn:hover {
+  border-color: #2F6FED;
+  background: #f0f7ff;
+}
+
+.visit-type-btn.active {
+  background: #2F6FED;
+  color: white;
+  border-color: #2F6FED;
+}
+
+/* Confirm Appointment Button */
+.appointment-form-actions {
+  display: flex;
+  justify-content: center;
+  margin-top: 32px;
+  padding-top: 24px;
+  border-top: 1px solid rgba(0, 0, 0, 0.08);
+}
+
+.confirm-appointment-btn {
+  padding: 16px 48px;
+  background: #2F6FED;
+  color: white;
+  border: none;
+  border-radius: 12px;
+  font-size: 1rem;
+  font-weight: 600;
+  font-family: 'Outfit', sans-serif;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  min-width: 200px;
+  box-shadow: 0 4px 12px rgba(47, 111, 237, 0.3);
+}
+
+.confirm-appointment-btn:hover {
+  background: #1e5fd4;
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(47, 111, 237, 0.4);
+}
+
+.confirm-appointment-btn:active {
+  transform: translateY(0);
+}
+
+/* Legacy form styles for backward compatibility */
 .appointment-form {
   background: white;
   border-radius: 16px;
-  padding: 32px;
+  padding: 0;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
 }
 
@@ -2946,30 +3507,12 @@ p, span, label, input, textarea, select, button {
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 24px;
-  margin-bottom: 24px;
+  margin-bottom: 0;
 }
 
 .appointment-form .form-group {
   display: flex;
   flex-direction: column;
-}
-
-.appointment-form label {
-  font-size: 0.875rem;
-  font-weight: 600;
-  color: #0f172a;
-  margin-bottom: 8px;
-  font-family: 'Outfit', sans-serif;
-}
-
-.appointment-form input,
-.appointment-form select,
-.appointment-form textarea {
-  padding: 12px 16px;
-  border: 1px solid rgba(0, 0, 0, 0.1);
-  border-radius: 8px;
-  font-size: 0.9rem;
-  font-family: 'Outfit', sans-serif;
 }
 
 .submit-btn {
@@ -3062,47 +3605,140 @@ p, span, label, input, textarea, select, button {
   font-family: 'Outfit', sans-serif;
 }
 
-/* Food Pyramid */
-.food-pyramid {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 8px;
-  max-width: 600px;
-  margin: 0 auto;
+/* Food Classes - Modern Design */
+.food-classes-header {
+  margin-bottom: 40px;
 }
 
-.pyramid-tier {
-  background: white;
-  border-radius: 12px;
-  padding: 24px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
-  text-align: center;
-  display: flex;
-  gap: 16px;
-  justify-content: center;
-}
-
-.tier-small {
-  width: 50%;
-}
-
-.tier-medium {
-  width: 75%;
-}
-
-.tier-large {
-  width: 100%;
-}
-
-.tier-label {
-  font-size: 0.9rem;
-  font-weight: 500;
-  color: #0f172a;
+.food-classes-subtitle {
+  font-size: 1rem;
+  color: #666;
+  margin-top: 8px;
   font-family: 'Outfit', sans-serif;
-  padding: 12px 20px;
-  background: #f8f9fa;
-  border-radius: 8px;
+}
+
+.food-classes-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 24px;
+  max-width: 1200px;
+}
+
+.food-group-card {
+  background: white;
+  border-radius: 20px;
+  padding: 32px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+  transition: all 0.3s ease;
+  position: relative;
+  overflow: hidden;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.food-group-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 4px;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.5), transparent);
+}
+
+.food-group-card:hover {
+  transform: translateY(-8px);
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.12);
+}
+
+.food-group-large {
+  grid-column: span 2;
+  min-height: 200px;
+}
+
+.food-group-medium {
+  min-height: 180px;
+}
+
+.food-group-small {
+  min-height: 160px;
+}
+
+.food-group-minimal {
+  grid-column: span 2;
+  min-height: 140px;
+  opacity: 0.9;
+}
+
+.food-group-icon {
+  width: 64px;
+  height: 64px;
+  border-radius: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 20px;
+  color: #0f172a;
+  transition: transform 0.3s ease;
+}
+
+.food-group-card:hover .food-group-icon {
+  transform: scale(1.1) rotate(5deg);
+}
+
+.food-group-content {
+  position: relative;
+  z-index: 1;
+}
+
+.food-group-title {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: #0f172a;
+  margin: 0 0 8px 0;
+  font-family: 'Outfit', sans-serif;
+  letter-spacing: -0.02em;
+}
+
+.food-group-servings {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: rgba(0, 0, 0, 0.6);
+  margin: 0 0 12px 0;
+  font-family: 'Outfit', sans-serif;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.food-group-description {
+  font-size: 0.95rem;
+  color: rgba(0, 0, 0, 0.7);
+  margin: 0;
+  line-height: 1.6;
+  font-family: 'Outfit', sans-serif;
+}
+
+@media (max-width: 768px) {
+  .food-classes-grid {
+    grid-template-columns: 1fr;
+  }
+  
+  .food-group-large,
+  .food-group-minimal {
+    grid-column: span 1;
+  }
+  
+  .food-group-card {
+    padding: 24px;
+  }
+  
+  .food-group-icon {
+    width: 56px;
+    height: 56px;
+  }
+  
+  .food-group-title {
+    font-size: 1.25rem;
+  }
 }
 
 /* Meal Plan & Exercise Plan Forms */
@@ -3110,7 +3746,7 @@ p, span, label, input, textarea, select, button {
 .exercise-plan-form {
   background: white;
   border-radius: 16px;
-  padding: 32px;
+  padding: 0;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
 }
 
@@ -3123,6 +3759,25 @@ p, span, label, input, textarea, select, button {
   font-size: 0.9rem;
   font-family: 'Outfit', sans-serif;
   resize: vertical;
+}
+
+/* Form Row Responsive */
+@media (max-width: 768px) {
+  .appointment-form .form-row,
+  .modern-form .form-row {
+    grid-template-columns: 1fr;
+    gap: 0;
+  }
+  
+  .modal-actions {
+    flex-direction: column-reverse;
+  }
+  
+  .modern-btn-primary,
+  .modern-btn-secondary {
+    width: 100%;
+    justify-content: center;
+  }
 }
 
 /* Settings Menu */
@@ -3172,6 +3827,685 @@ p, span, label, input, textarea, select, button {
 
 .settings-logout svg {
   color: #ef4444;
+}
+
+/* Modal Styles */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  backdrop-filter: blur(4px);
+}
+
+.modal-content {
+  background: white;
+  border-radius: 20px;
+  padding: 40px;
+  max-width: 600px;
+  width: 90%;
+  max-height: 90vh;
+  overflow-y: auto;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+  animation: modalSlideIn 0.3s ease;
+}
+
+@keyframes modalSlideIn {
+  from {
+    opacity: 0;
+    transform: translateY(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0 0 24px 0;
+  margin-bottom: 32px;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.08);
+}
+
+.modal-header h3 {
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: #0f172a;
+  margin: 0;
+  font-family: 'Outfit', sans-serif;
+}
+
+.modal-close {
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: #666;
+  padding: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 6px;
+  transition: all 0.2s;
+}
+
+.modal-close:hover {
+  background: rgba(0, 0, 0, 0.05);
+  color: #0f172a;
+}
+
+.modal-actions {
+  display: flex;
+  gap: 12px;
+  justify-content: flex-end;
+  padding: 32px 0 0 0;
+  margin-top: 32px;
+  border-top: 1px solid rgba(0, 0, 0, 0.08);
+}
+
+.btn-secondary {
+  padding: 12px 24px;
+  background: white;
+  color: #666;
+  border: 1px solid rgba(0, 0, 0, 0.1);
+  border-radius: 8px;
+  font-size: 0.9rem;
+  font-weight: 600;
+  font-family: 'Outfit', sans-serif;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.btn-secondary:hover {
+  background: #f8f9fa;
+  border-color: rgba(0, 0, 0, 0.2);
+}
+
+/* Appointment Modal Styles */
+.appointment-modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+  z-index: 1000;
+}
+
+.appointment-modal-container {
+  background: linear-gradient(to bottom right, #60a5fa, #3b82f6);
+  border-radius: 8px;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+  width: 100%;
+  max-width: 672px;
+  position: relative;
+  animation: modalSlideIn 0.3s ease;
+}
+
+.appointment-modal-header {
+  background: #2563eb;
+  color: white;
+  padding: 24px 32px;
+  border-radius: 8px 8px 0 0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.appointment-modal-title {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: white;
+  margin: 0;
+  font-family: 'Outfit', sans-serif;
+}
+
+.appointment-modal-close {
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: white;
+  padding: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 4px;
+  transition: all 0.2s;
+}
+
+.appointment-modal-close:hover {
+  color: #e5e7eb;
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.appointment-modal-body {
+  background: white;
+  padding: 32px;
+  border-radius: 0 0 8px 8px;
+}
+
+.appointment-form-container {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.appointment-form-field {
+  display: flex;
+  flex-direction: column;
+}
+
+.appointment-form-label {
+  display: block;
+  color: #2563eb;
+  font-size: 0.875rem;
+  font-weight: 600;
+  margin-bottom: 8px;
+  font-family: 'Outfit', sans-serif;
+}
+
+.appointment-form-input {
+  width: 100%;
+  padding: 12px 16px;
+  border: 2px solid #d1d5db;
+  border-radius: 6px;
+  font-size: 1rem;
+  font-family: 'Outfit', sans-serif;
+  background: white;
+  transition: all 0.2s;
+}
+
+.appointment-form-input:focus {
+  outline: none;
+  border-color: #2563eb;
+}
+
+.appointment-form-select {
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%23374151' d='M6 9L1 4h10z'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 12px center;
+  padding-right: 40px;
+}
+
+.appointment-form-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 24px;
+}
+
+.appointment-date-wrapper {
+  position: relative;
+}
+
+.appointment-date-input {
+  padding-right: 48px;
+}
+
+.appointment-calendar-icon {
+  position: absolute;
+  right: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: #9ca3af;
+  pointer-events: none;
+}
+
+.appointment-time-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+}
+
+.appointment-time-btn {
+  padding: 8px 16px;
+  border-radius: 6px;
+  font-weight: 500;
+  font-size: 0.875rem;
+  transition: all 0.2s;
+  text-align: center;
+  font-family: 'Outfit', sans-serif;
+  cursor: pointer;
+  border: 2px solid #d1d5db;
+  background: white;
+  color: #374151;
+}
+
+.appointment-time-btn:hover {
+  border-color: #60a5fa;
+}
+
+.appointment-time-btn.active {
+  background: #2563eb;
+  color: white;
+  border-color: #2563eb;
+}
+
+.appointment-visit-type-group {
+  display: flex;
+  gap: 12px;
+}
+
+.appointment-visit-type-btn {
+  flex: 1;
+  padding: 12px 24px;
+  border-radius: 6px;
+  font-weight: 500;
+  font-size: 0.95rem;
+  transition: all 0.2s;
+  text-align: center;
+  font-family: 'Outfit', sans-serif;
+  cursor: pointer;
+  border: 2px solid #d1d5db;
+  background: white;
+  color: #374151;
+}
+
+.appointment-visit-type-btn:hover {
+  border-color: #60a5fa;
+}
+
+.appointment-visit-type-btn.active {
+  background: #2563eb;
+  color: white;
+  border-color: #2563eb;
+}
+
+.appointment-form-textarea {
+  width: 100%;
+  padding: 12px 16px;
+  border: 2px solid #d1d5db;
+  border-radius: 6px;
+  font-size: 1rem;
+  font-family: 'Outfit', sans-serif;
+  background: white;
+  resize: none;
+  color: #6b7280;
+  transition: all 0.2s;
+}
+
+.appointment-form-textarea:focus {
+  outline: none;
+  border-color: #2563eb;
+}
+
+.appointment-submit-btn {
+  width: 100%;
+  background: #1e40af;
+  color: white;
+  font-weight: 600;
+  padding: 12px 24px;
+  border-radius: 6px;
+  border: none;
+  font-size: 1rem;
+  font-family: 'Outfit', sans-serif;
+  cursor: pointer;
+  transition: all 0.2s;
+  box-shadow: 0 4px 12px rgba(30, 64, 175, 0.3);
+}
+
+.appointment-submit-btn:hover {
+  background: #1e3a8a;
+  box-shadow: 0 6px 20px rgba(30, 64, 175, 0.4);
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .appointment-form-row {
+    grid-template-columns: 1fr;
+    gap: 16px;
+  }
+  
+  .appointment-time-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  
+  .appointment-modal-body {
+    padding: 24px;
+  }
+  
+  .appointment-modal-header {
+    padding: 20px 24px;
+  }
+}
+
+/* Meal Plan Styles */
+.recipes-section,
+.meal-plan-section {
+  margin-bottom: 40px;
+}
+
+.section-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 24px;
+}
+
+.section-title {
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: #0f172a;
+  margin: 0;
+  font-family: 'Outfit', sans-serif;
+}
+
+.see-all-link {
+  color: #2F6FED;
+  text-decoration: none;
+  font-size: 0.9rem;
+  font-weight: 500;
+  font-family: 'Outfit', sans-serif;
+  transition: color 0.2s;
+}
+
+.see-all-link:hover {
+  color: #1e5fd4;
+}
+
+.recipes-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 20px;
+}
+
+.recipe-card {
+  background: white;
+  border-radius: 16px;
+  padding: 24px;
+  text-align: center;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+  transition: all 0.3s ease;
+  cursor: pointer;
+}
+
+.recipe-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.12);
+}
+
+.recipe-icon {
+  width: 80px;
+  height: 80px;
+  border-radius: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 16px;
+  color: white;
+}
+
+.breakfast-icon {
+  background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%);
+}
+
+.lunch-icon {
+  background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+}
+
+.snack-icon {
+  background: linear-gradient(135deg, #f472b6 0%, #ec4899 100%);
+}
+
+.dinner-icon {
+  background: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%);
+}
+
+.recipe-label {
+  font-size: 1rem;
+  font-weight: 600;
+  color: #0f172a;
+  font-family: 'Outfit', sans-serif;
+}
+
+.meal-tabs {
+  display: flex;
+  gap: 8px;
+}
+
+.meal-tab {
+  padding: 8px 16px;
+  background: white;
+  border: 1px solid rgba(0, 0, 0, 0.1);
+  border-radius: 8px;
+  font-size: 0.9rem;
+  font-weight: 500;
+  color: #666;
+  font-family: 'Outfit', sans-serif;
+  cursor: pointer;
+  transition: all 0.2s;
+  position: relative;
+}
+
+.meal-tab:hover {
+  background: #f8f9fa;
+  border-color: rgba(0, 0, 0, 0.2);
+}
+
+.meal-tab.active {
+  background: #2F6FED;
+  color: white;
+  border-color: #2F6FED;
+}
+
+.meal-tab.active::after {
+  content: '';
+  position: absolute;
+  bottom: -8px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 6px;
+  height: 6px;
+  background: #f97316;
+  border-radius: 50%;
+}
+
+.meal-detail-card {
+  background: white;
+  border-radius: 20px;
+  padding: 32px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+  display: grid;
+  grid-template-columns: 300px 1fr;
+  gap: 32px;
+}
+
+.meal-image {
+  border-radius: 16px;
+  overflow: hidden;
+}
+
+.meal-image-placeholder {
+  width: 100%;
+  height: 300px;
+  background: linear-gradient(135deg, #f3f4f6 0%, #e5e7eb 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #9ca3af;
+}
+
+.meal-content {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.meal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+}
+
+.meal-type {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: #666;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  font-family: 'Outfit', sans-serif;
+}
+
+.meal-name {
+  font-size: 1.75rem;
+  font-weight: 700;
+  color: #0f172a;
+  margin: 8px 0;
+  font-family: 'Outfit', sans-serif;
+}
+
+.meal-rating {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  color: #fbbf24;
+  font-weight: 600;
+  font-size: 0.9rem;
+}
+
+.meal-description {
+  font-size: 0.95rem;
+  color: #666;
+  line-height: 1.6;
+  margin: 0;
+  font-family: 'Outfit', sans-serif;
+}
+
+.food-rating-bar {
+  background: #f8f9fa;
+  border-radius: 12px;
+  padding: 16px;
+}
+
+.rating-label {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: #0f172a;
+  font-family: 'Outfit', sans-serif;
+}
+
+.rating-grade {
+  color: #10b981;
+}
+
+.rating-bar {
+  position: relative;
+  height: 40px;
+  background: white;
+  border-radius: 8px;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+}
+
+.rating-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #10b981 0%, #34d399 100%);
+  border-radius: 8px;
+}
+
+.rating-letter {
+  position: absolute;
+  right: 12px;
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: #10b981;
+  font-family: 'Outfit', sans-serif;
+}
+
+.nutrition-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 16px;
+}
+
+.nutrition-item {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.nutrition-label {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: #666;
+  font-family: 'Outfit', sans-serif;
+}
+
+.nutrition-bar {
+  height: 8px;
+  background: #f3f4f6;
+  border-radius: 4px;
+  overflow: hidden;
+  position: relative;
+}
+
+.nutrition-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #2F6FED 0%, #60a5fa 100%);
+  border-radius: 4px;
+  transition: width 0.3s ease;
+}
+
+.nutrition-value {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: #0f172a;
+  font-family: 'Outfit', sans-serif;
+}
+
+.ingredients-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.ingredient-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-size: 0.9rem;
+  color: #666;
+  font-family: 'Outfit', sans-serif;
+}
+
+.ingredient-icon {
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.25rem;
+}
+
+@media (max-width: 1024px) {
+  .meal-detail-card {
+    grid-template-columns: 1fr;
+  }
+  
+  .recipes-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  
+  .nutrition-grid {
+    grid-template-columns: 1fr;
+  }
 }
 
 @media (max-width: 1024px) {

@@ -1,13 +1,106 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import './App.css'
 
+// Constants
+const BMI_CATEGORIES = {
+  UNDERWEIGHT: { threshold: 18.5, name: 'Underweight', color: '#60a5fa', bgColor: '#dbeafe' },
+  NORMAL: { threshold: 25, name: 'Normal', color: '#81A388', bgColor: '#e8f0ea' },
+  OVERWEIGHT: { threshold: 30, name: 'Overweight', color: '#facc15', bgColor: '#fef9c3' },
+  OBESE: { name: 'Obese', color: '#EF908B', bgColor: '#fdedec' }
+}
+
+const BMI_MESSAGES = {
+  UNDERWEIGHT: 'Consider consulting with a healthcare provider about healthy weight gain strategies.',
+  NORMAL: 'Great! You\'re within a healthy weight range. Keep up the good work!',
+  OVERWEIGHT: 'Consider adopting a balanced diet and regular exercise routine.',
+  OBESE: 'Consult with a healthcare provider about a personalized weight management plan.'
+}
+
+const VALIDATION_LIMITS = {
+  metric: {
+    height: { min: 50, max: 250 },
+    weight: { min: 20, max: 300 }
+  },
+  us: {
+    height: { min: 20, max: 120 },
+    weight: { min: 44, max: 660 }
+  },
+  age: { min: 10, max: 120 }
+}
+
+const DEFAULT_BMI_VALUES = {
+  height: '170',
+  weight: '70',
+  age: '',
+  gender: 'male'
+}
+
+const CALCULATION_DELAY = 600
+const TRANSITION_DELAY = 300
+
 function App() {
+  // Navigation & Auth State
   const [currentPage, setCurrentPage] = useState('main')
   const [activeTab, setActiveTab] = useState('login')
   const [isLoggedIn, setIsLoggedIn] = useState(false)
-  const [userRole, setUserRole] = useState(null) // 'Super Admin', 'Doctors/Consultant', 'Patient'
-  const [dashboardView, setDashboardView] = useState('home') // 'home', 'appointment-list', 'patient-list', 'today-appointments', 'food-classes', 'meal-plan', 'exercise-plan', 'settings'
-  const [appointmentFilter, setAppointmentFilter] = useState('today') // 'today', 'week', 'month'
+  const [userRole, setUserRole] = useState(null)
+  
+  // Dashboard State
+  const [dashboardView, setDashboardView] = useState('home')
+  const [appointmentFilter, setAppointmentFilter] = useState('today')
+  const [appointmentSubView, setAppointmentSubView] = useState('today') // 'today' or 'upcoming'
+  const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false)
+  const [isAppointmentSubmenuOpen, setIsAppointmentSubmenuOpen] = useState(false)
+  
+  // Modal States
+  const [showAppointmentModal, setShowAppointmentModal] = useState(false)
+  const [showMealPlanModal, setShowMealPlanModal] = useState(false)
+  const [showExercisePlanModal, setShowExercisePlanModal] = useState(false)
+  
+  // Appointment Form States
+  const [patientName, setPatientName] = useState('')
+  const [appointmentType, setAppointmentType] = useState('Consultation')
+  const [selectedDate, setSelectedDate] = useState('2020-03-25')
+  const [selectedTimeSlot, setSelectedTimeSlot] = useState('8:00 AM')
+  const [visitType, setVisitType] = useState('In-person') // 'In-person' or 'Virtual'
+  const [reasonText, setReasonText] = useState('I need to see a doctor to get my annual physical checkup.')
+
+  const appointmentTypes = ['Consultation', 'Follow-up', 'Routine Check-up']
+  const availableTimes = ['8:00 AM', '9:30 AM', '11:00 AM', '12:30 PM', '3:00 PM', '4:30 PM']
+
+  // Reset appointment form
+  const resetAppointmentForm = () => {
+    setPatientName('')
+    setAppointmentType('Consultation')
+    setSelectedDate('2020-03-25')
+    setSelectedTimeSlot('8:00 AM')
+    setVisitType('In-person')
+    setReasonText('I need to see a doctor to get my annual physical checkup.')
+  }
+
+  const handleCloseAppointmentModal = () => {
+    setShowAppointmentModal(false)
+    resetAppointmentForm()
+  }
+
+  const handleAppointmentSubmit = (e) => {
+    e.preventDefault()
+    alert('Appointment confirmed!\n\n' + 
+      `Patient Name: ${patientName}\n` +
+      `Appointment Type: ${appointmentType}\n` +
+      `Date: ${selectedDate}\n` +
+      `Time: ${selectedTimeSlot}\n` +
+      `Visit Type: ${visitType}\n` +
+      `Reason: ${reasonText}`
+    )
+    setShowAppointmentModal(false)
+    resetAppointmentForm()
+  }
+  
+  // Meal Plan State
+  const [activeMealTab, setActiveMealTab] = useState('breakfast') // 'breakfast', 'lunch', 'snack', 'dinner'
+  
+  // Login/Register State
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [confirmPassword, setConfirmPassword] = useState('')
@@ -15,99 +108,83 @@ function App() {
   const [showConfirmPassword, setShowConfirmPassword] = useState(false)
   const [rememberMe, setRememberMe] = useState(false)
   
-  // BMI Calculator states
-  const [height, setHeight] = useState('170')
-  const [weight, setWeight] = useState('70')
-  const [age, setAge] = useState('')
-  const [gender, setGender] = useState('male')
-  const [unitSystem, setUnitSystem] = useState('metric') // 'metric' or 'us'
+  // BMI Calculator State
+  const [height, setHeight] = useState(DEFAULT_BMI_VALUES.height)
+  const [weight, setWeight] = useState(DEFAULT_BMI_VALUES.weight)
+  const [age, setAge] = useState(DEFAULT_BMI_VALUES.age)
+  const [gender, setGender] = useState(DEFAULT_BMI_VALUES.gender)
+  const [unitSystem, setUnitSystem] = useState('metric')
   const [bmiCalculated, setBmiCalculated] = useState(false)
   const [bmiResult, setBmiResult] = useState(null)
   const [showFormulaTooltip, setShowFormulaTooltip] = useState(false)
   const [isCalculating, setIsCalculating] = useState(false)
   const [isTransitioning, setIsTransitioning] = useState(false)
   
-  // Validation states
+  // Validation State
   const [validationErrors, setValidationErrors] = useState({
     height: '',
     weight: '',
     age: ''
   })
 
-  const handleEmailLogin = (e) => {
-    e.preventDefault()
-    // Handle email login logic here
-    console.log('Email login:', { email, password })
-    // Set logged in state, role as Super Admin, and redirect to dashboard
+  // Common login handler
+  const handleLogin = useCallback((loginType, credentials = {}) => {
+    console.log(`${loginType} login:`, credentials)
     setIsLoggedIn(true)
     setUserRole('Super Admin')
     setCurrentPage('dashboard')
+  }, [])
+
+  // Auth Handlers
+  const handleEmailLogin = (e) => {
+    e.preventDefault()
+    handleLogin('Email', { email, password })
   }
 
   const handleEmailRegister = (e) => {
     e.preventDefault()
-    // Handle email register logic here
     if (password !== confirmPassword) {
       alert('Passwords do not match!')
       return
     }
-    console.log('Email register:', { email, password })
-    // Set logged in state, role as Super Admin, and redirect to dashboard
-    setIsLoggedIn(true)
-    setUserRole('Super Admin')
-    setCurrentPage('dashboard')
+    handleLogin('Email Register', { email, password })
   }
 
   const handleGithubLogin = () => {
-    // Handle GitHub SSO login logic here
-    console.log('GitHub SSO login')
-    // Set logged in state, role as Super Admin, and redirect to dashboard
-    setIsLoggedIn(true)
-    setUserRole('Super Admin')
-    setCurrentPage('dashboard')
+    handleLogin('GitHub SSO')
   }
 
   const handleGoogleLogin = () => {
-    // Handle Google SSO login logic here
-    console.log('Google SSO login')
-    // Set logged in state, role as Super Admin, and redirect to dashboard
-    setIsLoggedIn(true)
-    setUserRole('Super Admin')
-    setCurrentPage('dashboard')
+    handleLogin('Google SSO')
   }
 
-  // Validation functions
-  const validateInput = (name, value) => {
-    const numValue = parseFloat(value)
-    let error = ''
-    
+  // Validation Functions
+  const validateInput = useCallback((name, value) => {
     if (value === '' || value === null || value === undefined) {
-      return error // Empty is okay, show error only on blur or submit
+      return '' // Empty is okay, show error only on blur or submit
     }
     
+    const numValue = parseFloat(value)
     if (isNaN(numValue) || numValue <= 0) {
-      error = `Please enter a valid ${name}`
-      return error
+      return `Please enter a valid ${name}`
     }
     
-    if (name === 'height') {
-      if (unitSystem === 'metric') {
-        if (numValue < 50 || numValue > 250) error = 'Height should be between 50-250 cm'
-      } else {
-        if (numValue < 20 || numValue > 120) error = 'Height should be between 20-120 inches'
-      }
-    } else if (name === 'weight') {
-      if (unitSystem === 'metric') {
-        if (numValue < 20 || numValue > 300) error = 'Weight should be between 20-300 kg'
-      } else {
-        if (numValue < 44 || numValue > 660) error = 'Weight should be between 44-660 lbs'
-      }
-    } else if (name === 'age') {
-      if (numValue < 10 || numValue > 120) error = 'Age should be between 10-120 years'
+    const limits = VALIDATION_LIMITS[unitSystem]?.[name] || VALIDATION_LIMITS[name]
+    if (!limits) return ''
+    
+    const { min, max } = limits
+    const unit = name === 'height' 
+      ? (unitSystem === 'metric' ? 'cm' : 'inches')
+      : name === 'weight'
+      ? (unitSystem === 'metric' ? 'kg' : 'lbs')
+      : 'years'
+    
+    if (numValue < min || numValue > max) {
+      return `${name.charAt(0).toUpperCase() + name.slice(1)} should be between ${min}-${max} ${unit}`
     }
     
-    return error
-  }
+    return ''
+  }, [unitSystem])
 
   const handleInputChange = (name, value) => {
     // Update the value
@@ -120,111 +197,84 @@ function App() {
     setValidationErrors(prev => ({ ...prev, [name]: error }))
   }
 
-  const getBMICategory = (bmi) => {
-    if (bmi < 18.5) return { 
-      name: 'Underweight', 
-      color: '#60a5fa', 
-      bgColor: '#dbeafe',
-      message: 'Consider consulting with a healthcare provider about healthy weight gain strategies.'
+  // BMI Calculation Helpers
+  const getBMICategory = useCallback((bmi) => {
+    if (bmi < BMI_CATEGORIES.UNDERWEIGHT.threshold) {
+      return {
+        name: BMI_CATEGORIES.UNDERWEIGHT.name,
+        color: BMI_CATEGORIES.UNDERWEIGHT.color,
+        bgColor: BMI_CATEGORIES.UNDERWEIGHT.bgColor,
+        message: BMI_MESSAGES.UNDERWEIGHT
+      }
     }
-    else if (bmi < 25) return { 
-      name: 'Normal', 
-      color: '#81A388', 
-      bgColor: '#e8f0ea',
-      message: 'Great! You\'re within a healthy weight range. Keep up the good work!'
+    if (bmi < BMI_CATEGORIES.NORMAL.threshold) {
+      return {
+        name: BMI_CATEGORIES.NORMAL.name,
+        color: BMI_CATEGORIES.NORMAL.color,
+        bgColor: BMI_CATEGORIES.NORMAL.bgColor,
+        message: BMI_MESSAGES.NORMAL
+      }
     }
-    else if (bmi < 30) return { 
-      name: 'Overweight', 
-      color: '#facc15', 
-      bgColor: '#fef9c3',
-      message: 'Consider adopting a balanced diet and regular exercise routine.'
+    if (bmi < BMI_CATEGORIES.OVERWEIGHT.threshold) {
+      return {
+        name: BMI_CATEGORIES.OVERWEIGHT.name,
+        color: BMI_CATEGORIES.OVERWEIGHT.color,
+        bgColor: BMI_CATEGORIES.OVERWEIGHT.bgColor,
+        message: BMI_MESSAGES.OVERWEIGHT
+      }
     }
-    else return { 
-      name: 'Obese', 
-      color: '#EF908B', 
-      bgColor: '#fdedec',
-      message: 'Consult with a healthcare provider about a personalized weight management plan.'
+    return {
+      name: BMI_CATEGORIES.OBESE.name,
+      color: BMI_CATEGORIES.OBESE.color,
+      bgColor: BMI_CATEGORIES.OBESE.bgColor,
+      message: BMI_MESSAGES.OBESE
     }
-  }
+  }, [])
 
-  const calculateIdealWeightRange = (heightCm) => {
+  const calculateIdealWeightRange = useCallback((heightCm) => {
     const heightM = heightCm / 100
     const minBMI = 18.5
     const maxBMI = 24.9
     const minWeight = (minBMI * heightM * heightM).toFixed(1)
     const maxWeight = (maxBMI * heightM * heightM).toFixed(1)
     return { min: minWeight, max: maxWeight }
-  }
+  }, [])
 
-  const getBMIGaugeAngle = (bmi) => {
-    // Semi-circle gauge: 0-40 BMI maps to 0-180 degrees
-    // Normal range is roughly in the middle (18.5-24.9)
-    const clampedBMI = Math.min(Math.max(bmi, 0), 40)
-    // Map BMI to angle: 0 BMI = 0°, 40 BMI = 180°
-    // Convert to rotation: 0° = left, 90° = center, 180° = right
-    return (clampedBMI / 40) * 180
-  }
-
-  const getBMIPosition = (bmi) => {
-    // BMI ranges mapped to flex values:
-    // Underweight: 0-18.5 (flex: 18.5)
-    // Normal: 18.5-24.9 (flex: 6.4)
-    // Overweight: 25-29.9 (flex: 4.9)
-    // Obese: 30-40 (flex: 10)
-    // Total flex: 18.5 + 6.4 + 4.9 + 10 = 39.8
+  const getBMIPosition = useCallback((bmi) => {
+    // BMI ranges mapped to flex values for scale visualization
+    const BMI_RANGES = {
+      UNDERWEIGHT: { max: 18.5, flex: 18.5 },
+      NORMAL: { max: 25, flex: 6.4 },
+      OVERWEIGHT: { max: 30, flex: 4.9 },
+      OBESE: { max: 40, flex: 10 }
+    }
     
-    const totalFlex = 39.8;
-    let position = 0;
+    const totalFlex = 39.8
+    let position = 0
     
-    if (bmi < 18.5) {
-      // Underweight: 0-18.5, flex = 18.5
-      position = (bmi / 18.5) * (18.5 / totalFlex) * 100;
-    } else if (bmi < 25) {
-      // Normal: 18.5-24.9, flex = 6.4
-      const underweightFlex = 18.5 / totalFlex * 100;
-      const normalRatio = (bmi - 18.5) / 6.4;
-      position = underweightFlex + (normalRatio * (6.4 / totalFlex) * 100);
-    } else if (bmi < 30) {
-      // Overweight: 25-29.9, flex = 4.9
-      const underweightFlex = 18.5 / totalFlex * 100;
-      const normalFlex = 6.4 / totalFlex * 100;
-      const overweightRatio = (bmi - 25) / 4.9;
-      position = underweightFlex + normalFlex + (overweightRatio * (4.9 / totalFlex) * 100);
+    if (bmi < BMI_RANGES.UNDERWEIGHT.max) {
+      position = (bmi / BMI_RANGES.UNDERWEIGHT.max) * (BMI_RANGES.UNDERWEIGHT.flex / totalFlex) * 100
+    } else if (bmi < BMI_RANGES.NORMAL.max) {
+      const underweightFlex = BMI_RANGES.UNDERWEIGHT.flex / totalFlex * 100
+      const normalRatio = (bmi - BMI_RANGES.UNDERWEIGHT.max) / BMI_RANGES.NORMAL.flex
+      position = underweightFlex + (normalRatio * (BMI_RANGES.NORMAL.flex / totalFlex) * 100)
+    } else if (bmi < BMI_RANGES.OVERWEIGHT.max) {
+      const underweightFlex = BMI_RANGES.UNDERWEIGHT.flex / totalFlex * 100
+      const normalFlex = BMI_RANGES.NORMAL.flex / totalFlex * 100
+      const overweightRatio = (bmi - BMI_RANGES.NORMAL.max) / BMI_RANGES.OVERWEIGHT.flex
+      position = underweightFlex + normalFlex + (overweightRatio * (BMI_RANGES.OVERWEIGHT.flex / totalFlex) * 100)
     } else {
-      // Obese: 30-40, flex = 10
-      const underweightFlex = 18.5 / totalFlex * 100;
-      const normalFlex = 6.4 / totalFlex * 100;
-      const overweightFlex = 4.9 / totalFlex * 100;
-      const obeseRatio = Math.min((bmi - 30) / 10, 1); // Cap at BMI 40
-      position = underweightFlex + normalFlex + overweightFlex + (obeseRatio * (10 / totalFlex) * 100);
+      const underweightFlex = BMI_RANGES.UNDERWEIGHT.flex / totalFlex * 100
+      const normalFlex = BMI_RANGES.NORMAL.flex / totalFlex * 100
+      const overweightFlex = BMI_RANGES.OVERWEIGHT.flex / totalFlex * 100
+      const obeseRatio = Math.min((bmi - BMI_RANGES.OVERWEIGHT.max) / BMI_RANGES.OBESE.flex, 1)
+      position = underweightFlex + normalFlex + overweightFlex + (obeseRatio * (BMI_RANGES.OBESE.flex / totalFlex) * 100)
     }
     
-    return Math.min(position, 98); // Cap at 98% to keep indicator visible
-  }
+    return Math.min(position, 98) // Cap at 98% to keep indicator visible
+  }, [])
 
-  const adjustValue = (name, increment) => {
-    const currentValue = name === 'weight' ? weight : name === 'height' ? height : age
-    const numValue = parseFloat(currentValue) || 0
-    const step = name === 'age' ? 1 : 0.1
-    const newValue = Math.max(0, numValue + (increment ? step : -step))
-    
-    if (name === 'weight') {
-      const min = unitSystem === 'metric' ? 20 : 44
-      const max = unitSystem === 'metric' ? 300 : 660
-      const constrainedValue = Math.min(max, Math.max(min, newValue))
-      handleInputChange('weight', constrainedValue.toFixed(1))
-    } else if (name === 'height') {
-      const min = unitSystem === 'metric' ? 50 : 20
-      const max = unitSystem === 'metric' ? 250 : 120
-      const constrainedValue = Math.min(max, Math.max(min, newValue))
-      handleInputChange('height', constrainedValue.toFixed(1))
-    } else if (name === 'age') {
-      const constrainedValue = Math.min(120, Math.max(10, newValue))
-      handleInputChange('age', Math.round(constrainedValue))
-    }
-  }
-
-  const calculateBMI = () => {
+  const calculateBMI = useCallback(() => {
     // Validate all inputs
     const heightError = validateInput('height', height)
     const weightError = validateInput('weight', weight)
@@ -247,89 +297,85 @@ function App() {
       return
     }
 
-    // Show loading state
     setIsCalculating(true)
     setBmiResult(null)
 
-    // Simulate calculation delay for animation
     setTimeout(() => {
-      let bmi
-      if (unitSystem === 'metric') {
-        // Metric: weight in kg, height in cm
-        bmi = (w / ((h / 100) ** 2)).toFixed(1)
-      } else {
-        // US: weight in lbs, height in inches
-        bmi = ((w / (h ** 2)) * 703).toFixed(1)
-      }
+      const bmi = unitSystem === 'metric'
+        ? (w / ((h / 100) ** 2)).toFixed(1)
+        : ((w / (h ** 2)) * 703).toFixed(1)
 
       const categoryInfo = getBMICategory(parseFloat(bmi))
-      const idealRange = unitSystem === 'metric' 
-        ? calculateIdealWeightRange(parseFloat(height))
+      const idealRange = unitSystem === 'metric'
+        ? calculateIdealWeightRange(h)
         : (() => {
-            const heightCm = parseFloat(height) * 2.54
+            const heightCm = h * 2.54
             const range = calculateIdealWeightRange(heightCm)
-            return { 
-              min: (parseFloat(range.min) / 2.20462).toFixed(1), 
-              max: (parseFloat(range.max) / 2.20462).toFixed(1) 
+            return {
+              min: (parseFloat(range.min) / 2.20462).toFixed(1),
+              max: (parseFloat(range.max) / 2.20462).toFixed(1)
             }
           })()
       
-      // Add transition effect
       setIsTransitioning(true)
       setTimeout(() => {
-        setBmiResult({ 
-          bmi, 
-          category: categoryInfo.name, 
+        setBmiResult({
+          bmi,
+          category: categoryInfo.name,
           ...categoryInfo,
           idealRange
         })
         setBmiCalculated(true)
         setIsCalculating(false)
         setIsTransitioning(false)
-      }, 300)
-    }, 600)
-  }
+      }, TRANSITION_DELAY)
+    }, CALCULATION_DELAY)
+  }, [height, weight, age, unitSystem, validateInput, getBMICategory, calculateIdealWeightRange])
 
-  const clearBMI = () => {
-    setHeight('170')
-    setWeight('70')
-    setAge('')
-    setGender('male')
+  const clearBMI = useCallback(() => {
+    setHeight(DEFAULT_BMI_VALUES.height)
+    setWeight(DEFAULT_BMI_VALUES.weight)
+    setAge(DEFAULT_BMI_VALUES.age)
+    setGender(DEFAULT_BMI_VALUES.gender)
     setBmiCalculated(false)
     setBmiResult(null)
     setIsCalculating(false)
     setValidationErrors({ height: '', weight: '', age: '' })
-  }
+  }, [])
 
-  // Reset BMI when navigating away from main page
-  useEffect(() => {
-    if (currentPage !== 'main') {
-      // Reset BMI when navigating to login or any other page
-      if (bmiCalculated) {
-        setBmiCalculated(false)
-        setBmiResult(null)
-        setIsTransitioning(false)
-      }
-    }
-  }, [currentPage, bmiCalculated])
-
-  // Reset BMI when user clicks on navigation links/logo from result view
-  const handleNavigation = (targetPage) => {
+  // Navigation Handler
+  const handleNavigation = useCallback((targetPage) => {
     if (bmiCalculated && targetPage === 'main') {
-      // User is navigating back to main from result view - reset BMI
       clearBMI()
     }
     setCurrentPage(targetPage)
-  }
+  }, [bmiCalculated, clearBMI])
 
-  const handleEdit = () => {
+  // Logout Handler
+  const handleLogout = useCallback(() => {
+    setIsLoggedIn(false)
+    setUserRole(null)
+    handleNavigation('main')
+  }, [handleNavigation])
+
+  // BMI Result Handlers
+  const handleEdit = useCallback(() => {
     setIsTransitioning(true)
     setTimeout(() => {
       setBmiCalculated(false)
       setBmiResult(null)
       setIsTransitioning(false)
-    }, 300)
-  }
+    }, TRANSITION_DELAY)
+  }, [])
+
+  // Reset BMI when navigating away from main page
+  useEffect(() => {
+    if (currentPage !== 'main' && bmiCalculated) {
+      setBmiCalculated(false)
+      setBmiResult(null)
+      setIsTransitioning(false)
+    }
+  }, [currentPage, bmiCalculated])
 
   const renderFormContent = () => (
     <>
@@ -954,115 +1000,154 @@ function App() {
     <div className="dashboard-page">
       <div className="dashboard-layout">
         {/* Left Sidebar */}
-        <aside className="dashboard-sidebar">
+        <aside className={`dashboard-sidebar ${isSidebarCollapsed ? 'collapsed' : ''}`}>
           <div className="sidebar-header">
-            <button className="sidebar-menu-btn">
+            <button 
+              className="sidebar-menu-btn"
+              onClick={() => setIsSidebarCollapsed(!isSidebarCollapsed)}
+              aria-label="Toggle sidebar"
+            >
               <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                <line x1="3" y1="6" x2="21" y2="6"/>
-                <line x1="3" y1="12" x2="21" y2="12"/>
-                <line x1="3" y1="18" x2="21" y2="18"/>
+                {isSidebarCollapsed ? (
+                  <path d="M9 18l6-6-6-6"/>
+                ) : (
+                  <>
+                    <line x1="3" y1="6" x2="21" y2="6"/>
+                    <line x1="3" y1="12" x2="21" y2="12"/>
+                    <line x1="3" y1="18" x2="21" y2="18"/>
+                  </>
+                )}
               </svg>
             </button>
-            <input 
-              type="text" 
-              className="sidebar-search" 
-              placeholder="Search for patients or medicine"
-            />
+            {!isSidebarCollapsed && (
+              <input 
+                type="text" 
+                className="sidebar-search" 
+                placeholder="Search..."
+              />
+            )}
           </div>
           
           <nav className="sidebar-nav">
+            {/* Navigation 1: Home */}
             <a 
               href="#" 
               className={`sidebar-nav-item ${dashboardView === 'home' ? 'active' : ''}`}
               onClick={(e) => { e.preventDefault(); setDashboardView('home'); }}
+              title="Home"
             >
               <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                 <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>
                 <polyline points="9 22 9 12 15 12 15 22"/>
               </svg>
-              <span>Home</span>
+              {!isSidebarCollapsed && <span>Home</span>}
             </a>
-            <a 
-              href="#" 
-              className={`sidebar-nav-item ${dashboardView === 'appointment-list' ? 'active' : ''}`}
-              onClick={(e) => { e.preventDefault(); setDashboardView('appointment-list'); }}
-            >
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                <line x1="12" y1="5" x2="12" y2="19"/>
-                <line x1="5" y1="12" x2="19" y2="12"/>
-              </svg>
-              <span>Appointment List</span>
-            </a>
-            <a 
-              href="#" 
-              className={`sidebar-nav-item ${dashboardView === 'patient-list' ? 'active' : ''}`}
-              onClick={(e) => { e.preventDefault(); setDashboardView('patient-list'); }}
-            >
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
-                <circle cx="12" cy="7" r="4"/>
-              </svg>
-              <span>Patient Lists</span>
-            </a>
-            <a 
-              href="#" 
-              className={`sidebar-nav-item ${dashboardView === 'today-appointments' ? 'active' : ''}`}
-              onClick={(e) => { e.preventDefault(); setDashboardView('today-appointments'); }}
-            >
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/>
-              </svg>
-              <span>Today's Appointment</span>
-            </a>
-            <a 
-              href="#" 
-              className={`sidebar-nav-item ${dashboardView === 'food-classes' ? 'active' : ''}`}
-              onClick={(e) => { e.preventDefault(); setDashboardView('food-classes'); }}
-            >
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
-                <polyline points="14 2 14 8 20 8"/>
-                <line x1="16" y1="13" x2="8" y2="13"/>
-                <line x1="16" y1="17" x2="8" y2="17"/>
-                <polyline points="10 9 9 9 8 9"/>
-              </svg>
-              <span>Food Classes</span>
-            </a>
+
+            {/* Navigation 2: Appointment */}
+            <div className="sidebar-nav-group">
+              <a 
+                href="#" 
+                className={`sidebar-nav-item ${dashboardView === 'appointment' ? 'active' : ''} ${isAppointmentSubmenuOpen ? 'expanded' : ''}`}
+                onClick={(e) => { 
+                  e.preventDefault(); 
+                  setDashboardView('appointment');
+                  setIsAppointmentSubmenuOpen(!isAppointmentSubmenuOpen);
+                }}
+                title="Appointment"
+              >
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                  <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/>
+                  <line x1="16" y1="2" x2="16" y2="6"/>
+                  <line x1="8" y1="2" x2="8" y2="6"/>
+                  <line x1="3" y1="10" x2="21" y2="10"/>
+                </svg>
+                {!isSidebarCollapsed && (
+                  <>
+                    <span>Appointment</span>
+                    <svg 
+                      className="submenu-arrow" 
+                      width="16" 
+                      height="16" 
+                      viewBox="0 0 24 24" 
+                      fill="none" 
+                      stroke="currentColor" 
+                      strokeWidth="2"
+                    >
+                      <polyline points="6 9 12 15 18 9"/>
+                    </svg>
+                  </>
+                )}
+              </a>
+              {!isSidebarCollapsed && isAppointmentSubmenuOpen && (
+                <div className="sidebar-submenu">
+                  <a 
+                    href="#" 
+                    className={`sidebar-submenu-item ${appointmentSubView === 'today' ? 'active' : ''}`}
+                    onClick={(e) => { 
+                      e.preventDefault(); 
+                      setAppointmentSubView('today');
+                    }}
+                  >
+                    <span>Today Appointment</span>
+                  </a>
+                  <a 
+                    href="#" 
+                    className={`sidebar-submenu-item ${appointmentSubView === 'upcoming' ? 'active' : ''}`}
+                    onClick={(e) => { 
+                      e.preventDefault(); 
+                      setAppointmentSubView('upcoming');
+                    }}
+                  >
+                    <span>Upcoming Appointment</span>
+                  </a>
+                </div>
+              )}
+            </div>
+
+            {/* Navigation 3: Meal Plan */}
             <a 
               href="#" 
               className={`sidebar-nav-item ${dashboardView === 'meal-plan' ? 'active' : ''}`}
               onClick={(e) => { e.preventDefault(); setDashboardView('meal-plan'); }}
+              title="Meal Plan"
             >
               <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                 <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/>
               </svg>
-              <span>Meal Plan</span>
+              {!isSidebarCollapsed && <span>Meal Plan</span>}
             </a>
+
+            {/* Navigation 4: Exercise Plan */}
             <a 
               href="#" 
               className={`sidebar-nav-item ${dashboardView === 'exercise-plan' ? 'active' : ''}`}
               onClick={(e) => { e.preventDefault(); setDashboardView('exercise-plan'); }}
+              title="Exercise Plan"
             >
               <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                 <circle cx="12" cy="12" r="3"/>
                 <path d="M12 1v6m0 6v6M5.64 5.64l4.24 4.24m4.24 4.24l4.24 4.24M1 12h6m6 0h6M5.64 18.36l4.24-4.24m4.24-4.24l4.24-4.24"/>
               </svg>
-              <span>Exercise Plan</span>
+              {!isSidebarCollapsed && <span>Exercise Plan</span>}
             </a>
           </nav>
           
+          {/* Navigation 5: Settings */}
           <div 
             className={`sidebar-profile ${dashboardView === 'settings' ? 'active' : ''}`}
             onClick={() => setDashboardView('settings')}
             style={{ cursor: 'pointer' }}
+            title="Settings"
           >
             <div className="profile-avatar">
               <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                 <circle cx="12" cy="12" r="3"/>
-                <path d="M12 1v6m0 6v6M5.64 5.64l4.24 4.24m4.24 4.24l4.24 4.24M1 12h6m6 0h6M5.64 18.36l4.24-4.24m4.24-4.24l4.24-4.24"/>
+                <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/>
               </svg>
             </div>
-            <span style={{ fontSize: '0.875rem', textAlign: 'center', color: dashboardView === 'settings' ? '#4caf50' : '#666', fontWeight: dashboardView === 'settings' ? '600' : 'normal' }}>Settings</span>
+            {!isSidebarCollapsed && (
+              <span style={{ fontSize: '0.875rem', textAlign: 'center', color: dashboardView === 'settings' ? '#4caf50' : '#666', fontWeight: dashboardView === 'settings' ? '600' : 'normal' }}>Settings</span>
+            )}
           </div>
         </aside>
 
@@ -1174,131 +1259,315 @@ function App() {
             </>
           )}
 
-          {dashboardView === 'appointment-list' && (
-            <div className="view-container">
-              <h2 className="view-title">Create Appointment</h2>
-              <form className="appointment-form">
-                <div className="form-row">
-                  <div className="form-group">
-                    <label>Patient Name</label>
-                    <input type="text" placeholder="Enter patient name" />
-                  </div>
-                  <div className="form-group">
-                    <label>Date</label>
-                    <input type="date" />
-                  </div>
-                </div>
-                <div className="form-row">
-                  <div className="form-group">
-                    <label>Time</label>
-                    <input type="time" />
-                  </div>
-                  <div className="form-group">
-                    <label>Type</label>
-                    <select>
-                      <option>Consultation</option>
-                      <option>Check-up</option>
-                      <option>Follow-up</option>
-                    </select>
-                  </div>
-                </div>
-                <div className="form-group">
-                  <label>Notes</label>
-                  <textarea rows="4" placeholder="Enter appointment notes"></textarea>
-                </div>
-                <button type="submit" className="submit-btn">Create Appointment</button>
-              </form>
-            </div>
-          )}
-
-          {dashboardView === 'patient-list' && (
-            <div className="view-container">
-              <h2 className="view-title">Patient Lists</h2>
-              <div className="table-container">
-                <table className="data-table">
-                  <thead>
-                    <tr>
-                      <th>ID</th>
-                      <th>Name</th>
-                      <th>Contact</th>
-                      <th>Next of Kin</th>
-                      <th>Disease Type</th>
-                      <th>Visit Type</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    <tr>
-                      <td>P001</td>
-                      <td>John Doe</td>
-                      <td>john@example.com</td>
-                      <td>Jane Doe</td>
-                      <td>Diabetes</td>
-                      <td>Regular</td>
-                    </tr>
-                    <tr>
-                      <td>P002</td>
-                      <td>Mary Smith</td>
-                      <td>mary@example.com</td>
-                      <td>Tom Smith</td>
-                      <td>Hypertension</td>
-                      <td>Emergency</td>
-                    </tr>
-                  </tbody>
-                </table>
-              </div>
-            </div>
-          )}
-
-          {dashboardView === 'today-appointments' && (
+          {dashboardView === 'appointment' && (
             <div className="view-container">
               <div className="view-header">
-                <h2 className="view-title">Today's Appointment</h2>
-                <select 
-                  className="dashboard-filter" 
-                  value={appointmentFilter}
-                  onChange={(e) => setAppointmentFilter(e.target.value)}
-                >
-                  <option value="today">Today</option>
-                  <option value="week">This Week</option>
-                  <option value="month">This Month</option>
-                </select>
-              </div>
-              <div className="appointments-list">
-                <div className="appointment-item">
-                  <div className="appointment-time">9:00 AM</div>
-                  <div className="appointment-details">
-                    <h3>John Doe - Consultation</h3>
-                    <p>Regular check-up</p>
-                  </div>
-                </div>
-                <div className="appointment-item">
-                  <div className="appointment-time">10:30 AM</div>
-                  <div className="appointment-details">
-                    <h3>Mary Smith - Follow-up</h3>
-                    <p>Diabetes management</p>
-                  </div>
+                <h2 className="view-title">Appointment</h2>
+                <div className="view-header-actions">
+                  <select 
+                    className="dashboard-filter" 
+                    value={appointmentFilter}
+                    onChange={(e) => setAppointmentFilter(e.target.value)}
+                  >
+                    <option value="today">Today</option>
+                    <option value="week">This Week</option>
+                    <option value="month">This Month</option>
+                  </select>
+                  <button 
+                    className="create-btn"
+                    onClick={() => setShowAppointmentModal(true)}
+                  >
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                      <line x1="12" y1="5" x2="12" y2="19"/>
+                      <line x1="5" y1="12" x2="19" y2="12"/>
+                    </svg>
+                    <span>Create Appointment</span>
+                  </button>
                 </div>
               </div>
+
+              {appointmentSubView === 'today' && (
+                <div className="appointments-list">
+                  <div className="appointment-item">
+                    <div className="appointment-time">9:00 AM</div>
+                    <div className="appointment-details">
+                      <h3>John Doe - Consultation</h3>
+                      <p>Regular check-up</p>
+                    </div>
+                  </div>
+                  <div className="appointment-item">
+                    <div className="appointment-time">10:30 AM</div>
+                    <div className="appointment-details">
+                      <h3>Mary Smith - Follow-up</h3>
+                      <p>Diabetes management</p>
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {appointmentSubView === 'upcoming' && (
+                <div className="appointments-list">
+                  <div className="appointment-item">
+                    <div className="appointment-time">Tomorrow, 2:00 PM</div>
+                    <div className="appointment-details">
+                      <h3>Sarah Johnson - Check-up</h3>
+                      <p>Annual physical examination</p>
+                    </div>
+                  </div>
+                  <div className="appointment-item">
+                    <div className="appointment-time">Dec 15, 11:00 AM</div>
+                    <div className="appointment-details">
+                      <h3>Michael Brown - Consultation</h3>
+                      <p>Follow-up appointment</p>
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {/* Appointment Modal */}
+              {showAppointmentModal && (
+                <div className="appointment-modal-overlay" onClick={handleCloseAppointmentModal}>
+                  <div className="appointment-modal-container" onClick={(e) => e.stopPropagation()}>
+                    {/* Header with Close Button */}
+                    <div className="appointment-modal-header">
+                      <h2 className="appointment-modal-title">Appointment Schedule</h2>
+                      <button
+                        onClick={handleCloseAppointmentModal}
+                        className="appointment-modal-close"
+                        type="button"
+                      >
+                        <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                          <line x1="18" y1="6" x2="6" y2="18"/>
+                          <line x1="6" y1="6" x2="18" y2="18"/>
+                        </svg>
+                      </button>
+                    </div>
+
+                    <div className="appointment-modal-body">
+                      <form onSubmit={handleAppointmentSubmit} className="appointment-form-container">
+                        {/* Patient Name */}
+                        <div className="appointment-form-field">
+                          <label className="appointment-form-label">
+                            Patient Name
+                          </label>
+                          <input 
+                            type="text"
+                            value={patientName}
+                            onChange={(e) => setPatientName(e.target.value)}
+                            placeholder="Enter patient name"
+                            className="appointment-form-input"
+                            required
+                          />
+                        </div>
+
+                        {/* Type of Appointment and Date Selection */}
+                        <div className="appointment-form-row">
+                          <div className="appointment-form-field">
+                            <label className="appointment-form-label">
+                              Type of Appointment
+                            </label>
+                            <select 
+                              value={appointmentType}
+                              onChange={(e) => setAppointmentType(e.target.value)}
+                              className="appointment-form-input appointment-form-select"
+                            >
+                              {appointmentTypes.map(type => (
+                                <option key={type} value={type}>{type}</option>
+                              ))}
+                            </select>
+                          </div>
+
+                          {/* Date Selection */}
+                          <div className="appointment-form-field">
+                            <label className="appointment-form-label">
+                              Available Date for Appointment
+                            </label>
+                            <div className="appointment-date-wrapper">
+                              <input 
+                                type="date"
+                                value={selectedDate}
+                                onChange={(e) => setSelectedDate(e.target.value)}
+                                className="appointment-form-input appointment-date-input"
+                                required
+                              />
+                              <svg className="appointment-calendar-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                                <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/>
+                                <line x1="16" y1="2" x2="16" y2="6"/>
+                                <line x1="8" y1="2" x2="8" y2="6"/>
+                                <line x1="3" y1="10" x2="21" y2="10"/>
+                              </svg>
+                            </div>
+                          </div>
+                        </div>
+
+                        {/* Time Selection */}
+                        <div className="appointment-form-field">
+                          <label className="appointment-form-label">
+                            Available Time for Appointment
+                          </label>
+                          <div className="appointment-time-grid">
+                            {availableTimes.map(time => (
+                              <button
+                                key={time}
+                                type="button"
+                                onClick={() => setSelectedTimeSlot(time)}
+                                className={`appointment-time-btn ${selectedTimeSlot === time ? 'active' : ''}`}
+                              >
+                                {time}
+                              </button>
+                            ))}
+                          </div>
+                        </div>
+
+                        {/* Visit Type */}
+                        <div className="appointment-form-field">
+                          <label className="appointment-form-label">
+                            Type of Appointment
+                          </label>
+                          <div className="appointment-visit-type-group">
+                            <button
+                              type="button"
+                              onClick={() => setVisitType('In-person')}
+                              className={`appointment-visit-type-btn ${visitType === 'In-person' ? 'active' : ''}`}
+                            >
+                              In-person
+                            </button>
+                            <button
+                              type="button"
+                              onClick={() => setVisitType('Virtual')}
+                              className={`appointment-visit-type-btn ${visitType === 'Virtual' ? 'active' : ''}`}
+                            >
+                              Virtual
+                            </button>
+                          </div>
+                        </div>
+
+                        {/* Patient Notes */}
+                        <div className="appointment-form-field">
+                          <label className="appointment-form-label">
+                            Patient Notes
+                          </label>
+                          <textarea 
+                            value={reasonText}
+                            onChange={(e) => setReasonText(e.target.value)}
+                            rows={4}
+                            className="appointment-form-textarea"
+                            placeholder="Enter patient notes..."
+                          />
+                        </div>
+
+                        {/* Submit Button */}
+                        <button
+                          type="submit"
+                          className="appointment-submit-btn"
+                        >
+                          Confirm appointment
+                        </button>
+                      </form>
+                    </div>
+                  </div>
+                </div>
+              )}
             </div>
           )}
 
           {dashboardView === 'food-classes' && (
             <div className="view-container">
-              <h2 className="view-title">Food Classes</h2>
-              <div className="food-pyramid">
-                <div className="pyramid-tier tier-small">
-                  <div className="tier-label">Fats & Oils (Use Sparingly)</div>
+              <div className="food-classes-header">
+                <h2 className="view-title">Food Classes</h2>
+                <p className="food-classes-subtitle">A balanced approach to healthy eating</p>
+              </div>
+              
+              <div className="food-classes-grid">
+                {/* Base Level - Grains */}
+                <div className="food-group-card food-group-large" style={{ background: 'linear-gradient(135deg, #fef3c7 0%, #fde68a 100%)' }}>
+                  <div className="food-group-icon" style={{ background: 'rgba(251, 191, 36, 0.2)' }}>
+                    <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                      <rect x="3" y="3" width="18" height="18" rx="2" ry="2"/>
+                      <line x1="9" y1="3" x2="9" y2="21"/>
+                      <line x1="15" y1="3" x2="15" y2="21"/>
+                      <line x1="3" y1="9" x2="21" y2="9"/>
+                      <line x1="3" y1="15" x2="21" y2="15"/>
+                    </svg>
+                  </div>
+                  <div className="food-group-content">
+                    <h3 className="food-group-title">Grains & Cereals</h3>
+                    <p className="food-group-servings">6-11 servings daily</p>
+                    <p className="food-group-description">Bread, Cereal, Rice & Pasta - Foundation of your diet</p>
+                  </div>
                 </div>
-                <div className="pyramid-tier tier-small">
-                  <div className="tier-label">Milk, Yogurt & Cheese (2-3 servings)</div>
-                  <div className="tier-label">Meat, Poultry, Fish, Beans & Nuts (2-3 servings)</div>
+
+                {/* Second Level - Fruits & Vegetables */}
+                <div className="food-group-card food-group-medium" style={{ background: 'linear-gradient(135deg, #d1fae5 0%, #a7f3d0 100%)' }}>
+                  <div className="food-group-icon" style={{ background: 'rgba(16, 185, 129, 0.2)' }}>
+                    <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                      <path d="M12 2L2 7l10 5 10-5-10-5z"/>
+                      <path d="M2 17l10 5 10-5M2 12l10 5 10-5"/>
+                    </svg>
+                  </div>
+                  <div className="food-group-content">
+                    <h3 className="food-group-title">Vegetables</h3>
+                    <p className="food-group-servings">3-5 servings daily</p>
+                    <p className="food-group-description">Essential vitamins and minerals</p>
+                  </div>
                 </div>
-                <div className="pyramid-tier tier-medium">
-                  <div className="tier-label">Vegetables (3-5 servings)</div>
-                  <div className="tier-label">Fruits (2-4 servings)</div>
+
+                <div className="food-group-card food-group-medium" style={{ background: 'linear-gradient(135deg, #fce7f3 0%, #fbcfe8 100%)' }}>
+                  <div className="food-group-icon" style={{ background: 'rgba(236, 72, 153, 0.2)' }}>
+                    <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                      <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/>
+                    </svg>
+                  </div>
+                  <div className="food-group-content">
+                    <h3 className="food-group-title">Fruits</h3>
+                    <p className="food-group-servings">2-4 servings daily</p>
+                    <p className="food-group-description">Natural sugars and fiber</p>
+                  </div>
                 </div>
-                <div className="pyramid-tier tier-large">
-                  <div className="tier-label">Bread, Cereal, Rice & Pasta (6-11 servings)</div>
+
+                {/* Third Level - Protein & Dairy */}
+                <div className="food-group-card food-group-small" style={{ background: 'linear-gradient(135deg, #dbeafe 0%, #bfdbfe 100%)' }}>
+                  <div className="food-group-icon" style={{ background: 'rgba(59, 130, 246, 0.2)' }}>
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                      <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8z"/>
+                      <circle cx="12" cy="12" r="3"/>
+                    </svg>
+                  </div>
+                  <div className="food-group-content">
+                    <h3 className="food-group-title">Dairy</h3>
+                    <p className="food-group-servings">2-3 servings daily</p>
+                    <p className="food-group-description">Milk, Yogurt & Cheese</p>
+                  </div>
+                </div>
+
+                <div className="food-group-card food-group-small" style={{ background: 'linear-gradient(135deg, #fed7aa 0%, #fdba74 100%)' }}>
+                  <div className="food-group-icon" style={{ background: 'rgba(249, 115, 22, 0.2)' }}>
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                      <path d="M12 2L2 7l10 5 10-5-10-5z"/>
+                      <path d="M2 17l10 5 10-5M2 12l10 5 10-5"/>
+                    </svg>
+                  </div>
+                  <div className="food-group-content">
+                    <h3 className="food-group-title">Protein</h3>
+                    <p className="food-group-servings">2-3 servings daily</p>
+                    <p className="food-group-description">Meat, Poultry, Fish, Beans & Nuts</p>
+                  </div>
+                </div>
+
+                {/* Top Level - Fats & Oils */}
+                <div className="food-group-card food-group-minimal" style={{ background: 'linear-gradient(135deg, #f3e8ff 0%, #e9d5ff 100%)' }}>
+                  <div className="food-group-icon" style={{ background: 'rgba(168, 85, 247, 0.2)' }}>
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                      <circle cx="12" cy="12" r="10"/>
+                      <circle cx="12" cy="12" r="6"/>
+                      <circle cx="12" cy="12" r="2"/>
+                    </svg>
+                  </div>
+                  <div className="food-group-content">
+                    <h3 className="food-group-title">Fats & Oils</h3>
+                    <p className="food-group-servings">Use Sparingly</p>
+                    <p className="food-group-description">Essential but in moderation</p>
+                  </div>
                 </div>
               </div>
             </div>
@@ -1306,47 +1575,329 @@ function App() {
 
           {dashboardView === 'meal-plan' && (
             <div className="view-container">
-              <h2 className="view-title">Create Meal Plan</h2>
-              <form className="meal-plan-form">
-                <div className="form-group">
-                  <label>Plan Name</label>
-                  <input type="text" placeholder="Enter meal plan name" />
+              <div className="view-header">
+                <h2 className="view-title">Meal Plan</h2>
+                <button 
+                  className="create-btn"
+                  onClick={() => setShowMealPlanModal(true)}
+                >
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                    <line x1="12" y1="5" x2="12" y2="19"/>
+                    <line x1="5" y1="12" x2="19" y2="12"/>
+                  </svg>
+                  <span>Create Meal Plan</span>
+                </button>
+              </div>
+
+              {/* Recipes Section */}
+              <div className="recipes-section">
+                <div className="section-header">
+                  <h3 className="section-title">Recipes</h3>
+                  <a href="#" className="see-all-link">See All →</a>
                 </div>
-                <div className="form-group">
-                  <label>Duration (days)</label>
-                  <input type="number" placeholder="Number of days" />
-                </div>
-                <div className="form-group">
-                  <label>Daily Meals</label>
-                  <div className="meals-input">
-                    <textarea rows="6" placeholder="Enter breakfast, lunch, dinner, snacks..."></textarea>
+                <div className="recipes-grid">
+                  <div className="recipe-card">
+                    <div className="recipe-icon breakfast-icon">
+                      <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                        <circle cx="12" cy="12" r="10"/>
+                        <path d="M12 6v6l4 2"/>
+                      </svg>
+                    </div>
+                    <span className="recipe-label">Breakfast</span>
+                  </div>
+                  <div className="recipe-card">
+                    <div className="recipe-icon lunch-icon">
+                      <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                        <path d="M12 2L2 7l10 5 10-5-10-5z"/>
+                        <path d="M2 17l10 5 10-5M2 12l10 5 10-5"/>
+                      </svg>
+                    </div>
+                    <span className="recipe-label">Lunch</span>
+                  </div>
+                  <div className="recipe-card">
+                    <div className="recipe-icon snack-icon">
+                      <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                        <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/>
+                      </svg>
+                    </div>
+                    <span className="recipe-label">Snack</span>
+                  </div>
+                  <div className="recipe-card">
+                    <div className="recipe-icon dinner-icon">
+                      <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                        <rect x="3" y="3" width="18" height="18" rx="2" ry="2"/>
+                        <line x1="9" y1="3" x2="9" y2="21"/>
+                        <line x1="15" y1="3" x2="15" y2="21"/>
+                      </svg>
+                    </div>
+                    <span className="recipe-label">Dinner</span>
                   </div>
                 </div>
-                <button type="submit" className="submit-btn">Create Meal Plan</button>
-              </form>
+              </div>
+
+              {/* Meal Plan for Today Section */}
+              <div className="meal-plan-section">
+                <div className="section-header">
+                  <div className="meal-tabs">
+                    <button 
+                      className={`meal-tab ${activeMealTab === 'breakfast' ? 'active' : ''}`}
+                      onClick={() => setActiveMealTab('breakfast')}
+                    >
+                      Breakfast
+                    </button>
+                    <button 
+                      className={`meal-tab ${activeMealTab === 'lunch' ? 'active' : ''}`}
+                      onClick={() => setActiveMealTab('lunch')}
+                    >
+                      Lunch
+                    </button>
+                    <button 
+                      className={`meal-tab ${activeMealTab === 'snack' ? 'active' : ''}`}
+                      onClick={() => setActiveMealTab('snack')}
+                    >
+                      Snack
+                    </button>
+                    <button 
+                      className={`meal-tab ${activeMealTab === 'dinner' ? 'active' : ''}`}
+                      onClick={() => setActiveMealTab('dinner')}
+                    >
+                      Dinner
+                    </button>
+                  </div>
+                  <a href="#" className="see-all-link">See All →</a>
+                </div>
+
+                <div className="meal-detail-card">
+                  <div className="meal-image">
+                    <div className="meal-image-placeholder">
+                      <svg width="120" height="120" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                        <path d="M12 2L2 7l10 5 10-5-10-5z"/>
+                        <path d="M2 17l10 5 10-5M2 12l10 5 10-5"/>
+                      </svg>
+                    </div>
+                  </div>
+                  <div className="meal-content">
+                    <div className="meal-header">
+                      <div>
+                        <span className="meal-type">{activeMealTab.charAt(0).toUpperCase() + activeMealTab.slice(1)}</span>
+                        <h3 className="meal-name">Egg on Toast</h3>
+                        <div className="meal-rating">
+                          <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                            <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
+                          </svg>
+                          <span>5</span>
+                        </div>
+                      </div>
+                    </div>
+                    <p className="meal-description">
+                      Self-care is an act of taking care of yourself physically, mentally, and emotionally. Research shows that acts of self-care can improve your health, lead to better productivity, and help prevent burnout.
+                    </p>
+                    <div className="food-rating-bar">
+                      <div className="rating-label">
+                        <span>Food rating</span>
+                        <span className="rating-grade">Very Good</span>
+                      </div>
+                      <div className="rating-bar">
+                        <div className="rating-fill" style={{ width: '85%' }}></div>
+                        <span className="rating-letter">A</span>
+                      </div>
+                    </div>
+                    <div className="nutrition-grid">
+                      <div className="nutrition-item">
+                        <span className="nutrition-label">Protein</span>
+                        <div className="nutrition-bar">
+                          <div className="nutrition-fill" style={{ width: '40%' }}></div>
+                        </div>
+                        <span className="nutrition-value">40g</span>
+                      </div>
+                      <div className="nutrition-item">
+                        <span className="nutrition-label">Fat</span>
+                        <div className="nutrition-bar">
+                          <div className="nutrition-fill" style={{ width: '25%' }}></div>
+                        </div>
+                        <span className="nutrition-value">30g</span>
+                      </div>
+                      <div className="nutrition-item">
+                        <span className="nutrition-label">Carbs</span>
+                        <div className="nutrition-bar">
+                          <div className="nutrition-fill" style={{ width: '20%' }}></div>
+                        </div>
+                        <span className="nutrition-value">25g</span>
+                      </div>
+                      <div className="nutrition-item">
+                        <span className="nutrition-label">Fiber</span>
+                        <div className="nutrition-bar">
+                          <div className="nutrition-fill" style={{ width: '10%' }}></div>
+                        </div>
+                        <span className="nutrition-value">15g</span>
+                      </div>
+                    </div>
+                    <div className="ingredients-list">
+                      <div className="ingredient-item">
+                        <div className="ingredient-icon">🥑</div>
+                        <span>Avocado 100g</span>
+                      </div>
+                      <div className="ingredient-item">
+                        <div className="ingredient-icon">🍞</div>
+                        <span>Sourdough 100g</span>
+                      </div>
+                      <div className="ingredient-item">
+                        <div className="ingredient-icon">🥚</div>
+                        <span>Egg 1pcs</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Meal Plan Modal */}
+              {showMealPlanModal && (
+                <div className="modal-overlay" onClick={() => setShowMealPlanModal(false)}>
+                  <div className="modal-content" onClick={(e) => e.stopPropagation()}>
+                    <div className="modal-header">
+                      <h3>Create Meal Plan</h3>
+                      <button className="modal-close" onClick={() => setShowMealPlanModal(false)}>
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                          <line x1="18" y1="6" x2="6" y2="18"/>
+                          <line x1="6" y1="6" x2="18" y2="18"/>
+                        </svg>
+                      </button>
+                    </div>
+                    <form className="meal-plan-form modern-form">
+                      <div className="form-group modern-form-group">
+                        <label className="modern-label">
+                          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+                            <polyline points="14 2 14 8 20 8"/>
+                            <line x1="16" y1="13" x2="8" y2="13"/>
+                            <line x1="16" y1="17" x2="8" y2="17"/>
+                          </svg>
+                          Plan Name
+                        </label>
+                        <div className="input-wrapper-modern">
+                          <input type="text" className="modern-input" placeholder="Enter meal plan name" />
+                        </div>
+                      </div>
+                      <div className="form-group modern-form-group">
+                        <label className="modern-label">
+                          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                            <circle cx="12" cy="12" r="10"/>
+                            <polyline points="12 6 12 12 16 14"/>
+                          </svg>
+                          Duration (days)
+                        </label>
+                        <div className="input-wrapper-modern">
+                          <input type="number" className="modern-input" placeholder="Number of days" min="1" />
+                        </div>
+                      </div>
+                      <div className="form-group modern-form-group">
+                        <label className="modern-label">
+                          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                            <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/>
+                          </svg>
+                          Daily Meals
+                        </label>
+                        <div className="textarea-wrapper-modern">
+                          <textarea rows="6" className="modern-textarea" placeholder="Enter breakfast, lunch, dinner, snacks..."></textarea>
+                        </div>
+                      </div>
+                      <div className="modal-actions">
+                        <button type="button" className="btn-secondary modern-btn-secondary" onClick={() => setShowMealPlanModal(false)}>Cancel</button>
+                        <button type="submit" className="submit-btn modern-btn-primary" onClick={(e) => { e.preventDefault(); setShowMealPlanModal(false); }}>
+                          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                            <polyline points="20 6 9 17 4 12"/>
+                          </svg>
+                          Create Meal Plan
+                        </button>
+                      </div>
+                    </form>
+                  </div>
+                </div>
+              )}
             </div>
           )}
 
           {dashboardView === 'exercise-plan' && (
             <div className="view-container">
-              <h2 className="view-title">Create Exercise Plan</h2>
-              <form className="exercise-plan-form">
-                <div className="form-group">
-                  <label>Plan Name</label>
-                  <input type="text" placeholder="Enter exercise plan name" />
-                </div>
-                <div className="form-group">
-                  <label>Duration (weeks)</label>
-                  <input type="number" placeholder="Number of weeks" />
-                </div>
-                <div className="form-group">
-                  <label>Weekly Schedule</label>
-                  <div className="exercise-input">
-                    <textarea rows="6" placeholder="Enter daily exercises and routines..."></textarea>
+              <div className="view-header">
+                <h2 className="view-title">Exercise Plan</h2>
+                <button 
+                  className="create-btn"
+                  onClick={() => setShowExercisePlanModal(true)}
+                >
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                    <line x1="12" y1="5" x2="12" y2="19"/>
+                    <line x1="5" y1="12" x2="19" y2="12"/>
+                  </svg>
+                  <span>Create Exercise Plan</span>
+                </button>
+              </div>
+
+              {/* Exercise Plan Modal */}
+              {showExercisePlanModal && (
+                <div className="modal-overlay" onClick={() => setShowExercisePlanModal(false)}>
+                  <div className="modal-content" onClick={(e) => e.stopPropagation()}>
+                    <div className="modal-header">
+                      <h3>Create Exercise Plan</h3>
+                      <button className="modal-close" onClick={() => setShowExercisePlanModal(false)}>
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                          <line x1="18" y1="6" x2="6" y2="18"/>
+                          <line x1="6" y1="6" x2="18" y2="18"/>
+                        </svg>
+                      </button>
+                    </div>
+                    <form className="exercise-plan-form modern-form">
+                      <div className="form-group modern-form-group">
+                        <label className="modern-label">
+                          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+                            <polyline points="14 2 14 8 20 8"/>
+                            <line x1="16" y1="13" x2="8" y2="13"/>
+                            <line x1="16" y1="17" x2="8" y2="17"/>
+                          </svg>
+                          Plan Name
+                        </label>
+                        <div className="input-wrapper-modern">
+                          <input type="text" className="modern-input" placeholder="Enter exercise plan name" />
+                        </div>
+                      </div>
+                      <div className="form-group modern-form-group">
+                        <label className="modern-label">
+                          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                            <circle cx="12" cy="12" r="10"/>
+                            <polyline points="12 6 12 12 16 14"/>
+                          </svg>
+                          Duration (weeks)
+                        </label>
+                        <div className="input-wrapper-modern">
+                          <input type="number" className="modern-input" placeholder="Number of weeks" min="1" />
+                        </div>
+                      </div>
+                      <div className="form-group modern-form-group">
+                        <label className="modern-label">
+                          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                            <circle cx="12" cy="12" r="3"/>
+                            <path d="M12 1v6m0 6v6M5.64 5.64l4.24 4.24m4.24 4.24l4.24 4.24M1 12h6m6 0h6M5.64 18.36l4.24-4.24m4.24-4.24l4.24-4.24"/>
+                          </svg>
+                          Weekly Schedule
+                        </label>
+                        <div className="textarea-wrapper-modern">
+                          <textarea rows="6" className="modern-textarea" placeholder="Enter daily exercises and routines..."></textarea>
+                        </div>
+                      </div>
+                      <div className="modal-actions">
+                        <button type="button" className="btn-secondary modern-btn-secondary" onClick={() => setShowExercisePlanModal(false)}>Cancel</button>
+                        <button type="submit" className="submit-btn modern-btn-primary" onClick={(e) => { e.preventDefault(); setShowExercisePlanModal(false); }}>
+                          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                            <polyline points="20 6 9 17 4 12"/>
+                          </svg>
+                          Create Exercise Plan
+                        </button>
+                      </div>
+                    </form>
                   </div>
                 </div>
-                <button type="submit" className="submit-btn">Create Exercise Plan</button>
-              </form>
+              )}
             </div>
           )}
 
@@ -1377,11 +1928,7 @@ function App() {
                 </button>
                 <button 
                   className="settings-item settings-logout"
-                  onClick={() => {
-                    setIsLoggedIn(false)
-                    setUserRole(null)
-                    handleNavigation('main')
-                  }}
+                  onClick={handleLogout}
                 >
                   <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                     <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/>
