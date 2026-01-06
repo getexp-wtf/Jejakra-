@@ -48,9 +48,7 @@ function App() {
   // Dashboard State
   const [dashboardView, setDashboardView] = useState('home')
   const [appointmentFilter, setAppointmentFilter] = useState('today')
-  const [appointmentSubView, setAppointmentSubView] = useState('today') // 'today' or 'upcoming'
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false)
-  const [isAppointmentSubmenuOpen, setIsAppointmentSubmenuOpen] = useState(false)
   
   // Modal States
   const [showAppointmentModal, setShowAppointmentModal] = useState(false)
@@ -65,7 +63,171 @@ function App() {
   const [visitType, setVisitType] = useState('In-person') // 'In-person' or 'Virtual'
   const [reasonText, setReasonText] = useState('I need to see a doctor to get my annual physical checkup.')
 
-  const appointmentTypes = ['Consultation', 'Follow-up', 'Routine Check-up']
+  // Appointment Page States
+  const [showFilterDropdown, setShowFilterDropdown] = useState(false)
+  const [filterOptions, setFilterOptions] = useState({
+    appointmentType: '',
+    visitType: ''
+  })
+  const [tempFilterOptions, setTempFilterOptions] = useState({
+    appointmentType: '',
+    visitType: ''
+  })
+  const [sortConfig, setSortConfig] = useState({
+    key: null,
+    direction: 'asc' // 'asc' or 'desc'
+  })
+  const [openMenuId, setOpenMenuId] = useState(null) // Track which appointment's menu is open
+  const [showViewPatientModal, setShowViewPatientModal] = useState(false)
+  const [selectedPatient, setSelectedPatient] = useState(null)
+  const [editingStatusId, setEditingStatusId] = useState(null) // Track which appointment status is being edited
+  const [showDeleteModal, setShowDeleteModal] = useState(false)
+  const [appointmentToDelete, setAppointmentToDelete] = useState(null)
+  
+  // View Patient Modal states
+  const [patientModalStep, setPatientModalStep] = useState(1) // 1: General Info, 2: Clinical Measurements, 3: Medical History, 4: Medication
+  const [isEditMode, setIsEditMode] = useState(false)
+  
+  // Patient form data states
+  const [patientFormData, setPatientFormData] = useState({
+    // General Information
+    name: '',
+    gender: '',
+    age: '',
+    address: '',
+    registeredDate: '',
+    disease: '',
+    // Clinical Measurements
+    weight: '',
+    height: '',
+    bmi: '',
+    bodyTemperature: '',
+    heartRate: '',
+    // Medical History
+    chronicConditions: [],
+    pastMajorIllnesses: 'No',
+    pastMajorIllnessesDetails: '',
+    previousSurgeries: 'No',
+    // Current Medication
+    prescriptionDrugs: [],
+    overTheCounterMeds: [],
+    medicationNotes: ''
+  })
+  
+  // Dropdown options
+  const chronicConditionsOptions = [
+    'Diabetes', 'Hypertension', 'Asthma', 'Arthritis', 'Heart Disease',
+    'Chronic Kidney Disease', 'COPD', 'Osteoporosis', 'Depression', 'Anxiety'
+  ]
+  
+  const prescriptionDrugsOptions = [
+    'Metformin', 'Lisinopril', 'Albuterol', 'Atorvastatin', 'Levothyroxine',
+    'Amlodipine', 'Omeprazole', 'Losartan', 'Gabapentin', 'Sertraline'
+  ]
+  
+  const overTheCounterMedsOptions = [
+    'Ibuprofen', 'Acetaminophen', 'Aspirin', 'Loratadine', 'Diphenhydramine',
+    'Calcium Carbonate', 'Vitamin D', 'Multivitamin', 'Probiotics', 'Melatonin'
+  ]
+  
+  // Patient data (extended from appointments)
+  const [patientsData, setPatientsData] = useState({
+    1: { name: 'Jimmy Buffey', gender: 'Male', age: '45', address: '123 Main St, City, State 12345', registeredDate: '2020-01-15', disease: 'Hypertension' },
+    2: { name: 'Mike Scott', gender: 'Male', age: '38', address: '456 Oak Ave, City, State 12345', registeredDate: '2019-11-20', disease: 'Diabetes Type 2' },
+    3: { name: 'Pam Beasly', gender: 'Female', age: '52', address: '789 Pine Rd, City, State 12345', registeredDate: '2020-02-10', disease: 'Anxiety Disorder' },
+    4: { name: 'Peter Kanvinsky', gender: 'Male', age: '34', address: '321 Elm St, City, State 12345', registeredDate: '2019-12-05', disease: 'Chronic Pain' },
+    5: { name: 'Hannah Montana', gender: 'Female', age: '29', address: '654 Maple Dr, City, State 12345', registeredDate: '2020-03-01', disease: 'Asthma' },
+    6: { name: 'Raven Baxter', gender: 'Female', age: '41', address: '987 Cedar Ln, City, State 12345', registeredDate: '2019-10-12', disease: 'Migraine' },
+    7: { name: 'Bloom Bekkar', gender: 'Female', age: '36', address: '147 Birch Way, City, State 12345', registeredDate: '2020-01-25', disease: 'Arthritis' }
+  })
+  const [appointments, setAppointments] = useState([
+    {
+      id: 1,
+      patientName: 'Jimmy Buffey',
+      appointmentType: 'Consultation',
+      sessionType: 'TREATMENT',
+      date: '2020-03-25',
+      time: '8:00 AM',
+      visitType: 'In-person',
+      status: 'No show',
+      notes: 'NOTE',
+      isToday: true
+    },
+    {
+      id: 2,
+      patientName: 'Mike Scott',
+      appointmentType: 'Follow Up',
+      sessionType: 'INTAKE INTERVIEW',
+      date: '2020-03-25',
+      time: '9:30 AM',
+      visitType: 'Virtual',
+      status: 'Ongoing',
+      notes: '',
+      isToday: true
+    },
+    {
+      id: 3,
+      patientName: 'Pam Beasly',
+      appointmentType: 'Routine Check-up',
+      sessionType: 'TREATMENT',
+      date: '2020-03-25',
+      time: '11:00 AM',
+      visitType: 'Virtual',
+      status: 'Scheduled',
+      notes: '',
+      isToday: true
+    },
+    {
+      id: 4,
+      patientName: 'Peter Kanvinsky',
+      appointmentType: 'Consultation',
+      sessionType: 'TREATMENT',
+      date: '2020-03-26',
+      time: '12:30 PM',
+      visitType: 'Virtual',
+      status: 'Scheduled',
+      notes: '',
+      isToday: false
+    },
+    {
+      id: 5,
+      patientName: 'Hannah Montana',
+      appointmentType: 'Follow Up',
+      sessionType: 'TREATMENT',
+      date: '2020-03-26',
+      time: '3:00 PM',
+      visitType: 'In-person',
+      status: 'Scheduled',
+      notes: 'NOTE',
+      isToday: false
+    },
+    {
+      id: 6,
+      patientName: 'Raven Baxter',
+      appointmentType: 'Routine Check-up',
+      sessionType: 'FINAL SESSION',
+      date: '2020-03-26',
+      time: '4:30 PM',
+      visitType: 'Virtual',
+      status: 'Scheduled',
+      notes: '',
+      isToday: false
+    },
+    {
+      id: 7,
+      patientName: 'Bloom Bekkar',
+      appointmentType: 'Consultation',
+      sessionType: 'FOLLOW UP',
+      date: '2020-03-26',
+      time: '8:00 AM',
+      visitType: 'In-person',
+      status: 'Scheduled',
+      notes: '',
+      isToday: false
+    }
+  ])
+
+  const appointmentTypes = ['Consultation', 'Follow Up', 'Routine Check-up']
   const availableTimes = ['8:00 AM', '9:30 AM', '11:00 AM', '12:30 PM', '3:00 PM', '4:30 PM']
 
   // Reset appointment form
@@ -85,17 +247,263 @@ function App() {
 
   const handleAppointmentSubmit = (e) => {
     e.preventDefault()
-    alert('Appointment confirmed!\n\n' + 
-      `Patient Name: ${patientName}\n` +
-      `Appointment Type: ${appointmentType}\n` +
-      `Date: ${selectedDate}\n` +
-      `Time: ${selectedTimeSlot}\n` +
-      `Visit Type: ${visitType}\n` +
-      `Reason: ${reasonText}`
-    )
+    const newAppointment = {
+      id: appointments.length + 1,
+      patientName: patientName,
+      appointmentType: appointmentType,
+      sessionType: 'TREATMENT',
+      date: selectedDate,
+      time: selectedTimeSlot,
+      visitType: visitType, // Keep as 'In-person' or 'Virtual'
+      status: 'Scheduled',
+      notes: reasonText ? 'NOTE' : '',
+      isToday: selectedDate === '2020-03-25'
+    }
+    
+    setAppointments([...appointments, newAppointment])
     setShowAppointmentModal(false)
     resetAppointmentForm()
   }
+
+  const getStatusColor = (status) => {
+    switch(status) {
+      case 'Ongoing': return 'appointment-status-scheduled'
+      case 'Scheduled': return 'appointment-status-scheduled'
+      case 'No show': return 'appointment-status-noshow'
+      default: return 'appointment-status-scheduled'
+    }
+  }
+
+
+  const getTextColor = (status) => {
+    return 'appointment-text-dark'
+  }
+
+  const getDotColor = (apt) => {
+    if (apt.status === 'No show') return 'appointment-dot-pink'
+    if (apt.status === 'Ongoing') return 'appointment-dot-white'
+    return 'appointment-dot-yellow'
+  }
+
+  const handleSort = (key) => {
+    let direction = 'asc'
+    if (sortConfig.key === key && sortConfig.direction === 'asc') {
+      direction = 'desc'
+    }
+    setSortConfig({ key, direction })
+  }
+
+  const sortAppointments = (appointmentsList) => {
+    if (!sortConfig.key) return appointmentsList
+    
+    const sorted = [...appointmentsList].sort((a, b) => {
+      let aValue, bValue
+      
+      switch(sortConfig.key) {
+        case 'patientName':
+          aValue = a.patientName.toLowerCase()
+          bValue = b.patientName.toLowerCase()
+          break
+        case 'appointmentType':
+          aValue = a.appointmentType.toLowerCase()
+          bValue = b.appointmentType.toLowerCase()
+          break
+        case 'visitType':
+          aValue = a.visitType.toLowerCase()
+          bValue = b.visitType.toLowerCase()
+          break
+        case 'status':
+          aValue = a.status.toLowerCase()
+          bValue = b.status.toLowerCase()
+          break
+        case 'time':
+          // Convert time to comparable format (e.g., "09:45 AM" -> 945)
+          const timeToNumber = (time) => {
+            const [timePart, period] = time.split(' ')
+            const [hours, minutes] = timePart.split(':')
+            let hour = parseInt(hours)
+            if (period === 'PM' && hour !== 12) hour += 12
+            if (period === 'AM' && hour === 12) hour = 0
+            return hour * 100 + parseInt(minutes)
+          }
+          aValue = timeToNumber(a.time)
+          bValue = timeToNumber(b.time)
+          break
+        default:
+          return 0
+      }
+      
+      if (aValue < bValue) return sortConfig.direction === 'asc' ? -1 : 1
+      if (aValue > bValue) return sortConfig.direction === 'asc' ? 1 : -1
+      return 0
+    })
+    
+    return sorted
+  }
+
+  const getFilteredAppointments = (appointmentsList) => {
+    let filtered = appointmentsList
+    
+    // Filter by appointment type
+    if (filterOptions.appointmentType) {
+      filtered = filtered.filter(apt => apt.appointmentType === filterOptions.appointmentType)
+    }
+    
+    // Filter by consultation type (visit type)
+    if (filterOptions.visitType) {
+      filtered = filtered.filter(apt => apt.visitType === filterOptions.visitType)
+    }
+    
+    return filtered
+  }
+
+  const handleViewPatient = (appointment) => {
+    const patientData = patientsData[appointment.id]
+    if (patientData) {
+      const fullPatientData = { ...appointment, ...patientData }
+      setSelectedPatient(fullPatientData)
+      // Initialize form data
+      setPatientFormData({
+        name: fullPatientData.name || '',
+        gender: fullPatientData.gender || '',
+        age: fullPatientData.age || '',
+        address: fullPatientData.address || '',
+        registeredDate: fullPatientData.registeredDate || '',
+        disease: fullPatientData.disease || '',
+        weight: fullPatientData.weight || '',
+        height: fullPatientData.height || '',
+        bmi: fullPatientData.bmi || '',
+        bodyTemperature: fullPatientData.bodyTemperature || '',
+        heartRate: fullPatientData.heartRate || '',
+        chronicConditions: fullPatientData.chronicConditions || [],
+        pastMajorIllnesses: fullPatientData.pastMajorIllnesses || 'No',
+        pastMajorIllnessesDetails: fullPatientData.pastMajorIllnessesDetails || '',
+        previousSurgeries: fullPatientData.previousSurgeries || 'No',
+        prescriptionDrugs: fullPatientData.prescriptionDrugs || [],
+        overTheCounterMeds: fullPatientData.overTheCounterMeds || [],
+        medicationNotes: fullPatientData.medicationNotes || ''
+      })
+      setPatientModalStep(1)
+      setIsEditMode(false)
+      setShowViewPatientModal(true)
+      setOpenMenuId(null)
+    }
+  }
+  
+  const handleAddChronicCondition = (condition) => {
+    if (patientFormData.chronicConditions.length < 5 && !patientFormData.chronicConditions.includes(condition)) {
+      setPatientFormData(prev => ({
+        ...prev,
+        chronicConditions: [...prev.chronicConditions, condition]
+      }))
+    }
+  }
+  
+  const handleRemoveChronicCondition = (condition) => {
+    setPatientFormData(prev => ({
+      ...prev,
+      chronicConditions: prev.chronicConditions.filter(c => c !== condition)
+    }))
+  }
+  
+  const handleAddPrescriptionDrug = (drug) => {
+    if (patientFormData.prescriptionDrugs.length < 5 && !patientFormData.prescriptionDrugs.includes(drug)) {
+      setPatientFormData(prev => ({
+        ...prev,
+        prescriptionDrugs: [...prev.prescriptionDrugs, drug]
+      }))
+    }
+  }
+  
+  const handleRemovePrescriptionDrug = (drug) => {
+    setPatientFormData(prev => ({
+      ...prev,
+      prescriptionDrugs: prev.prescriptionDrugs.filter(d => d !== drug)
+    }))
+  }
+  
+  const handleAddOverTheCounterMed = (med) => {
+    if (patientFormData.overTheCounterMeds.length < 5 && !patientFormData.overTheCounterMeds.includes(med)) {
+      setPatientFormData(prev => ({
+        ...prev,
+        overTheCounterMeds: [...prev.overTheCounterMeds, med]
+      }))
+    }
+  }
+  
+  const handleRemoveOverTheCounterMed = (med) => {
+    setPatientFormData(prev => ({
+      ...prev,
+      overTheCounterMeds: prev.overTheCounterMeds.filter(m => m !== med)
+    }))
+  }
+  
+  const handleNextStep = () => {
+    if (patientModalStep < 4) {
+      setPatientModalStep(patientModalStep + 1)
+    }
+  }
+  
+  const handlePreviousStep = () => {
+    if (patientModalStep > 1) {
+      setPatientModalStep(patientModalStep - 1)
+    }
+  }
+  
+  const handleClosePatientModal = () => {
+    setShowViewPatientModal(false)
+    setPatientModalStep(1)
+    setIsEditMode(false)
+    setSelectedPatient(null)
+  }
+  
+  const handleSavePatientData = () => {
+    if (selectedPatient && selectedPatient.id) {
+      // Update patientsData with new form data
+      setPatientsData(prev => ({
+        ...prev,
+        [selectedPatient.id]: {
+          ...prev[selectedPatient.id],
+          ...patientFormData
+        }
+      }))
+      // Update selectedPatient to reflect changes
+      setSelectedPatient(prev => ({
+        ...prev,
+        ...patientFormData
+      }))
+    }
+    setIsEditMode(false)
+  }
+
+  const handleUpdateStatus = (appointmentId) => {
+    setEditingStatusId(appointmentId)
+    setOpenMenuId(null)
+  }
+
+  const handleStatusChange = (appointmentId, newStatus) => {
+    setAppointments(appointments.map(apt => 
+      apt.id === appointmentId ? { ...apt, status: newStatus } : apt
+    ))
+    setEditingStatusId(null)
+  }
+
+  const handleDeleteAppointment = (appointment) => {
+    setAppointmentToDelete(appointment)
+    setShowDeleteModal(true)
+    setOpenMenuId(null)
+  }
+
+  const confirmDelete = () => {
+    if (appointmentToDelete) {
+      setAppointments(appointments.filter(apt => apt.id !== appointmentToDelete.id))
+      setShowDeleteModal(false)
+      setAppointmentToDelete(null)
+    }
+  }
+
+  const todayAppointments = sortAppointments(getFilteredAppointments(appointments.filter(apt => apt.isToday)))
+  const tomorrowAppointments = sortAppointments(getFilteredAppointments(appointments.filter(apt => !apt.isToday)))
   
   // Meal Plan State
   const [activeMealTab, setActiveMealTab] = useState('breakfast') // 'breakfast', 'lunch', 'snack', 'dinner'
@@ -376,6 +784,19 @@ function App() {
       setIsTransitioning(false)
     }
   }, [currentPage, bmiCalculated])
+
+  // Close appointment menu when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (openMenuId !== null && !event.target.closest('.appointment-more-wrapper')) {
+        setOpenMenuId(null)
+      }
+    }
+    document.addEventListener('mousedown', handleClickOutside)
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside)
+    }
+  }, [openMenuId])
 
   const renderFormContent = () => (
     <>
@@ -1043,66 +1464,21 @@ function App() {
               {!isSidebarCollapsed && <span>Home</span>}
             </a>
 
-            {/* Navigation 2: Appointment */}
-            <div className="sidebar-nav-group">
-              <a 
-                href="#" 
-                className={`sidebar-nav-item ${dashboardView === 'appointment' ? 'active' : ''} ${isAppointmentSubmenuOpen ? 'expanded' : ''}`}
-                onClick={(e) => { 
-                  e.preventDefault(); 
-                  setDashboardView('appointment');
-                  setIsAppointmentSubmenuOpen(!isAppointmentSubmenuOpen);
-                }}
-                title="Appointment"
-              >
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                  <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/>
-                  <line x1="16" y1="2" x2="16" y2="6"/>
-                  <line x1="8" y1="2" x2="8" y2="6"/>
-                  <line x1="3" y1="10" x2="21" y2="10"/>
-                </svg>
-                {!isSidebarCollapsed && (
-                  <>
-                    <span>Appointment</span>
-                    <svg 
-                      className="submenu-arrow" 
-                      width="16" 
-                      height="16" 
-                      viewBox="0 0 24 24" 
-                      fill="none" 
-                      stroke="currentColor" 
-                      strokeWidth="2"
-                    >
-                      <polyline points="6 9 12 15 18 9"/>
-                    </svg>
-                  </>
-                )}
-              </a>
-              {!isSidebarCollapsed && isAppointmentSubmenuOpen && (
-                <div className="sidebar-submenu">
-                  <a 
-                    href="#" 
-                    className={`sidebar-submenu-item ${appointmentSubView === 'today' ? 'active' : ''}`}
-                    onClick={(e) => { 
-                      e.preventDefault(); 
-                      setAppointmentSubView('today');
-                    }}
-                  >
-                    <span>Today Appointment</span>
-                  </a>
-                  <a 
-                    href="#" 
-                    className={`sidebar-submenu-item ${appointmentSubView === 'upcoming' ? 'active' : ''}`}
-                    onClick={(e) => { 
-                      e.preventDefault(); 
-                      setAppointmentSubView('upcoming');
-                    }}
-                  >
-                    <span>Upcoming Appointment</span>
-                  </a>
-                </div>
-              )}
-            </div>
+            {/* Navigation 2: Appointments */}
+            <a 
+              href="#" 
+              className={`sidebar-nav-item ${dashboardView === 'appointment' ? 'active' : ''}`}
+              onClick={(e) => { e.preventDefault(); setDashboardView('appointment'); }}
+              title="Appointments"
+            >
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/>
+                <line x1="16" y1="2" x2="16" y2="6"/>
+                <line x1="8" y1="2" x2="8" y2="6"/>
+                <line x1="3" y1="10" x2="21" y2="10"/>
+              </svg>
+              {!isSidebarCollapsed && <span>Appointments</span>}
+            </a>
 
             {/* Navigation 3: Meal Plan */}
             <a 
@@ -1129,6 +1505,22 @@ function App() {
                 <path d="M12 1v6m0 6v6M5.64 5.64l4.24 4.24m4.24 4.24l4.24 4.24M1 12h6m6 0h6M5.64 18.36l4.24-4.24m4.24-4.24l4.24-4.24"/>
               </svg>
               {!isSidebarCollapsed && <span>Exercise Plan</span>}
+            </a>
+
+            {/* Navigation 5: Patients */}
+            <a 
+              href="#" 
+              className={`sidebar-nav-item ${dashboardView === 'patients' ? 'active' : ''}`}
+              onClick={(e) => { e.preventDefault(); setDashboardView('patients'); }}
+              title="Patients"
+            >
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
+                <circle cx="9" cy="7" r="4"/>
+                <path d="M23 21v-2a4 4 0 0 0-3-3.87"/>
+                <path d="M16 3.13a4 4 0 0 1 0 7.75"/>
+              </svg>
+              {!isSidebarCollapsed && <span>Patients</span>}
             </a>
           </nav>
           
@@ -1260,69 +1652,452 @@ function App() {
           )}
 
           {dashboardView === 'appointment' && (
-            <div className="view-container">
-              <div className="view-header">
-                <h2 className="view-title">Appointment</h2>
-                <div className="view-header-actions">
-                  <select 
-                    className="dashboard-filter" 
-                    value={appointmentFilter}
-                    onChange={(e) => setAppointmentFilter(e.target.value)}
-                  >
-                    <option value="today">Today</option>
-                    <option value="week">This Week</option>
-                    <option value="month">This Month</option>
-                  </select>
-                  <button 
-                    className="create-btn"
-                    onClick={() => setShowAppointmentModal(true)}
-                  >
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                      <line x1="12" y1="5" x2="12" y2="19"/>
-                      <line x1="5" y1="12" x2="19" y2="12"/>
+            <div className="appointment-page-container">
+              {/* Top Bar with Filters */}
+              <div className="appointment-top-bar">
+                <div className="appointment-top-bar-content">
+                  {/* Search Bar - Moved to left */}
+                  <div className="appointment-search-wrapper">
+                    <svg className="appointment-search-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                      <circle cx="11" cy="11" r="8"/>
+                      <path d="m21 21-4.35-4.35"/>
                     </svg>
-                    <span>Create Appointment</span>
-                  </button>
+                    <input
+                      type="text"
+                      placeholder="Search Appointments"
+                      className="appointment-search-input"
+                    />
+                  </div>
+
+                  <div className="appointment-actions">
+                    {/* More filter - Merged with All Appointments */}
+                    <div className="appointment-dropdown-wrapper">
+                      <button 
+                        onClick={() => {
+                          setShowFilterDropdown(!showFilterDropdown)
+                          if (!showFilterDropdown) {
+                            // Initialize temp filters with current filter values when opening
+                            setTempFilterOptions({...filterOptions})
+                          }
+                        }}
+                        className="appointment-filter-btn"
+                      >
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                          <polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"/>
+                        </svg>
+                        More filter
+                      </button>
+                      {showFilterDropdown && (
+                        <div className="appointment-filter-menu">
+                          <div className="appointment-filter-field">
+                            <label className="appointment-filter-label">Type of Appointment</label>
+                            <select 
+                              value={tempFilterOptions.appointmentType}
+                              onChange={(e) => setTempFilterOptions({...tempFilterOptions, appointmentType: e.target.value})}
+                              className="appointment-filter-select"
+                            >
+                              <option value="">All appointments</option>
+                              {appointmentTypes.map(type => (
+                                <option key={type} value={type}>{type}</option>
+                              ))}
+                            </select>
+                          </div>
+                          <div className="appointment-filter-field">
+                            <label className="appointment-filter-label">Consultation Type</label>
+                            <div className="appointment-filter-buttons">
+                              <button
+                                type="button"
+                                onClick={() => setTempFilterOptions({...tempFilterOptions, visitType: tempFilterOptions.visitType === 'In-person' ? '' : 'In-person'})}
+                                className={`appointment-filter-type-btn ${tempFilterOptions.visitType === 'In-person' ? 'active' : ''}`}
+                              >
+                                In-person
+                              </button>
+                              <button
+                                type="button"
+                                onClick={() => setTempFilterOptions({...tempFilterOptions, visitType: tempFilterOptions.visitType === 'Virtual' ? '' : 'Virtual'})}
+                                className={`appointment-filter-type-btn ${tempFilterOptions.visitType === 'Virtual' ? 'active' : ''}`}
+                              >
+                                Virtual
+                              </button>
+                            </div>
+                          </div>
+                          <div className="appointment-filter-actions">
+                            <button
+                              type="button"
+                              onClick={() => {
+                                setFilterOptions({...tempFilterOptions})
+                                setShowFilterDropdown(false)
+                              }}
+                              className="appointment-filter-apply-btn"
+                            >
+                              Filter
+                            </button>
+                            <button
+                              type="button"
+                              onClick={() => {
+                                setTempFilterOptions({ appointmentType: '', visitType: '' })
+                                setFilterOptions({ appointmentType: '', visitType: '' })
+                                setShowFilterDropdown(false)
+                              }}
+                              className="appointment-filter-clear-btn"
+                            >
+                              Clear
+                            </button>
+                          </div>
+                        </div>
+                      )}
+                    </div>
+
+                    <button 
+                      className="create-btn"
+                      onClick={() => setShowAppointmentModal(true)}
+                    >
+                      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                        <line x1="12" y1="5" x2="12" y2="19"/>
+                        <line x1="5" y1="12" x2="19" y2="12"/>
+                      </svg>
+                      <span>Create Appointment</span>
+                    </button>
+                  </div>
                 </div>
               </div>
 
-              {appointmentSubView === 'today' && (
-                <div className="appointments-list">
-                  <div className="appointment-item">
-                    <div className="appointment-time">9:00 AM</div>
-                    <div className="appointment-details">
-                      <h3>John Doe - Consultation</h3>
-                      <p>Regular check-up</p>
+              {/* Main Content Area - Table View */}
+              <div className="appointment-content-area">
+                {/* Today's Appointments */}
+                <div className="appointment-section">
+                  <h2 className="appointment-section-title">
+                    Today's appointments ({todayAppointments.length})
+                  </h2>
+                  
+                  <div className="appointment-table">
+                    {/* Table Header */}
+                    <div className="appointment-table-header">
+                      <div 
+                        className="appointment-table-col appointment-col-name appointment-sortable" 
+                        onClick={() => handleSort('patientName')}
+                      >
+                        Patient Name
+                        {sortConfig.key === 'patientName' && (
+                          <svg className="appointment-sort-icon" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                            {sortConfig.direction === 'asc' ? (
+                              <polyline points="18 15 12 9 6 15"/>
+                            ) : (
+                              <polyline points="6 9 12 15 18 9"/>
+                            )}
+                          </svg>
+                        )}
+                      </div>
+                      <div 
+                        className="appointment-table-col appointment-col-therapy appointment-sortable" 
+                        onClick={() => handleSort('appointmentType')}
+                      >
+                        Type of appointment
+                        {sortConfig.key === 'appointmentType' && (
+                          <svg className="appointment-sort-icon" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                            {sortConfig.direction === 'asc' ? (
+                              <polyline points="18 15 12 9 6 15"/>
+                            ) : (
+                              <polyline points="6 9 12 15 18 9"/>
+                            )}
+                          </svg>
+                        )}
+                      </div>
+                      <div 
+                        className="appointment-table-col appointment-col-contact appointment-sortable" 
+                        onClick={() => handleSort('visitType')}
+                      >
+                        Consultation Type
+                        {sortConfig.key === 'visitType' && (
+                          <svg className="appointment-sort-icon" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                            {sortConfig.direction === 'asc' ? (
+                              <polyline points="18 15 12 9 6 15"/>
+                            ) : (
+                              <polyline points="6 9 12 15 18 9"/>
+                            )}
+                          </svg>
+                        )}
+                      </div>
+                      <div 
+                        className="appointment-table-col appointment-col-status appointment-sortable" 
+                        onClick={() => handleSort('status')}
+                      >
+                        Status
+                        {sortConfig.key === 'status' && (
+                          <svg className="appointment-sort-icon" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                            {sortConfig.direction === 'asc' ? (
+                              <polyline points="18 15 12 9 6 15"/>
+                            ) : (
+                              <polyline points="6 9 12 15 18 9"/>
+                            )}
+                          </svg>
+                        )}
+                      </div>
+                      <div 
+                        className="appointment-table-col appointment-col-time appointment-sortable" 
+                        onClick={() => handleSort('time')}
+                      >
+                        Appointment time
+                        {sortConfig.key === 'time' && (
+                          <svg className="appointment-sort-icon" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                            {sortConfig.direction === 'asc' ? (
+                              <polyline points="18 15 12 9 6 15"/>
+                            ) : (
+                              <polyline points="6 9 12 15 18 9"/>
+                            )}
+                          </svg>
+                        )}
+                      </div>
+                      <div className="appointment-table-col appointment-col-actions"></div>
                     </div>
-                  </div>
-                  <div className="appointment-item">
-                    <div className="appointment-time">10:30 AM</div>
-                    <div className="appointment-details">
-                      <h3>Mary Smith - Follow-up</h3>
-                      <p>Diabetes management</p>
-                    </div>
-                  </div>
-                </div>
-              )}
 
-              {appointmentSubView === 'upcoming' && (
-                <div className="appointments-list">
-                  <div className="appointment-item">
-                    <div className="appointment-time">Tomorrow, 2:00 PM</div>
-                    <div className="appointment-details">
-                      <h3>Sarah Johnson - Check-up</h3>
-                      <p>Annual physical examination</p>
-                    </div>
-                  </div>
-                  <div className="appointment-item">
-                    <div className="appointment-time">Dec 15, 11:00 AM</div>
-                    <div className="appointment-details">
-                      <h3>Michael Brown - Consultation</h3>
-                      <p>Follow-up appointment</p>
-                    </div>
+                    {/* Table Body */}
+                    {todayAppointments.map((apt) => (
+                      <div 
+                        key={apt.id} 
+                        className={`appointment-table-row ${apt.status === 'Ongoing' ? 'appointment-row-ongoing' : ''}`}
+                      >
+                        <div className="appointment-table-col appointment-col-name">
+                          <div className="appointment-client-info">
+                            <div className={`appointment-dot ${getDotColor(apt)}`}></div>
+                            <div>
+                              <div className={`appointment-client-name ${getTextColor(apt.status)}`}>
+                                {apt.patientName}
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                        <div className={`appointment-table-col appointment-col-therapy ${getTextColor(apt.status)}`}>{apt.appointmentType}</div>
+                        <div className={`appointment-table-col appointment-col-contact ${getTextColor(apt.status)}`}>{apt.visitType}</div>
+                        <div className={`appointment-table-col appointment-col-status ${getStatusColor(apt.status)}`}>
+                          {editingStatusId === apt.id ? (
+                            <select
+                              value={apt.status}
+                              onChange={(e) => handleStatusChange(apt.id, e.target.value)}
+                              onBlur={() => setEditingStatusId(null)}
+                              className="appointment-status-select"
+                              autoFocus
+                            >
+                              <option value="Done">Done</option>
+                              <option value="Postponed">Postponed</option>
+                              <option value="No show">No show</option>
+                            </select>
+                          ) : (
+                            <span>{apt.status}</span>
+                          )}
+                        </div>
+                        <div className={`appointment-table-col appointment-col-time ${getTextColor(apt.status)} appointment-time-bold`}>{apt.time}</div>
+                        <div className="appointment-table-col appointment-col-actions">
+                          <div className="appointment-more-wrapper">
+                            <button 
+                              className="appointment-more-btn"
+                              onClick={(e) => {
+                                e.stopPropagation()
+                                setOpenMenuId(openMenuId === apt.id ? null : apt.id)
+                              }}
+                            >
+                              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                                <circle cx="12" cy="12" r="1"/>
+                                <circle cx="12" cy="5" r="1"/>
+                                <circle cx="12" cy="19" r="1"/>
+                              </svg>
+                            </button>
+                            {openMenuId === apt.id && (
+                              <div className="appointment-action-menu">
+                                <button 
+                                  className="appointment-action-menu-item"
+                                  onClick={() => handleViewPatient(apt)}
+                                >
+                                  View patient
+                                </button>
+                                <button 
+                                  className="appointment-action-menu-item"
+                                  onClick={() => handleUpdateStatus(apt.id)}
+                                >
+                                  Update status
+                                </button>
+                                <button 
+                                  className="appointment-action-menu-item appointment-action-menu-item-danger"
+                                  onClick={() => handleDeleteAppointment(apt)}
+                                >
+                                  Delete Appointment
+                                </button>
+                              </div>
+                            )}
+                          </div>
+                        </div>
+                      </div>
+                    ))}
                   </div>
                 </div>
-              )}
+
+                {/* Tomorrow's Appointments */}
+                <div className="appointment-section">
+                  <h2 className="appointment-section-title">
+                    Tomorrow's appointments ({tomorrowAppointments.length})
+                  </h2>
+                  
+                  <div className="appointment-table">
+                    {/* Table Header */}
+                    <div className="appointment-table-header">
+                      <div 
+                        className="appointment-table-col appointment-col-name appointment-sortable" 
+                        onClick={() => handleSort('patientName')}
+                      >
+                        Patient Name
+                        {sortConfig.key === 'patientName' && (
+                          <svg className="appointment-sort-icon" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                            {sortConfig.direction === 'asc' ? (
+                              <polyline points="18 15 12 9 6 15"/>
+                            ) : (
+                              <polyline points="6 9 12 15 18 9"/>
+                            )}
+                          </svg>
+                        )}
+                      </div>
+                      <div 
+                        className="appointment-table-col appointment-col-therapy appointment-sortable" 
+                        onClick={() => handleSort('appointmentType')}
+                      >
+                        Type of appointment
+                        {sortConfig.key === 'appointmentType' && (
+                          <svg className="appointment-sort-icon" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                            {sortConfig.direction === 'asc' ? (
+                              <polyline points="18 15 12 9 6 15"/>
+                            ) : (
+                              <polyline points="6 9 12 15 18 9"/>
+                            )}
+                          </svg>
+                        )}
+                      </div>
+                      <div 
+                        className="appointment-table-col appointment-col-contact appointment-sortable" 
+                        onClick={() => handleSort('visitType')}
+                      >
+                        Consultation Type
+                        {sortConfig.key === 'visitType' && (
+                          <svg className="appointment-sort-icon" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                            {sortConfig.direction === 'asc' ? (
+                              <polyline points="18 15 12 9 6 15"/>
+                            ) : (
+                              <polyline points="6 9 12 15 18 9"/>
+                            )}
+                          </svg>
+                        )}
+                      </div>
+                      <div 
+                        className="appointment-table-col appointment-col-status appointment-sortable" 
+                        onClick={() => handleSort('status')}
+                      >
+                        Status
+                        {sortConfig.key === 'status' && (
+                          <svg className="appointment-sort-icon" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                            {sortConfig.direction === 'asc' ? (
+                              <polyline points="18 15 12 9 6 15"/>
+                            ) : (
+                              <polyline points="6 9 12 15 18 9"/>
+                            )}
+                          </svg>
+                        )}
+                      </div>
+                      <div 
+                        className="appointment-table-col appointment-col-time appointment-sortable" 
+                        onClick={() => handleSort('time')}
+                      >
+                        Appointment time
+                        {sortConfig.key === 'time' && (
+                          <svg className="appointment-sort-icon" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                            {sortConfig.direction === 'asc' ? (
+                              <polyline points="18 15 12 9 6 15"/>
+                            ) : (
+                              <polyline points="6 9 12 15 18 9"/>
+                            )}
+                          </svg>
+                        )}
+                      </div>
+                      <div className="appointment-table-col appointment-col-actions"></div>
+                    </div>
+
+                    {/* Table Body */}
+                    {tomorrowAppointments.map((apt) => (
+                      <div 
+                        key={apt.id} 
+                        className="appointment-table-row"
+                      >
+                        <div className="appointment-table-col appointment-col-name">
+                          <div className="appointment-client-info">
+                            <div className="appointment-dot appointment-dot-pink"></div>
+                            <div>
+                              <div className="appointment-client-name appointment-text-dark">
+                                {apt.patientName}
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                        <div className="appointment-table-col appointment-col-therapy appointment-text-dark">{apt.appointmentType}</div>
+                        <div className="appointment-table-col appointment-col-contact appointment-text-dark">{apt.visitType}</div>
+                        <div className="appointment-table-col appointment-col-status appointment-status-scheduled">
+                          {editingStatusId === apt.id ? (
+                            <select
+                              value={apt.status}
+                              onChange={(e) => handleStatusChange(apt.id, e.target.value)}
+                              onBlur={() => setEditingStatusId(null)}
+                              className="appointment-status-select"
+                              autoFocus
+                            >
+                              <option value="Done">Done</option>
+                              <option value="Postponed">Postponed</option>
+                              <option value="No show">No show</option>
+                            </select>
+                          ) : (
+                            <span>{apt.status}</span>
+                          )}
+                        </div>
+                        <div className="appointment-table-col appointment-col-time appointment-text-dark appointment-time-bold">{apt.time}</div>
+                        <div className="appointment-table-col appointment-col-actions">
+                          <div className="appointment-more-wrapper">
+                            <button 
+                              className="appointment-more-btn"
+                              onClick={(e) => {
+                                e.stopPropagation()
+                                setOpenMenuId(openMenuId === apt.id ? null : apt.id)
+                              }}
+                            >
+                              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                                <circle cx="12" cy="12" r="1"/>
+                                <circle cx="12" cy="5" r="1"/>
+                                <circle cx="12" cy="19" r="1"/>
+                              </svg>
+                            </button>
+                            {openMenuId === apt.id && (
+                              <div className="appointment-action-menu">
+                                <button 
+                                  className="appointment-action-menu-item"
+                                  onClick={() => handleViewPatient(apt)}
+                                >
+                                  View patient
+                                </button>
+                                <button 
+                                  className="appointment-action-menu-item"
+                                  onClick={() => handleUpdateStatus(apt.id)}
+                                >
+                                  Update status
+                                </button>
+                                <button 
+                                  className="appointment-action-menu-item appointment-action-menu-item-danger"
+                                  onClick={() => handleDeleteAppointment(apt)}
+                                >
+                                  Delete Appointment
+                                </button>
+                              </div>
+                            )}
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </div>
 
               {/* Appointment Modal */}
               {showAppointmentModal && (
@@ -1422,7 +2197,7 @@ function App() {
                         {/* Visit Type */}
                         <div className="appointment-form-field">
                           <label className="appointment-form-label">
-                            Type of Appointment
+                            Consultation Type
                           </label>
                           <div className="appointment-visit-type-group">
                             <button
@@ -1464,6 +2239,650 @@ function App() {
                           Confirm appointment
                         </button>
                       </form>
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {/* View Patient Modal */}
+              {showViewPatientModal && selectedPatient && (
+                <div className="appointment-modal-overlay" onClick={handleClosePatientModal}>
+                  <div className="appointment-modal-container patient-view-modal" onClick={(e) => e.stopPropagation()}>
+                    <div className="appointment-modal-header">
+                      <h2 className="appointment-modal-title">
+                        {patientModalStep === 1 && 'General Information'}
+                        {patientModalStep === 2 && 'Clinical Measurements'}
+                        {patientModalStep === 3 && 'Medical History'}
+                        {patientModalStep === 4 && 'Current Medication'}
+                      </h2>
+                      <button
+                        onClick={handleClosePatientModal}
+                        className="appointment-modal-close"
+                        type="button"
+                      >
+                        <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                          <line x1="18" y1="6" x2="6" y2="18"/>
+                          <line x1="6" y1="6" x2="18" y2="18"/>
+                        </svg>
+                      </button>
+                    </div>
+                    
+                    {/* Stepper */}
+                    <div className="patient-modal-stepper">
+                      <div className={`stepper-step ${patientModalStep >= 1 ? 'active' : ''} ${patientModalStep === 1 ? 'current' : ''}`}>
+                        <div className="stepper-circle">1</div>
+                        <div className="stepper-label">General Info</div>
+                      </div>
+                      <div className={`stepper-line ${patientModalStep >= 2 ? 'active' : ''}`}></div>
+                      <div className={`stepper-step ${patientModalStep >= 2 ? 'active' : ''} ${patientModalStep === 2 ? 'current' : ''}`}>
+                        <div className="stepper-circle">2</div>
+                        <div className="stepper-label">Measurements</div>
+                      </div>
+                      <div className={`stepper-line ${patientModalStep >= 3 ? 'active' : ''}`}></div>
+                      <div className={`stepper-step ${patientModalStep >= 3 ? 'active' : ''} ${patientModalStep === 3 ? 'current' : ''}`}>
+                        <div className="stepper-circle">3</div>
+                        <div className="stepper-label">History</div>
+                      </div>
+                      <div className={`stepper-line ${patientModalStep >= 4 ? 'active' : ''}`}></div>
+                      <div className={`stepper-step ${patientModalStep >= 4 ? 'active' : ''} ${patientModalStep === 4 ? 'current' : ''}`}>
+                        <div className="stepper-circle">4</div>
+                        <div className="stepper-label">Medication</div>
+                      </div>
+                    </div>
+                    
+                    <div className="appointment-modal-body">
+                      <div className="appointment-form-container">
+                        {/* Step 1: General Information */}
+                        {patientModalStep === 1 && (
+                          <>
+                            <div className="appointment-form-field">
+                              <label className="appointment-form-label">Patient Name</label>
+                              {isEditMode ? (
+                                <input
+                                  type="text"
+                                  className="appointment-form-input"
+                                  value={patientFormData.name}
+                                  onChange={(e) => setPatientFormData(prev => ({ ...prev, name: e.target.value }))}
+                                />
+                              ) : (
+                                <div className="appointment-form-input appointment-form-readonly">
+                                  {patientFormData.name}
+                                </div>
+                              )}
+                            </div>
+                            <div className="appointment-form-row">
+                              <div className="appointment-form-field">
+                                <label className="appointment-form-label">Gender</label>
+                                {isEditMode ? (
+                                  <select
+                                    className="appointment-form-input"
+                                    value={patientFormData.gender}
+                                    onChange={(e) => setPatientFormData(prev => ({ ...prev, gender: e.target.value }))}
+                                  >
+                                    <option value="">Select Gender</option>
+                                    <option value="Male">Male</option>
+                                    <option value="Female">Female</option>
+                                    <option value="Other">Other</option>
+                                  </select>
+                                ) : (
+                                  <div className="appointment-form-input appointment-form-readonly">
+                                    {patientFormData.gender}
+                                  </div>
+                                )}
+                              </div>
+                              <div className="appointment-form-field">
+                                <label className="appointment-form-label">Age</label>
+                                {isEditMode ? (
+                                  <input
+                                    type="text"
+                                    className="appointment-form-input"
+                                    value={patientFormData.age}
+                                    onChange={(e) => setPatientFormData(prev => ({ ...prev, age: e.target.value }))}
+                                    placeholder="Enter age"
+                                  />
+                                ) : (
+                                  <div className="appointment-form-input appointment-form-readonly">
+                                    {patientFormData.age}
+                                  </div>
+                                )}
+                              </div>
+                            </div>
+                            <div className="appointment-form-field">
+                              <label className="appointment-form-label">Address</label>
+                              {isEditMode ? (
+                                <input
+                                  type="text"
+                                  className="appointment-form-input"
+                                  value={patientFormData.address}
+                                  onChange={(e) => setPatientFormData(prev => ({ ...prev, address: e.target.value }))}
+                                />
+                              ) : (
+                                <div className="appointment-form-input appointment-form-readonly">
+                                  {patientFormData.address}
+                                </div>
+                              )}
+                            </div>
+                            <div className="appointment-form-field">
+                              <label className="appointment-form-label">Registered Date</label>
+                              {isEditMode ? (
+                                <input
+                                  type="date"
+                                  className="appointment-form-input"
+                                  value={patientFormData.registeredDate}
+                                  onChange={(e) => setPatientFormData(prev => ({ ...prev, registeredDate: e.target.value }))}
+                                />
+                              ) : (
+                                <div className="appointment-form-input appointment-form-readonly">
+                                  {patientFormData.registeredDate ? new Date(patientFormData.registeredDate).toLocaleDateString('en-US', { 
+                                    year: 'numeric', 
+                                    month: 'long', 
+                                    day: 'numeric' 
+                                  }) : ''}
+                                </div>
+                              )}
+                            </div>
+                            <div className="appointment-form-field">
+                              <label className="appointment-form-label">Disease</label>
+                              {isEditMode ? (
+                                <input
+                                  type="text"
+                                  className="appointment-form-input"
+                                  value={patientFormData.disease}
+                                  onChange={(e) => setPatientFormData(prev => ({ ...prev, disease: e.target.value }))}
+                                />
+                              ) : (
+                                <div className="appointment-form-input appointment-form-readonly">
+                                  {patientFormData.disease}
+                                </div>
+                              )}
+                            </div>
+                          </>
+                        )}
+                        
+                        {/* Step 2: Clinical Measurements */}
+                        {patientModalStep === 2 && (
+                          <>
+                            <div className="appointment-form-row">
+                              <div className="appointment-form-field">
+                                <label className="appointment-form-label">Weight</label>
+                                {isEditMode ? (
+                                  <input
+                                    type="text"
+                                    className="appointment-form-input"
+                                    value={patientFormData.weight}
+                                    onChange={(e) => setPatientFormData(prev => ({ ...prev, weight: e.target.value }))}
+                                    placeholder="Enter weight (kg)"
+                                  />
+                                ) : (
+                                  <div className="appointment-form-input appointment-form-readonly">
+                                    {patientFormData.weight || '-'}
+                                  </div>
+                                )}
+                              </div>
+                              <div className="appointment-form-field">
+                                <label className="appointment-form-label">Height</label>
+                                {isEditMode ? (
+                                  <input
+                                    type="text"
+                                    className="appointment-form-input"
+                                    value={patientFormData.height}
+                                    onChange={(e) => setPatientFormData(prev => ({ ...prev, height: e.target.value }))}
+                                    placeholder="Enter height (cm)"
+                                  />
+                                ) : (
+                                  <div className="appointment-form-input appointment-form-readonly">
+                                    {patientFormData.height || '-'}
+                                  </div>
+                                )}
+                              </div>
+                            </div>
+                            <div className="appointment-form-row">
+                              <div className="appointment-form-field">
+                                <label className="appointment-form-label">BMI</label>
+                                {isEditMode ? (
+                                  <input
+                                    type="text"
+                                    className="appointment-form-input"
+                                    value={patientFormData.bmi}
+                                    onChange={(e) => setPatientFormData(prev => ({ ...prev, bmi: e.target.value }))}
+                                    placeholder="Enter BMI"
+                                  />
+                                ) : (
+                                  <div className="appointment-form-input appointment-form-readonly">
+                                    {patientFormData.bmi || '-'}
+                                  </div>
+                                )}
+                              </div>
+                              <div className="appointment-form-field">
+                                <label className="appointment-form-label">Body Temperature</label>
+                                {isEditMode ? (
+                                  <input
+                                    type="text"
+                                    className="appointment-form-input"
+                                    value={patientFormData.bodyTemperature}
+                                    onChange={(e) => setPatientFormData(prev => ({ ...prev, bodyTemperature: e.target.value }))}
+                                    placeholder="Enter temperature (°C)"
+                                  />
+                                ) : (
+                                  <div className="appointment-form-input appointment-form-readonly">
+                                    {patientFormData.bodyTemperature || '-'}
+                                  </div>
+                                )}
+                              </div>
+                            </div>
+                            <div className="appointment-form-field">
+                              <label className="appointment-form-label">Heart Rate</label>
+                              {isEditMode ? (
+                                <input
+                                  type="text"
+                                  className="appointment-form-input"
+                                  value={patientFormData.heartRate}
+                                  onChange={(e) => setPatientFormData(prev => ({ ...prev, heartRate: e.target.value }))}
+                                  placeholder="Enter heart rate (bpm)"
+                                />
+                              ) : (
+                                <div className="appointment-form-input appointment-form-readonly">
+                                  {patientFormData.heartRate || '-'}
+                                </div>
+                              )}
+                            </div>
+                          </>
+                        )}
+                        
+                        {/* Step 3: Medical History */}
+                        {patientModalStep === 3 && (
+                          <>
+                            <div className="appointment-form-field">
+                              <label className="appointment-form-label">Chronic Conditions</label>
+                              {isEditMode ? (
+                                <>
+                                  <select
+                                    className="appointment-form-input"
+                                    value=""
+                                    onChange={(e) => {
+                                      if (e.target.value) {
+                                        handleAddChronicCondition(e.target.value)
+                                        e.target.value = ''
+                                      }
+                                    }}
+                                    disabled={patientFormData.chronicConditions.length >= 5}
+                                  >
+                                    <option value="">Select condition (Max 5)</option>
+                                    {chronicConditionsOptions
+                                      .filter(opt => !patientFormData.chronicConditions.includes(opt))
+                                      .map(opt => (
+                                        <option key={opt} value={opt}>{opt}</option>
+                                      ))}
+                                  </select>
+                                  {patientFormData.chronicConditions.length > 0 && (
+                                    <div className="badge-container">
+                                      {patientFormData.chronicConditions.map(condition => (
+                                        <span key={condition} className="badge-item">
+                                          {condition}
+                                          <button
+                                            type="button"
+                                            onClick={() => handleRemoveChronicCondition(condition)}
+                                            className="badge-remove"
+                                          >
+                                            ×
+                                          </button>
+                                        </span>
+                                      ))}
+                                    </div>
+                                  )}
+                                </>
+                              ) : (
+                                <div className="appointment-form-input appointment-form-readonly">
+                                  {patientFormData.chronicConditions.length > 0 
+                                    ? patientFormData.chronicConditions.join(', ')
+                                    : '-'}
+                                </div>
+                              )}
+                            </div>
+                            
+                            <div className="appointment-form-field">
+                              <label className="appointment-form-label">Past Major Illnesses</label>
+                              {isEditMode ? (
+                                <>
+                                  <div className="radio-group">
+                                    <label className="radio-label">
+                                      <input
+                                        type="radio"
+                                        name="pastMajorIllnesses"
+                                        value="Yes"
+                                        checked={patientFormData.pastMajorIllnesses === 'Yes'}
+                                        onChange={(e) => setPatientFormData(prev => ({ ...prev, pastMajorIllnesses: e.target.value }))}
+                                      />
+                                      <span>Yes</span>
+                                    </label>
+                                    <label className="radio-label">
+                                      <input
+                                        type="radio"
+                                        name="pastMajorIllnesses"
+                                        value="No"
+                                        checked={patientFormData.pastMajorIllnesses === 'No'}
+                                        onChange={(e) => setPatientFormData(prev => ({ ...prev, pastMajorIllnesses: e.target.value, pastMajorIllnessesDetails: '' }))}
+                                      />
+                                      <span>No</span>
+                                    </label>
+                                  </div>
+                                  {patientFormData.pastMajorIllnesses === 'Yes' && (
+                                    <input
+                                      type="text"
+                                      className="appointment-form-input"
+                                      style={{ marginTop: '12px' }}
+                                      value={patientFormData.pastMajorIllnessesDetails}
+                                      onChange={(e) => setPatientFormData(prev => ({ ...prev, pastMajorIllnessesDetails: e.target.value }))}
+                                      placeholder="Please specify"
+                                    />
+                                  )}
+                                </>
+                              ) : (
+                                <div className="appointment-form-input appointment-form-readonly">
+                                  {patientFormData.pastMajorIllnesses === 'Yes' 
+                                    ? (patientFormData.pastMajorIllnessesDetails || 'Yes')
+                                    : 'No'}
+                                </div>
+                              )}
+                            </div>
+                            
+                            <div className="appointment-form-field">
+                              <label className="appointment-form-label">Previous Surgeries or Procedures</label>
+                              {isEditMode ? (
+                                <div className="radio-group">
+                                  <label className="radio-label">
+                                    <input
+                                      type="radio"
+                                      name="previousSurgeries"
+                                      value="Yes"
+                                      checked={patientFormData.previousSurgeries === 'Yes'}
+                                      onChange={(e) => setPatientFormData(prev => ({ ...prev, previousSurgeries: e.target.value }))}
+                                    />
+                                    <span>Yes</span>
+                                  </label>
+                                  <label className="radio-label">
+                                    <input
+                                      type="radio"
+                                      name="previousSurgeries"
+                                      value="No"
+                                      checked={patientFormData.previousSurgeries === 'No'}
+                                      onChange={(e) => setPatientFormData(prev => ({ ...prev, previousSurgeries: e.target.value }))}
+                                    />
+                                    <span>No</span>
+                                  </label>
+                                </div>
+                              ) : (
+                                <div className="appointment-form-input appointment-form-readonly">
+                                  {patientFormData.previousSurgeries}
+                                </div>
+                              )}
+                            </div>
+                          </>
+                        )}
+                        
+                        {/* Step 4: Current Medication */}
+                        {patientModalStep === 4 && (
+                          <>
+                            <div className="appointment-form-field">
+                              <label className="appointment-form-label">Prescription Drugs</label>
+                              {isEditMode ? (
+                                <>
+                                  <select
+                                    className="appointment-form-input"
+                                    value=""
+                                    onChange={(e) => {
+                                      if (e.target.value) {
+                                        handleAddPrescriptionDrug(e.target.value)
+                                        e.target.value = ''
+                                      }
+                                    }}
+                                    disabled={patientFormData.prescriptionDrugs.length >= 5}
+                                  >
+                                    <option value="">Select drug (Max 5)</option>
+                                    {prescriptionDrugsOptions
+                                      .filter(opt => !patientFormData.prescriptionDrugs.includes(opt))
+                                      .map(opt => (
+                                        <option key={opt} value={opt}>{opt}</option>
+                                      ))}
+                                  </select>
+                                  {patientFormData.prescriptionDrugs.length > 0 && (
+                                    <div className="badge-container">
+                                      {patientFormData.prescriptionDrugs.map(drug => (
+                                        <span key={drug} className="badge-item">
+                                          {drug}
+                                          <button
+                                            type="button"
+                                            onClick={() => handleRemovePrescriptionDrug(drug)}
+                                            className="badge-remove"
+                                          >
+                                            ×
+                                          </button>
+                                        </span>
+                                      ))}
+                                    </div>
+                                  )}
+                                </>
+                              ) : (
+                                <div className="appointment-form-input appointment-form-readonly">
+                                  {patientFormData.prescriptionDrugs.length > 0 
+                                    ? patientFormData.prescriptionDrugs.join(', ')
+                                    : '-'}
+                                </div>
+                              )}
+                            </div>
+                            
+                            <div className="appointment-form-field">
+                              <label className="appointment-form-label">Over-the-counter Meds</label>
+                              {isEditMode ? (
+                                <>
+                                  <select
+                                    className="appointment-form-input"
+                                    value=""
+                                    onChange={(e) => {
+                                      if (e.target.value) {
+                                        handleAddOverTheCounterMed(e.target.value)
+                                        e.target.value = ''
+                                      }
+                                    }}
+                                    disabled={patientFormData.overTheCounterMeds.length >= 5}
+                                  >
+                                    <option value="">Select medication (Max 5)</option>
+                                    {overTheCounterMedsOptions
+                                      .filter(opt => !patientFormData.overTheCounterMeds.includes(opt))
+                                      .map(opt => (
+                                        <option key={opt} value={opt}>{opt}</option>
+                                      ))}
+                                  </select>
+                                  {patientFormData.overTheCounterMeds.length > 0 && (
+                                    <div className="badge-container">
+                                      {patientFormData.overTheCounterMeds.map(med => (
+                                        <span key={med} className="badge-item">
+                                          {med}
+                                          <button
+                                            type="button"
+                                            onClick={() => handleRemoveOverTheCounterMed(med)}
+                                            className="badge-remove"
+                                          >
+                                            ×
+                                          </button>
+                                        </span>
+                                      ))}
+                                    </div>
+                                  )}
+                                </>
+                              ) : (
+                                <div className="appointment-form-input appointment-form-readonly">
+                                  {patientFormData.overTheCounterMeds.length > 0 
+                                    ? patientFormData.overTheCounterMeds.join(', ')
+                                    : '-'}
+                                </div>
+                              )}
+                            </div>
+                            
+                            {isEditMode && (
+                              <div className="appointment-form-field">
+                                <label className="appointment-form-label">Notes</label>
+                                <textarea
+                                  className="appointment-form-input"
+                                  rows="4"
+                                  value={patientFormData.medicationNotes}
+                                  onChange={(e) => setPatientFormData(prev => ({ ...prev, medicationNotes: e.target.value }))}
+                                  placeholder="Add any additional notes about medications..."
+                                />
+                              </div>
+                            )}
+                            
+                            {!isEditMode && patientFormData.medicationNotes && (
+                              <div className="appointment-form-field">
+                                <label className="appointment-form-label">Notes</label>
+                                <div className="appointment-form-input appointment-form-readonly">
+                                  {patientFormData.medicationNotes}
+                                </div>
+                              </div>
+                            )}
+                          </>
+                        )}
+                        
+                        {/* Action Buttons */}
+                        <div className="appointment-form-actions">
+                          {patientModalStep === 1 && (
+                            <>
+                              <button
+                                type="button"
+                                onClick={() => isEditMode ? handleSavePatientData() : setIsEditMode(true)}
+                                className="appointment-edit-btn"
+                              >
+                                {isEditMode ? 'Save Changes' : 'Edit Information'}
+                              </button>
+                              <button
+                                type="button"
+                                onClick={handleNextStep}
+                                className="appointment-next-btn"
+                              >
+                                Next
+                              </button>
+                            </>
+                          )}
+                          {patientModalStep === 2 && (
+                            <>
+                              <button
+                                type="button"
+                                onClick={handlePreviousStep}
+                                className="appointment-prev-btn"
+                              >
+                                Previous
+                              </button>
+                              <button
+                                type="button"
+                                onClick={() => isEditMode ? handleSavePatientData() : setIsEditMode(true)}
+                                className="appointment-edit-btn"
+                              >
+                                {isEditMode ? 'Save Changes' : 'Edit Information'}
+                              </button>
+                              <button
+                                type="button"
+                                onClick={handleNextStep}
+                                className="appointment-next-btn"
+                              >
+                                Next
+                              </button>
+                            </>
+                          )}
+                          {patientModalStep === 3 && (
+                            <>
+                              <button
+                                type="button"
+                                onClick={handlePreviousStep}
+                                className="appointment-prev-btn"
+                              >
+                                Previous
+                              </button>
+                              <button
+                                type="button"
+                                onClick={() => isEditMode ? handleSavePatientData() : setIsEditMode(true)}
+                                className="appointment-edit-btn"
+                              >
+                                {isEditMode ? 'Save Changes' : 'Edit Information'}
+                              </button>
+                              <button
+                                type="button"
+                                onClick={handleNextStep}
+                                className="appointment-next-btn"
+                              >
+                                Next
+                              </button>
+                            </>
+                          )}
+                          {patientModalStep === 4 && (
+                            <>
+                              <button
+                                type="button"
+                                onClick={handlePreviousStep}
+                                className="appointment-prev-btn"
+                              >
+                                Previous
+                              </button>
+                              <button
+                                type="button"
+                                onClick={() => isEditMode ? handleSavePatientData() : setIsEditMode(true)}
+                                className="appointment-edit-btn"
+                              >
+                                {isEditMode ? 'Save Changes' : 'Edit Information'}
+                              </button>
+                              <button
+                                type="button"
+                                onClick={handleClosePatientModal}
+                                className="appointment-close-btn"
+                              >
+                                Close
+                              </button>
+                            </>
+                          )}
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {/* Delete Confirmation Modal */}
+              {showDeleteModal && appointmentToDelete && (
+                <div className="appointment-modal-overlay" onClick={() => setShowDeleteModal(false)}>
+                  <div className="appointment-delete-modal" onClick={(e) => e.stopPropagation()}>
+                    <div className="appointment-delete-header">
+                      <h3 className="appointment-delete-title">Delete Appointment</h3>
+                      <button
+                        onClick={() => setShowDeleteModal(false)}
+                        className="appointment-modal-close"
+                        type="button"
+                      >
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                          <line x1="18" y1="6" x2="6" y2="18"/>
+                          <line x1="6" y1="6" x2="18" y2="18"/>
+                        </svg>
+                      </button>
+                    </div>
+                    <div className="appointment-delete-body">
+                      <p className="appointment-delete-message">
+                        Are you sure you want to delete the appointment for <strong>{appointmentToDelete.patientName || appointmentToDelete.name}</strong>?
+                      </p>
+                      <p className="appointment-delete-warning">This action cannot be undone.</p>
+                    </div>
+                    <div className="appointment-delete-actions">
+                      <button
+                        type="button"
+                        onClick={() => setShowDeleteModal(false)}
+                        className="appointment-delete-cancel-btn"
+                      >
+                        Cancel
+                      </button>
+                      <button
+                        type="button"
+                        onClick={confirmDelete}
+                        className="appointment-delete-confirm-btn"
+                      >
+                        Delete
+                      </button>
                     </div>
                   </div>
                 </div>
@@ -1901,6 +3320,94 @@ function App() {
             </div>
           )}
 
+          {dashboardView === 'patients' && (
+            <div className="view-container">
+              <div className="view-header">
+                <h2 className="view-title">Patients</h2>
+                <button 
+                  className="create-btn"
+                  onClick={() => alert('Create Patient clicked')}
+                >
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                    <line x1="12" y1="5" x2="12" y2="19"/>
+                    <line x1="5" y1="12" x2="19" y2="12"/>
+                  </svg>
+                  <span>Add Patient</span>
+                </button>
+              </div>
+              <div className="patients-list">
+                <div className="patient-item">
+                  <div className="patient-avatar">
+                    <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                      <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+                      <circle cx="12" cy="7" r="4"/>
+                    </svg>
+                  </div>
+                  <div className="patient-details">
+                    <h3>John Doe</h3>
+                    <p>Age: 45 | Gender: Male</p>
+                    <p className="patient-contact">Email: john.doe@example.com</p>
+                  </div>
+                  <div className="patient-actions">
+                    <button className="patient-action-btn">View</button>
+                    <button className="patient-action-btn">Edit</button>
+                  </div>
+                </div>
+                <div className="patient-item">
+                  <div className="patient-avatar">
+                    <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                      <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+                      <circle cx="12" cy="7" r="4"/>
+                    </svg>
+                  </div>
+                  <div className="patient-details">
+                    <h3>Mary Smith</h3>
+                    <p>Age: 38 | Gender: Female</p>
+                    <p className="patient-contact">Email: mary.smith@example.com</p>
+                  </div>
+                  <div className="patient-actions">
+                    <button className="patient-action-btn">View</button>
+                    <button className="patient-action-btn">Edit</button>
+                  </div>
+                </div>
+                <div className="patient-item">
+                  <div className="patient-avatar">
+                    <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                      <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+                      <circle cx="12" cy="7" r="4"/>
+                    </svg>
+                  </div>
+                  <div className="patient-details">
+                    <h3>Sarah Johnson</h3>
+                    <p>Age: 52 | Gender: Female</p>
+                    <p className="patient-contact">Email: sarah.johnson@example.com</p>
+                  </div>
+                  <div className="patient-actions">
+                    <button className="patient-action-btn">View</button>
+                    <button className="patient-action-btn">Edit</button>
+                  </div>
+                </div>
+                <div className="patient-item">
+                  <div className="patient-avatar">
+                    <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                      <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+                      <circle cx="12" cy="7" r="4"/>
+                    </svg>
+                  </div>
+                  <div className="patient-details">
+                    <h3>Michael Brown</h3>
+                    <p>Age: 34 | Gender: Male</p>
+                    <p className="patient-contact">Email: michael.brown@example.com</p>
+                  </div>
+                  <div className="patient-actions">
+                    <button className="patient-action-btn">View</button>
+                    <button className="patient-action-btn">Edit</button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
+
           {dashboardView === 'settings' && (
             <div className="view-container">
               <h2 className="view-title">Settings</h2>
@@ -1941,102 +3448,6 @@ function App() {
             </div>
           )}
         </main>
-
-        {/* Right Sidebar - Schedule */}
-        <aside className="dashboard-schedule">
-          <div className="schedule-header">
-            <div className="schedule-views">
-              <button className="view-btn active">
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                  <line x1="8" y1="6" x2="21" y2="6"/>
-                  <line x1="8" y1="12" x2="21" y2="12"/>
-                  <line x1="8" y1="18" x2="21" y2="18"/>
-                  <line x1="3" y1="6" x2="3.01" y2="6"/>
-                  <line x1="3" y1="12" x2="3.01" y2="12"/>
-                  <line x1="3" y1="18" x2="3.01" y2="18"/>
-                </svg>
-              </button>
-              <button className="view-btn">
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                  <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/>
-                  <line x1="16" y1="2" x2="16" y2="6"/>
-                  <line x1="8" y1="2" x2="8" y2="6"/>
-                  <line x1="3" y1="10" x2="21" y2="10"/>
-                </svg>
-              </button>
-            </div>
-            <div className="schedule-nav">
-              <button className="nav-arrow">‹</button>
-              <span className="schedule-date">Today, 12 Dec.</span>
-              <button className="nav-arrow">›</button>
-            </div>
-            <div className="schedule-actions">
-              <button className="action-icon-btn">
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                  <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/>
-                  <path d="M13.73 21a2 2 0 0 1-3.46 0"/>
-                </svg>
-              </button>
-              <button className="action-icon-btn">
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                  <circle cx="12" cy="12" r="1"/>
-                  <circle cx="19" cy="12" r="1"/>
-                  <circle cx="5" cy="12" r="1"/>
-                </svg>
-              </button>
-            </div>
-          </div>
-
-          <div className="schedule-timeline">
-            <div className="timeline-current" style={{ top: '25%' }}>
-              <div className="current-line"></div>
-              <div className="current-time">9:15</div>
-            </div>
-            
-            <div className="schedule-item schedule-item-orange" style={{ top: '0%' }}>
-              <div className="schedule-time">8:00 - 8:30 am</div>
-              <div className="schedule-title">placeholder#16</div>
-              <div className="schedule-patient">Carla Middler</div>
-            </div>
-            
-            <div className="schedule-item schedule-item-green" style={{ top: '8%' }}>
-              <div className="schedule-time">8:30 - 9:00 am</div>
-              <div className="schedule-title">placeholder#17</div>
-              <div className="schedule-patient">Edward Johanson</div>
-            </div>
-            
-            <div className="schedule-item schedule-item-purple" style={{ top: '20%' }}>
-              <div className="schedule-time">9:30 - 10:00 am</div>
-              <div className="schedule-title">placeholder#18</div>
-              <div className="schedule-patient">Ellie Rogers</div>
-            </div>
-            
-            <div className="schedule-item schedule-item-green" style={{ top: '35%' }}>
-              <div className="schedule-time">10:30 - 11:00 am</div>
-              <div className="schedule-title">placeholder#19</div>
-              <div className="schedule-patient">Carla Middler</div>
-            </div>
-            
-            <div className="schedule-item schedule-item-orange" style={{ top: '50%' }}>
-              <div className="schedule-time">11:00 - 11:45 am</div>
-              <div className="schedule-title">placeholder#20</div>
-              <div className="schedule-patient">Lily Brown</div>
-            </div>
-            
-            <div className="schedule-item schedule-item-green" style={{ top: '65%' }}>
-              <div className="schedule-time">11:45 - 12:15 pm</div>
-              <div className="schedule-title">placeholder#21</div>
-              <div className="schedule-patient">Kamila Kozlowska</div>
-            </div>
-          </div>
-
-          <button className="schedule-add-btn">
-            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-              <line x1="12" y1="5" x2="12" y2="19"/>
-              <line x1="5" y1="12" x2="19" y2="12"/>
-            </svg>
-          </button>
-        </aside>
       </div>
     </div>
   )
