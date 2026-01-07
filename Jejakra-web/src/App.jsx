@@ -84,6 +84,19 @@ function App() {
   const [showDeleteModal, setShowDeleteModal] = useState(false)
   const [appointmentToDelete, setAppointmentToDelete] = useState(null)
   
+  // Pagination States
+  const [todayPage, setTodayPage] = useState(1)
+  const [tomorrowPage, setTomorrowPage] = useState(1)
+  const [patientsPage, setPatientsPage] = useState(1)
+  const ITEMS_PER_PAGE = 5
+  const PATIENTS_PER_PAGE = 10
+  
+  // Patients Page States
+  const [patientSearch, setPatientSearch] = useState('')
+  const [patientGenderFilter, setPatientGenderFilter] = useState('All')
+  const [patientStatusFilter, setPatientStatusFilter] = useState('All')
+  const [openPatientActionMenu, setOpenPatientActionMenu] = useState(null)
+  
   // View Patient Modal states
   const [patientModalStep, setPatientModalStep] = useState(1) // 1: General Info, 2: Clinical Measurements, 3: Medical History, 4: Medication
   const [isEditMode, setIsEditMode] = useState(false)
@@ -132,99 +145,59 @@ function App() {
   
   // Patient data (extended from appointments)
   const [patientsData, setPatientsData] = useState({
-    1: { name: 'Jimmy Buffey', gender: 'Male', age: '45', address: '123 Main St, City, State 12345', registeredDate: '2020-01-15', disease: 'Hypertension' },
-    2: { name: 'Mike Scott', gender: 'Male', age: '38', address: '456 Oak Ave, City, State 12345', registeredDate: '2019-11-20', disease: 'Diabetes Type 2' },
-    3: { name: 'Pam Beasly', gender: 'Female', age: '52', address: '789 Pine Rd, City, State 12345', registeredDate: '2020-02-10', disease: 'Anxiety Disorder' },
-    4: { name: 'Peter Kanvinsky', gender: 'Male', age: '34', address: '321 Elm St, City, State 12345', registeredDate: '2019-12-05', disease: 'Chronic Pain' },
-    5: { name: 'Hannah Montana', gender: 'Female', age: '29', address: '654 Maple Dr, City, State 12345', registeredDate: '2020-03-01', disease: 'Asthma' },
-    6: { name: 'Raven Baxter', gender: 'Female', age: '41', address: '987 Cedar Ln, City, State 12345', registeredDate: '2019-10-12', disease: 'Migraine' },
-    7: { name: 'Bloom Bekkar', gender: 'Female', age: '36', address: '147 Birch Way, City, State 12345', registeredDate: '2020-01-25', disease: 'Arthritis' }
+    1: { name: 'Ahmad bin Abdullah', gender: 'Male', age: '45', address: 'No. 12, Jalan Ampang, 50450 Kuala Lumpur', registeredDate: '2020-01-15', lastVisit: '2024-01-08', lastVisitTime: '10:30 AM', nextAppointment: '2024-02-15', disease: 'Hypertension', contactNumber: '012-345-6701', status: 'Active' },
+    2: { name: 'Siti Nurhaliza', gender: 'Female', age: '38', address: 'No. 45, Taman Tun Dr Ismail, 60000 Kuala Lumpur', registeredDate: '2019-11-20', lastVisit: '2024-01-05', lastVisitTime: '2:00 PM', nextAppointment: '2024-02-10', disease: 'Diabetes Type 2', contactNumber: '012-345-6702', status: 'Active' },
+    3: { name: 'Muhammad Faiz', gender: 'Male', age: '52', address: 'No. 78, Bangsar South, 59200 Kuala Lumpur', registeredDate: '2020-02-10', lastVisit: '2024-01-02', lastVisitTime: '9:00 AM', nextAppointment: '2024-02-20', disease: 'Anxiety Disorder', contactNumber: '012-345-6703', status: 'Active' },
+    4: { name: 'Nurul Ain', gender: 'Female', age: '34', address: 'No. 23, Jalan SS2/55, 47300 Petaling Jaya, Selangor', registeredDate: '2019-12-05', lastVisit: '2023-08-15', lastVisitTime: '11:30 AM', nextAppointment: null, disease: 'Chronic Pain', contactNumber: '012-345-6704', status: 'Inactive' },
+    5: { name: 'Amirul Haziq', gender: 'Male', age: '29', address: 'No. 56, Seksyen 7, 40000 Shah Alam, Selangor', registeredDate: '2020-03-01', lastVisit: '2024-01-06', lastVisitTime: '3:30 PM', nextAppointment: '2024-02-08', disease: 'Asthma', contactNumber: '012-345-6705', status: 'Active' },
+    6: { name: 'Fatimah Zahra', gender: 'Female', age: '41', address: 'No. 89, USJ 1, 47600 Subang Jaya, Selangor', registeredDate: '2019-10-12', lastVisit: null, lastVisitTime: null, nextAppointment: '2024-02-12', disease: 'Migraine', contactNumber: '012-345-6706', status: 'New' },
+    7: { name: 'Hafiz Rahman', gender: 'Male', age: '36', address: 'No. 34, Taman Molek, 81100 Johor Bahru, Johor', registeredDate: '2020-01-25', lastVisit: '2024-01-03', lastVisitTime: '4:00 PM', nextAppointment: '2024-02-18', disease: 'Arthritis', contactNumber: '012-345-6707', status: 'Active' },
+    8: { name: 'Aisyah Putri', gender: 'Female', age: '42', address: 'No. 67, Jalan Penang, 10050 George Town, Penang', registeredDate: '2019-09-18', lastVisit: null, lastVisitTime: null, nextAppointment: null, disease: 'Gastritis', contactNumber: '012-345-6708', status: 'Pending' },
+    9: { name: 'Rizal bin Hassan', gender: 'Male', age: '39', address: 'No. 90, Jalan Ipoh, 51200 Kuala Lumpur', registeredDate: '2020-02-28', lastVisit: '2024-01-07', lastVisitTime: '10:00 AM', nextAppointment: '2024-02-25', disease: 'Insomnia', contactNumber: '012-345-6709', status: 'Active' },
+    10: { name: 'Nadia Tan', gender: 'Female', age: '48', address: 'No. 15, Damansara Heights, 50490 Kuala Lumpur', registeredDate: '2019-08-22', lastVisit: '2023-06-20', lastVisitTime: '1:30 PM', nextAppointment: null, disease: 'Obesity', contactNumber: '012-345-6710', status: 'Inactive' },
+    11: { name: 'Kelvin Wong', gender: 'Male', age: '55', address: 'No. 28, Bukit Bintang, 55100 Kuala Lumpur', registeredDate: '2019-07-14', lastVisit: '2024-01-04', lastVisitTime: '11:00 AM', nextAppointment: '2024-02-22', disease: 'Heart Disease', contactNumber: '012-345-6711', status: 'Active' },
+    12: { name: 'Michelle Lee', gender: 'Female', age: '50', address: 'No. 41, Mont Kiara, 50480 Kuala Lumpur', registeredDate: '2020-01-08', lastVisit: '2022-12-10', lastVisitTime: '9:30 AM', nextAppointment: null, disease: 'Fibromyalgia', contactNumber: '012-345-6712', status: 'Archived' },
+    13: { name: 'Priya Kumari', gender: 'Female', age: '40', address: 'No. 54, Brickfields, 50470 Kuala Lumpur', registeredDate: '2019-06-30', lastVisit: '2024-01-01', lastVisitTime: '2:30 PM', nextAppointment: '2024-02-05', disease: 'Allergies', contactNumber: '012-345-6713', status: 'Active' },
+    14: { name: 'Ravi Kumar', gender: 'Male', age: '31', address: 'No. 77, Klang, 41150 Selangor', registeredDate: '2020-03-10', lastVisit: null, lastVisitTime: null, nextAppointment: '2024-02-14', disease: 'GERD', contactNumber: '012-345-6714', status: 'New' },
+    15: { name: 'Sarah Abdullah', gender: 'Female', age: '33', address: 'No. 100, Cyberjaya, 63000 Selangor', registeredDate: '2019-11-05', lastVisit: '2023-12-28', lastVisitTime: '4:30 PM', nextAppointment: '2024-02-28', disease: 'Stress Disorder', contactNumber: '012-345-6715', status: 'Active' },
+    16: { name: 'Zulkifli bin Omar', gender: 'Male', age: '46', address: 'No. 13, Putrajaya, 62000 Wilayah Persekutuan', registeredDate: '2019-10-20', lastVisit: null, lastVisitTime: null, nextAppointment: null, disease: 'Depression', contactNumber: '012-345-6716', status: 'Pending' },
+    17: { name: 'Kartini Salleh', gender: 'Female', age: '47', address: 'No. 26, Kota Kinabalu, 88000 Sabah', registeredDate: '2020-02-15', lastVisit: '2024-01-02', lastVisitTime: '10:30 AM', nextAppointment: '2024-02-16', disease: 'Liver Issues', contactNumber: '012-345-6717', status: 'Active' },
+    18: { name: 'Ismail bin Yusof', gender: 'Male', age: '62', address: 'No. 39, Kuching, 93000 Sarawak', registeredDate: '2019-05-25', lastVisit: '2021-03-15', lastVisitTime: '3:00 PM', nextAppointment: null, disease: 'Memory Issues', contactNumber: '012-345-6718', status: 'Archived' },
+    19: { name: 'Nur Izzati', gender: 'Female', age: '28', address: 'No. 52, Melaka, 75000 Melaka', registeredDate: '2020-03-18', lastVisit: null, lastVisitTime: null, nextAppointment: '2024-02-19', disease: 'Vitamin Deficiency', contactNumber: '012-345-6719', status: 'New' },
+    20: { name: 'Azman bin Razak', gender: 'Male', age: '37', address: 'No. 65, Seremban, 70000 Negeri Sembilan', registeredDate: '2019-12-12', lastVisit: '2023-12-20', lastVisitTime: '11:30 AM', nextAppointment: '2024-03-01', disease: 'Anger Management', contactNumber: '012-345-6720', status: 'Active' },
+    21: { name: 'Farah Diyana', gender: 'Female', age: '44', address: 'No. 88, Ipoh, 30000 Perak', registeredDate: '2019-04-15', lastVisit: '2023-05-10', lastVisitTime: '9:00 AM', nextAppointment: null, disease: 'Back Pain', contactNumber: '012-345-6721', status: 'Inactive' },
+    22: { name: 'Hakim bin Jamaludin', gender: 'Male', age: '43', address: 'No. 101, Alor Setar, 05000 Kedah', registeredDate: '2020-01-20', lastVisit: '2024-01-05', lastVisitTime: '2:00 PM', nextAppointment: '2024-02-26', disease: 'Bipolar Disorder', contactNumber: '012-345-6722', status: 'Active' },
+    23: { name: 'Lina Tan', gender: 'Female', age: '35', address: 'No. 114, Kuantan, 25000 Pahang', registeredDate: '2019-08-10', lastVisit: null, lastVisitTime: null, nextAppointment: null, disease: 'Thyroid Issues', contactNumber: '012-345-6723', status: 'Pending' },
+    24: { name: 'Daniel Lim', gender: 'Male', age: '38', address: 'No. 127, Kuala Terengganu, 20000 Terengganu', registeredDate: '2020-02-05', lastVisit: '2023-12-15', lastVisitTime: '4:00 PM', nextAppointment: '2024-02-24', disease: 'Anemia', contactNumber: '012-345-6724', status: 'Active' },
+    25: { name: 'Yasmin binti Ahmad', gender: 'Female', age: '52', address: 'No. 140, Kota Bharu, 15000 Kelantan', registeredDate: '2019-03-22', lastVisit: '2020-08-22', lastVisitTime: '10:00 AM', nextAppointment: null, disease: 'High Cholesterol', contactNumber: '012-345-6725', status: 'Archived' },
+    26: { name: 'Jason Ng', gender: 'Male', age: '58', address: 'No. 153, Butterworth, 13400 Penang', registeredDate: '2019-09-08', lastVisit: '2024-01-06', lastVisitTime: '1:30 PM', nextAppointment: '2024-02-11', disease: 'Sleep Apnea', contactNumber: '012-345-6726', status: 'Active' },
+    27: { name: 'Aminah binti Kadir', gender: 'Female', age: '32', address: 'No. 166, Kajang, 43000 Selangor', registeredDate: '2020-03-01', lastVisit: null, lastVisitTime: null, nextAppointment: '2024-02-17', disease: 'Anxiety', contactNumber: '012-345-6727', status: 'New' },
+    28: { name: 'Bryan Ong', gender: 'Male', age: '27', address: 'No. 179, Cheras, 56000 Kuala Lumpur', registeredDate: '2020-01-15', lastVisit: '2024-01-03', lastVisitTime: '3:30 PM', nextAppointment: '2024-02-21', disease: 'Carpal Tunnel', contactNumber: '012-345-6728', status: 'Active' },
+    29: { name: 'Syafiqah Rosli', gender: 'Female', age: '29', address: 'No. 192, Ampang, 68000 Selangor', registeredDate: '2019-11-28', lastVisit: '2023-04-18', lastVisitTime: '11:00 AM', nextAppointment: null, disease: 'Tendinitis', contactNumber: '012-345-6729', status: 'Inactive' },
+    30: { name: 'Ivan Chong', gender: 'Male', age: '45', address: 'No. 205, Puchong, 47100 Selangor', registeredDate: '2019-07-20', lastVisit: '2024-01-07', lastVisitTime: '2:30 PM', nextAppointment: '2024-02-29', disease: 'Vertigo', contactNumber: '012-345-6730', status: 'Active' }
   })
   const [appointments, setAppointments] = useState([
-    {
-      id: 1,
-      patientName: 'Jimmy Buffey',
-      appointmentType: 'Consultation',
-      sessionType: 'TREATMENT',
-      date: '2020-03-25',
-      time: '8:00 AM',
-      visitType: 'In-person',
-      status: 'No show',
-      notes: 'NOTE',
-      isToday: true
-    },
-    {
-      id: 2,
-      patientName: 'Mike Scott',
-      appointmentType: 'Follow Up',
-      sessionType: 'INTAKE INTERVIEW',
-      date: '2020-03-25',
-      time: '9:30 AM',
-      visitType: 'Virtual',
-      status: 'Ongoing',
-      notes: '',
-      isToday: true
-    },
-    {
-      id: 3,
-      patientName: 'Pam Beasly',
-      appointmentType: 'Routine Check-up',
-      sessionType: 'TREATMENT',
-      date: '2020-03-25',
-      time: '11:00 AM',
-      visitType: 'Virtual',
-      status: 'Scheduled',
-      notes: '',
-      isToday: true
-    },
-    {
-      id: 4,
-      patientName: 'Peter Kanvinsky',
-      appointmentType: 'Consultation',
-      sessionType: 'TREATMENT',
-      date: '2020-03-26',
-      time: '12:30 PM',
-      visitType: 'Virtual',
-      status: 'Scheduled',
-      notes: '',
-      isToday: false
-    },
-    {
-      id: 5,
-      patientName: 'Hannah Montana',
-      appointmentType: 'Follow Up',
-      sessionType: 'TREATMENT',
-      date: '2020-03-26',
-      time: '3:00 PM',
-      visitType: 'In-person',
-      status: 'Scheduled',
-      notes: 'NOTE',
-      isToday: false
-    },
-    {
-      id: 6,
-      patientName: 'Raven Baxter',
-      appointmentType: 'Routine Check-up',
-      sessionType: 'FINAL SESSION',
-      date: '2020-03-26',
-      time: '4:30 PM',
-      visitType: 'Virtual',
-      status: 'Scheduled',
-      notes: '',
-      isToday: false
-    },
-    {
-      id: 7,
-      patientName: 'Bloom Bekkar',
-      appointmentType: 'Consultation',
-      sessionType: 'FOLLOW UP',
-      date: '2020-03-26',
-      time: '8:00 AM',
-      visitType: 'In-person',
-      status: 'Scheduled',
-      notes: '',
-      isToday: false
-    }
+    // Today's appointments (6 rows - one per time slot, no overlapping)
+    { id: 1, patientName: 'Ahmad bin Abdullah', appointmentType: 'Consultation', sessionType: 'TREATMENT', date: '2020-03-25', time: '8:00 AM', visitType: 'In-person', status: 'No show', notes: 'NOTE', isToday: true },
+    { id: 2, patientName: 'Siti Nurhaliza', appointmentType: 'Follow Up', sessionType: 'INTAKE INTERVIEW', date: '2020-03-25', time: '9:30 AM', visitType: 'Virtual', status: 'Ongoing', notes: '', isToday: true },
+    { id: 3, patientName: 'Muhammad Faiz', appointmentType: 'Routine Check-up', sessionType: 'TREATMENT', date: '2020-03-25', time: '11:00 AM', visitType: 'Virtual', status: 'Scheduled', notes: '', isToday: true },
+    { id: 4, patientName: 'Aisyah Putri', appointmentType: 'Consultation', sessionType: 'TREATMENT', date: '2020-03-25', time: '12:30 PM', visitType: 'In-person', status: 'Completed', notes: 'NOTE', isToday: true },
+    { id: 5, patientName: 'Rizal bin Hassan', appointmentType: 'Follow Up', sessionType: 'FOLLOW UP', date: '2020-03-25', time: '3:00 PM', visitType: 'Virtual', status: 'Scheduled', notes: '', isToday: true },
+    { id: 6, patientName: 'Nadia Tan', appointmentType: 'Routine Check-up', sessionType: 'TREATMENT', date: '2020-03-25', time: '4:30 PM', visitType: 'In-person', status: 'Cancelled', notes: 'NOTE', isToday: true },
+    // Upcoming appointments - 4 on 27/03, 3 on 28/03, 6 on 29/03 (13 total, no overlapping times per date)
+    { id: 7, patientName: 'Nurul Ain', appointmentType: 'Consultation', sessionType: 'TREATMENT', date: '2020-03-27', time: '8:00 AM', visitType: 'Virtual', status: 'Scheduled', notes: '', isToday: false },
+    { id: 8, patientName: 'Amirul Haziq', appointmentType: 'Follow Up', sessionType: 'TREATMENT', date: '2020-03-27', time: '9:30 AM', visitType: 'In-person', status: 'Scheduled', notes: 'NOTE', isToday: false },
+    { id: 9, patientName: 'Fatimah Zahra', appointmentType: 'Routine Check-up', sessionType: 'FINAL SESSION', date: '2020-03-27', time: '11:00 AM', visitType: 'Virtual', status: 'Scheduled', notes: '', isToday: false },
+    { id: 10, patientName: 'Hafiz Rahman', appointmentType: 'Consultation', sessionType: 'FOLLOW UP', date: '2020-03-27', time: '3:00 PM', visitType: 'In-person', status: 'Scheduled', notes: '', isToday: false },
+    { id: 11, patientName: 'Sarah Abdullah', appointmentType: 'Follow Up', sessionType: 'TREATMENT', date: '2020-03-28', time: '8:00 AM', visitType: 'Virtual', status: 'Scheduled', notes: 'NOTE', isToday: false },
+    { id: 12, patientName: 'Zulkifli bin Omar', appointmentType: 'Consultation', sessionType: 'INTAKE INTERVIEW', date: '2020-03-28', time: '11:00 AM', visitType: 'In-person', status: 'Scheduled', notes: '', isToday: false },
+    { id: 13, patientName: 'Kartini Salleh', appointmentType: 'Routine Check-up', sessionType: 'TREATMENT', date: '2020-03-28', time: '4:30 PM', visitType: 'Virtual', status: 'Scheduled', notes: 'NOTE', isToday: false },
+    { id: 14, patientName: 'Ismail bin Yusof', appointmentType: 'Follow Up', sessionType: 'FOLLOW UP', date: '2020-03-29', time: '8:00 AM', visitType: 'In-person', status: 'Scheduled', notes: '', isToday: false },
+    { id: 15, patientName: 'Nur Izzati', appointmentType: 'Consultation', sessionType: 'TREATMENT', date: '2020-03-29', time: '9:30 AM', visitType: 'Virtual', status: 'Scheduled', notes: '', isToday: false },
+    { id: 16, patientName: 'Azman bin Razak', appointmentType: 'Routine Check-up', sessionType: 'FINAL SESSION', date: '2020-03-29', time: '11:00 AM', visitType: 'In-person', status: 'Scheduled', notes: 'NOTE', isToday: false },
+    { id: 17, patientName: 'Jason Ng', appointmentType: 'Consultation', sessionType: 'TREATMENT', date: '2020-03-29', time: '12:30 PM', visitType: 'Virtual', status: 'Scheduled', notes: '', isToday: false },
+    { id: 18, patientName: 'Aminah binti Kadir', appointmentType: 'Follow Up', sessionType: 'INTAKE INTERVIEW', date: '2020-03-29', time: '3:00 PM', visitType: 'In-person', status: 'Scheduled', notes: '', isToday: false },
+    { id: 19, patientName: 'Bryan Ong', appointmentType: 'Routine Check-up', sessionType: 'TREATMENT', date: '2020-03-29', time: '4:30 PM', visitType: 'Virtual', status: 'Scheduled', notes: 'NOTE', isToday: false }
   ])
 
   const appointmentTypes = ['Consultation', 'Follow Up', 'Routine Check-up']
@@ -267,11 +240,29 @@ function App() {
 
   const getStatusColor = (status) => {
     switch(status) {
-      case 'Ongoing': return 'appointment-status-scheduled'
+      case 'Ongoing': return 'appointment-status-ongoing'
       case 'Scheduled': return 'appointment-status-scheduled'
       case 'No show': return 'appointment-status-noshow'
+      case 'Completed': return 'appointment-status-completed'
+      case 'Cancelled': return 'appointment-status-cancelled'
       default: return 'appointment-status-scheduled'
     }
+  }
+
+  const renderStatusBadge = (status) => {
+    return (
+      <span className="appointment-status-badge">
+        {status}
+      </span>
+    )
+  }
+
+  const formatDate = (dateStr) => {
+    const date = new Date(dateStr)
+    const day = String(date.getDate()).padStart(2, '0')
+    const month = String(date.getMonth() + 1).padStart(2, '0')
+    const year = date.getFullYear()
+    return `${day}/${month}/${year}`
   }
 
 
@@ -502,8 +493,49 @@ function App() {
     }
   }
 
+  // Download CSV function
+  const handleDownloadCSV = () => {
+    const allAppointments = [...todayAppointments, ...tomorrowAppointments]
+    
+    // CSV Header
+    const csvHeader = 'Patient Name,Contact Number,Appointment Type,Consultation Type,Date,Time,Status\n'
+    
+    // CSV Rows - include contact number from patient data
+    const csvRows = allAppointments.map(apt => {
+      const patientInfo = patientsData[apt.id] || {}
+      const contactNumber = patientInfo.contactNumber || 'N/A'
+      return `"${apt.patientName}","${contactNumber}","${apt.appointmentType}","${apt.visitType}","${apt.date}","${apt.time}","${apt.status}"`
+    }).join('\n')
+    
+    const csvContent = csvHeader + csvRows
+
+    // Create blob and download
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' })
+    const url = URL.createObjectURL(blob)
+    const link = document.createElement('a')
+    link.href = url
+    link.download = `appointments_${new Date().toISOString().split('T')[0]}.csv`
+    document.body.appendChild(link)
+    link.click()
+    document.body.removeChild(link)
+    URL.revokeObjectURL(url)
+  }
+
   const todayAppointments = sortAppointments(getFilteredAppointments(appointments.filter(apt => apt.isToday)))
   const tomorrowAppointments = sortAppointments(getFilteredAppointments(appointments.filter(apt => !apt.isToday)))
+  
+  // Pagination helper functions
+  const getTotalPages = (items) => Math.ceil(items.length / ITEMS_PER_PAGE)
+  const getPaginatedItems = (items, page) => {
+    const startIndex = (page - 1) * ITEMS_PER_PAGE
+    return items.slice(startIndex, startIndex + ITEMS_PER_PAGE)
+  }
+  
+  // Paginated appointments
+  const paginatedTodayAppointments = getPaginatedItems(todayAppointments, todayPage)
+  const paginatedTomorrowAppointments = getPaginatedItems(tomorrowAppointments, tomorrowPage)
+  const todayTotalPages = getTotalPages(todayAppointments)
+  const tomorrowTotalPages = getTotalPages(tomorrowAppointments)
   
   // Meal Plan State
   const [activeMealTab, setActiveMealTab] = useState('breakfast') // 'breakfast', 'lunch', 'snack', 'dinner'
@@ -1546,109 +1578,205 @@ function App() {
         {/* Main Content */}
         <main className="dashboard-main">
           {dashboardView === 'home' && (
-            <>
-              <div className="dashboard-header">
-                <h1 className="dashboard-greeting">Hello, {userRole || 'User'}!</h1>
-                <select className="dashboard-filter">
-                  <option>This month</option>
-                  <option>This week</option>
-                  <option>This year</option>
-                </select>
+            <div className="dashboard-page-container">
+              {/* Top Row - 3 Stats Cards */}
+              <div className="dashboard-stats-row">
+                {/* Progress Tracking Card */}
+                <div className="dashboard-stat-card">
+                  <h3 className="stat-card-title">Progress Tracking</h3>
+                  <div className="stat-card-value-row">
+                    <span className="stat-card-value">14</span>
+                    <span className="stat-badge stat-badge-green">+15%</span>
               </div>
-
-              {/* KPI Cards */}
-              <div className="dashboard-kpis">
-                <div className="kpi-card kpi-purple">
-                  <div className="kpi-icon kpi-icon-purple">
-                    <div className="kpi-dot"></div>
-                  </div>
-                  <div className="kpi-content">
-                    <h3 className="kpi-title">placeholder#8</h3>
-                    <p className="kpi-value">120</p>
-                    <p className="kpi-subtitle">4 not confirmed</p>
+                  <p className="stat-card-description">Therapy goals achieved over the last 3 months</p>
+                  <div className="stat-progress-bar">
+                    <div className="stat-progress-fill" style={{width: '70%'}}></div>
                   </div>
                 </div>
                 
-                <div className="kpi-card kpi-green">
-                  <div className="kpi-icon kpi-icon-green">
-                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                {/* Educational Sources Card */}
+                <div className="dashboard-stat-card">
+                  <h3 className="stat-card-title">Educational Sources</h3>
+                  <div className="stat-card-value-row">
+                    <span className="stat-card-value">22</span>
+                    <span className="stat-badge stat-badge-red">-30%</span>
+                  </div>
+                  <ul className="stat-card-list">
+                    <li>
+                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#3b82f6" strokeWidth="2">
                       <polyline points="20 6 9 17 4 12"/>
                     </svg>
+                      Breathing and meditation techniques
+                    </li>
+                    <li>
+                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#3b82f6" strokeWidth="2">
+                        <polyline points="20 6 9 17 4 12"/>
+                      </svg>
+                      Identifying sources of stress
+                    </li>
+                  </ul>
                   </div>
-                  <div className="kpi-content">
-                    <h3 className="kpi-title">placeholder#9</h3>
-                    <p className="kpi-value">72</p>
-                    <p className="kpi-subtitle">▲ 3.4% vs last month</p>
+
+                {/* Therapeutic Sessions Card */}
+                <div className="dashboard-stat-card">
+                  <h3 className="stat-card-title">Therapeutic Sessions</h3>
+                  <div className="stat-card-value-row">
+                    <span className="stat-card-value">6</span>
+                    <span className="stat-badge stat-badge-green">+5%</span>
+                  </div>
+                  <p className="stat-card-description">Sessions were held this month</p>
                   </div>
                 </div>
                 
-                <div className="kpi-card kpi-orange">
-                  <div className="kpi-icon kpi-icon-orange">
-                    <div className="kpi-dot"></div>
+              {/* Middle Row - Chart and Support Card */}
+              <div className="dashboard-middle-row">
+                {/* Emotional State Card */}
+                <div className="dashboard-chart-card">
+                  <div className="chart-card-header">
+                    <div>
+                      <h3 className="chart-card-title">Emotional State</h3>
+                      <p className="chart-card-subtitle">Based on data collected during sessions with a therapist, self-tests and feedback</p>
                   </div>
-                  <div className="kpi-content">
-                    <h3 className="kpi-title">placeholder#10</h3>
-                    <p className="kpi-value">3,450 $</p>
-                    <p className="kpi-subtitle">▲ 5.5% vs last month</p>
+                    <div className="chart-tabs">
+                      <button className="chart-tab">Week</button>
+                      <button className="chart-tab active">Month</button>
+                      <button className="chart-tab">Year</button>
+                    </div>
+                  </div>
+                  <div className="chart-container">
+                    <div className="chart-y-axis">
+                      <span>100</span>
+                      <span>80</span>
+                      <span>60</span>
+                      <span>40</span>
+                      <span>20</span>
+                      <span>0</span>
+                    </div>
+                    <div className="chart-bars">
+                      <div className="chart-bar-group">
+                        <div className="chart-bar" style={{height: '25%'}}></div>
+                        <span className="chart-bar-label">16 Aug</span>
+                      </div>
+                      <div className="chart-bar-group">
+                        <div className="chart-bar" style={{height: '45%'}}></div>
+                        <span className="chart-bar-label">17 Aug</span>
+                      </div>
+                      <div className="chart-bar-group">
+                        <div className="chart-bar" style={{height: '65%'}}></div>
+                        <span className="chart-bar-label">18 Aug</span>
+                      </div>
+                      <div className="chart-bar-group">
+                        <div className="chart-bar" style={{height: '80%'}}></div>
+                        <span className="chart-bar-label">19 Aug</span>
+                      </div>
+                      <div className="chart-bar-group">
+                        <div className="chart-bar chart-bar-striped" style={{height: '70%'}}></div>
+                        <span className="chart-bar-label">20 Aug</span>
+                      </div>
+                      <div className="chart-bar-group">
+                        <div className="chart-bar chart-bar-striped" style={{height: '55%'}}></div>
+                        <span className="chart-bar-label">21 Aug</span>
+                      </div>
+                      <div className="chart-bar-group">
+                        <div className="chart-bar chart-bar-striped" style={{height: '40%'}}></div>
+                        <span className="chart-bar-label">22 Aug</span>
+                      </div>
                   </div>
                 </div>
               </div>
 
-              {/* Bottom Section */}
-              <div className="dashboard-bottom">
-                <div className="dashboard-card sales-card">
-                  <h2 className="card-title">placeholder#11</h2>
-                  <p className="sales-text">You have sold <strong>48 products</strong> this month.</p>
-                  <div className="sales-chart">
-                    <svg width="100%" height="120" viewBox="0 0 300 120" className="chart-svg">
-                      <polyline
-                        points="0,100 50,90 100,70 150,50 200,40 250,35 300,32"
-                        fill="none"
-                        stroke="#34d399"
-                        strokeWidth="3"
-                      />
-                      <text x="250" y="30" fontSize="12" fill="#34d399" fontWeight="600">32</text>
-                      <text x="240" y="115" fontSize="10" fill="#666">10 Dec</text>
+                {/* Urgent Support Card */}
+                <div className="dashboard-support-card">
+                  <h3 className="support-card-title">Urgent Support</h3>
+                  <p className="support-card-description">Quick access to crisis hotlines when you need immediate help</p>
+                  <button className="support-card-btn">Get help now</button>
+                  <div className="support-card-image">
+                    <svg viewBox="0 0 100 100" width="120" height="120">
+                      <ellipse cx="50" cy="85" rx="40" ry="8" fill="rgba(255,255,255,0.3)"/>
+                      <circle cx="50" cy="50" r="25" fill="#f8e8e0"/>
+                      <ellipse cx="50" cy="50" rx="18" ry="15" fill="#fdf4f0"/>
+                      <ellipse cx="42" cy="45" rx="6" ry="8" fill="#fce4d8"/>
+                      <ellipse cx="58" cy="45" rx="6" ry="8" fill="#fce4d8"/>
+                      <ellipse cx="50" cy="55" rx="4" ry="5" fill="#f5d0c0"/>
                     </svg>
                   </div>
-                  <button className="chart-arrow-btn">
+                </div>
+              </div>
+
+              {/* Bottom Row - Exercises Table */}
+              <div className="dashboard-exercises-card">
+                <h3 className="exercises-card-title">My exercises</h3>
+                <p className="exercises-card-subtitle">Exercises to help maintain good physical health and support the progress of therapy</p>
+                
+                <div className="exercises-table">
+                  <div className="exercises-row">
+                    <div className="exercise-info">
+                      <div className="exercise-icon exercise-icon-blue">
                     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                      <polyline points="9 18 15 12 9 6"/>
+                          <path d="M12 20h9"/>
+                          <path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/>
                     </svg>
-                  </button>
                 </div>
+                      <span className="exercise-name">Gratitude journal</span>
+                    </div>
+                    <div className="exercise-progress">
+                      <span className="exercise-percent">98%</span>
+                      <div className="exercise-progress-bar">
+                        <div className="exercise-progress-fill" style={{width: '98%'}}></div>
+                      </div>
+                    </div>
+                    <div className="exercise-duration">6h 32min</div>
+                    <div className="exercise-category">Positive thinking</div>
+                    <div className="exercise-stats">
+                      <span className="exercise-stat">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                          <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/>
+                          <line x1="16" y1="2" x2="16" y2="6"/>
+                          <line x1="8" y1="2" x2="8" y2="6"/>
+                          <line x1="3" y1="10" x2="21" y2="10"/>
+                    </svg>
+                        16
+                      </span>
+                      <span className="exercise-stat">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                          <path d="M21.44 11.05l-9.19 9.19a6 6 0 0 1-8.49-8.49l9.19-9.19a4 4 0 0 1 5.66 5.66l-9.2 9.19a2 2 0 0 1-2.83-2.83l8.49-8.48"/>
+                    </svg>
+                        3
+                      </span>
+                    </div>
+                  </div>
 
-                <div className="quick-actions">
-                  <button className="quick-action-btn">
-                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                      <line x1="12" y1="5" x2="12" y2="19"/>
-                      <line x1="5" y1="12" x2="19" y2="12"/>
-                    </svg>
-                    <span>placeholder#12</span>
-                  </button>
-                  <button className="quick-action-btn">
-                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                      <path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"/>
-                      <line x1="7" y1="7" x2="7.01" y2="7"/>
-                    </svg>
-                    <span>placeholder#13</span>
-                  </button>
-                  <button className="quick-action-btn">
-                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                      <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>
-                    </svg>
-                    <span>placeholder#14</span>
-                  </button>
-                  <button className="quick-action-btn">
-                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                  <div className="exercises-row">
+                    <div className="exercise-info">
+                      <div className="exercise-icon exercise-icon-pink">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                       <circle cx="12" cy="12" r="10"/>
-                      <polyline points="12 6 12 12 16 14"/>
+                          <path d="M12 16v-4"/>
+                          <path d="M12 8h.01"/>
                     </svg>
-                    <span>placeholder#15</span>
-                  </button>
+                </div>
+                      <span className="exercise-name">The power of awareness</span>
+              </div>
+                    <div className="exercise-progress">
+                      <span className="exercise-percent">55%</span>
+                      <div className="exercise-progress-bar">
+                        <div className="exercise-progress-fill" style={{width: '55%'}}></div>
+                      </div>
+                    </div>
+                    <div className="exercise-duration">11h 40min</div>
+                    <div className="exercise-category">Mindfulness</div>
+                    <div className="exercise-stats">
+                      <span className="exercise-stat">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                          <path d="M21.44 11.05l-9.19 9.19a6 6 0 0 1-8.49-8.49l9.19-9.19a4 4 0 0 1 5.66 5.66l-9.2 9.19a2 2 0 0 1-2.83-2.83l8.49-8.48"/>
+                        </svg>
+                        1
+                      </span>
+                    </div>
+                  </div>
                 </div>
               </div>
-            </>
+            </div>
           )}
 
           {dashboardView === 'appointment' && (
@@ -1664,7 +1792,7 @@ function App() {
                     </svg>
                     <input
                       type="text"
-                      placeholder="Search Appointments"
+                      placeholder="Search by patient name, time, or status"
                       className="appointment-search-input"
                     />
                   </div>
@@ -1766,9 +1894,22 @@ function App() {
               <div className="appointment-content-area">
                 {/* Today's Appointments */}
                 <div className="appointment-section">
+                  <div className="appointment-section-header">
                   <h2 className="appointment-section-title">
                     Today's appointments ({todayAppointments.length})
                   </h2>
+                    <button 
+                      className="appointment-download-csv-btn"
+                      onClick={handleDownloadCSV}
+                    >
+                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+                        <polyline points="7 10 12 15 17 10"/>
+                        <line x1="12" y1="15" x2="12" y2="3"/>
+                      </svg>
+                      Download CSV
+                    </button>
+                  </div>
                   
                   <div className="appointment-table">
                     {/* Table Header */}
@@ -1789,7 +1930,7 @@ function App() {
                         )}
                       </div>
                       <div 
-                        className="appointment-table-col appointment-col-therapy appointment-sortable" 
+                        className="appointment-table-col appointment-col-therapy appointment-col-center appointment-sortable" 
                         onClick={() => handleSort('appointmentType')}
                       >
                         Type of appointment
@@ -1804,7 +1945,7 @@ function App() {
                         )}
                       </div>
                       <div 
-                        className="appointment-table-col appointment-col-contact appointment-sortable" 
+                        className="appointment-table-col appointment-col-contact appointment-col-center appointment-sortable" 
                         onClick={() => handleSort('visitType')}
                       >
                         Consultation Type
@@ -1819,7 +1960,7 @@ function App() {
                         )}
                       </div>
                       <div 
-                        className="appointment-table-col appointment-col-status appointment-sortable" 
+                        className="appointment-table-col appointment-col-status appointment-col-center appointment-sortable" 
                         onClick={() => handleSort('status')}
                       >
                         Status
@@ -1834,7 +1975,7 @@ function App() {
                         )}
                       </div>
                       <div 
-                        className="appointment-table-col appointment-col-time appointment-sortable" 
+                        className="appointment-table-col appointment-col-time appointment-col-center appointment-sortable" 
                         onClick={() => handleSort('time')}
                       >
                         Appointment time
@@ -1852,24 +1993,19 @@ function App() {
                     </div>
 
                     {/* Table Body */}
-                    {todayAppointments.map((apt) => (
+                    {paginatedTodayAppointments.map((apt) => (
                       <div 
                         key={apt.id} 
                         className={`appointment-table-row ${apt.status === 'Ongoing' ? 'appointment-row-ongoing' : ''}`}
                       >
                         <div className="appointment-table-col appointment-col-name">
-                          <div className="appointment-client-info">
-                            <div className={`appointment-dot ${getDotColor(apt)}`}></div>
-                            <div>
                               <div className={`appointment-client-name ${getTextColor(apt.status)}`}>
                                 {apt.patientName}
                               </div>
                             </div>
-                          </div>
-                        </div>
-                        <div className={`appointment-table-col appointment-col-therapy ${getTextColor(apt.status)}`}>{apt.appointmentType}</div>
-                        <div className={`appointment-table-col appointment-col-contact ${getTextColor(apt.status)}`}>{apt.visitType}</div>
-                        <div className={`appointment-table-col appointment-col-status ${getStatusColor(apt.status)}`}>
+                        <div className={`appointment-table-col appointment-col-therapy appointment-col-center ${getTextColor(apt.status)}`}>{apt.appointmentType}</div>
+                        <div className={`appointment-table-col appointment-col-contact appointment-col-center ${getTextColor(apt.status)}`}>{apt.visitType}</div>
+                        <div className={`appointment-table-col appointment-col-status appointment-col-center ${getStatusColor(apt.status)}`}>
                           {editingStatusId === apt.id ? (
                             <select
                               value={apt.status}
@@ -1883,10 +2019,10 @@ function App() {
                               <option value="No show">No show</option>
                             </select>
                           ) : (
-                            <span>{apt.status}</span>
+                            renderStatusBadge(apt.status)
                           )}
                         </div>
-                        <div className={`appointment-table-col appointment-col-time ${getTextColor(apt.status)} appointment-time-bold`}>{apt.time}</div>
+                        <div className={`appointment-table-col appointment-col-time appointment-col-center ${getTextColor(apt.status)} appointment-time-bold`}>{apt.time}</div>
                         <div className="appointment-table-col appointment-col-actions">
                           <div className="appointment-more-wrapper">
                             <button 
@@ -1929,17 +2065,51 @@ function App() {
                       </div>
                     ))}
                   </div>
+                  
+                  {/* Pagination for Today's Appointments */}
+                  {todayTotalPages > 1 && (
+                    <div className="appointment-pagination">
+                      <button
+                        className="appointment-pagination-nav"
+                        onClick={() => setTodayPage(prev => Math.max(prev - 1, 1))}
+                        disabled={todayPage === 1}
+                      >
+                        Previous
+                      </button>
+                      <span className="appointment-pagination-info">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                          <polyline points="15 18 9 12 15 6"/>
+                        </svg>
+                        Page {todayPage}
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                          <polyline points="9 18 15 12 9 6"/>
+                        </svg>
+                      </span>
+                      <button
+                        className="appointment-pagination-nav"
+                        onClick={() => setTodayPage(prev => Math.min(prev + 1, todayTotalPages))}
+                        disabled={todayPage === todayTotalPages}
+                      >
+                        Next
+                      </button>
+                    </div>
+                  )}
                 </div>
 
-                {/* Tomorrow's Appointments */}
+                {/* Upcoming Appointments */}
                 <div className="appointment-section">
+                  <div className="appointment-section-header">
                   <h2 className="appointment-section-title">
-                    Tomorrow's appointments ({tomorrowAppointments.length})
+                      Upcoming Appointments ({tomorrowAppointments.length})
                   </h2>
+                  </div>
                   
-                  <div className="appointment-table">
+                  <div className="appointment-table appointment-table-with-date">
                     {/* Table Header */}
-                    <div className="appointment-table-header">
+                    <div className="appointment-table-header with-date">
+                      <div className="appointment-table-col appointment-col-date">
+                        Appointment date
+                      </div>
                       <div 
                         className="appointment-table-col appointment-col-name appointment-sortable" 
                         onClick={() => handleSort('patientName')}
@@ -1956,7 +2126,7 @@ function App() {
                         )}
                       </div>
                       <div 
-                        className="appointment-table-col appointment-col-therapy appointment-sortable" 
+                        className="appointment-table-col appointment-col-therapy appointment-col-center appointment-sortable" 
                         onClick={() => handleSort('appointmentType')}
                       >
                         Type of appointment
@@ -1971,7 +2141,7 @@ function App() {
                         )}
                       </div>
                       <div 
-                        className="appointment-table-col appointment-col-contact appointment-sortable" 
+                        className="appointment-table-col appointment-col-contact appointment-col-center appointment-sortable" 
                         onClick={() => handleSort('visitType')}
                       >
                         Consultation Type
@@ -1986,7 +2156,7 @@ function App() {
                         )}
                       </div>
                       <div 
-                        className="appointment-table-col appointment-col-status appointment-sortable" 
+                        className="appointment-table-col appointment-col-status appointment-col-center appointment-sortable" 
                         onClick={() => handleSort('status')}
                       >
                         Status
@@ -2001,7 +2171,7 @@ function App() {
                         )}
                       </div>
                       <div 
-                        className="appointment-table-col appointment-col-time appointment-sortable" 
+                        className="appointment-table-col appointment-col-time appointment-col-center appointment-sortable" 
                         onClick={() => handleSort('time')}
                       >
                         Appointment time
@@ -2019,24 +2189,22 @@ function App() {
                     </div>
 
                     {/* Table Body */}
-                    {tomorrowAppointments.map((apt) => (
+                    {paginatedTomorrowAppointments.map((apt) => (
                       <div 
                         key={apt.id} 
-                        className="appointment-table-row"
+                        className="appointment-table-row with-date"
                       >
+                        <div className="appointment-table-col appointment-col-date appointment-text-dark">
+                          {formatDate(apt.date)}
+                        </div>
                         <div className="appointment-table-col appointment-col-name">
-                          <div className="appointment-client-info">
-                            <div className="appointment-dot appointment-dot-pink"></div>
-                            <div>
                               <div className="appointment-client-name appointment-text-dark">
                                 {apt.patientName}
                               </div>
                             </div>
-                          </div>
-                        </div>
-                        <div className="appointment-table-col appointment-col-therapy appointment-text-dark">{apt.appointmentType}</div>
-                        <div className="appointment-table-col appointment-col-contact appointment-text-dark">{apt.visitType}</div>
-                        <div className="appointment-table-col appointment-col-status appointment-status-scheduled">
+                        <div className="appointment-table-col appointment-col-therapy appointment-col-center appointment-text-dark">{apt.appointmentType}</div>
+                        <div className="appointment-table-col appointment-col-contact appointment-col-center appointment-text-dark">{apt.visitType}</div>
+                        <div className={`appointment-table-col appointment-col-status appointment-col-center ${getStatusColor(apt.status)}`}>
                           {editingStatusId === apt.id ? (
                             <select
                               value={apt.status}
@@ -2050,10 +2218,10 @@ function App() {
                               <option value="No show">No show</option>
                             </select>
                           ) : (
-                            <span>{apt.status}</span>
+                            renderStatusBadge(apt.status)
                           )}
                         </div>
-                        <div className="appointment-table-col appointment-col-time appointment-text-dark appointment-time-bold">{apt.time}</div>
+                        <div className="appointment-table-col appointment-col-time appointment-col-center appointment-text-dark appointment-time-bold">{apt.time}</div>
                         <div className="appointment-table-col appointment-col-actions">
                           <div className="appointment-more-wrapper">
                             <button 
@@ -2096,6 +2264,35 @@ function App() {
                       </div>
                     ))}
                   </div>
+                  
+                  {/* Pagination for Upcoming Appointments */}
+                  {tomorrowTotalPages > 1 && (
+                    <div className="appointment-pagination">
+                      <button
+                        className="appointment-pagination-nav"
+                        onClick={() => setTomorrowPage(prev => Math.max(prev - 1, 1))}
+                        disabled={tomorrowPage === 1}
+                      >
+                        Previous
+                      </button>
+                      <span className="appointment-pagination-info">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                          <polyline points="15 18 9 12 15 6"/>
+                        </svg>
+                        Page {tomorrowPage}
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                          <polyline points="9 18 15 12 9 6"/>
+                        </svg>
+                      </span>
+                      <button
+                        className="appointment-pagination-nav"
+                        onClick={() => setTomorrowPage(prev => Math.min(prev + 1, tomorrowTotalPages))}
+                        disabled={tomorrowPage === tomorrowTotalPages}
+                      >
+                        Next
+                      </button>
+                    </div>
+                  )}
                 </div>
               </div>
 
@@ -3320,93 +3517,320 @@ function App() {
             </div>
           )}
 
-          {dashboardView === 'patients' && (
-            <div className="view-container">
-              <div className="view-header">
-                <h2 className="view-title">Patients</h2>
+          {dashboardView === 'patients' && (() => {
+            // Convert patientsData object to array
+            const patientsArray = Object.entries(patientsData).map(([id, patient]) => ({
+              id: parseInt(id),
+              ...patient
+            }))
+            
+            // Filter patients
+            const filteredPatients = patientsArray.filter(patient => {
+              const matchesSearch = patient.name.toLowerCase().includes(patientSearch.toLowerCase()) ||
+                patient.address.toLowerCase().includes(patientSearch.toLowerCase()) ||
+                patient.disease.toLowerCase().includes(patientSearch.toLowerCase()) ||
+                patient.contactNumber.includes(patientSearch)
+              const matchesGender = patientGenderFilter === 'All' || patient.gender === patientGenderFilter
+              const matchesStatus = patientStatusFilter === 'All' || patient.status === patientStatusFilter
+              return matchesSearch && matchesGender && matchesStatus
+            })
+            
+            // Pagination - 15 items per page for patients
+            const patientsTotalPages = Math.ceil(filteredPatients.length / PATIENTS_PER_PAGE)
+            const paginatedPatients = filteredPatients.slice(
+              (patientsPage - 1) * PATIENTS_PER_PAGE,
+              patientsPage * PATIENTS_PER_PAGE
+            )
+            
+            // Download CSV function
+            const handleDownloadPatientsCSV = () => {
+              const headers = ['Patient ID', 'Patient Name', 'Gender', 'Contact Number', 'Status', 'Registered Date', 'Last Visit']
+              const csvContent = [
+                headers.join(','),
+                ...filteredPatients.map(patient => [
+                  `P-${String(patient.id).padStart(4, '0')}`,
+                  `"${patient.name}"`,
+                  patient.gender,
+                  patient.contactNumber,
+                  patient.status,
+                  patient.registeredDate,
+                  patient.lastVisit || 'N/A'
+                ].join(','))
+              ].join('\n')
+              
+              const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' })
+              const link = document.createElement('a')
+              link.href = URL.createObjectURL(blob)
+              link.download = `patients_list_${new Date().toISOString().split('T')[0]}.csv`
+              link.click()
+            }
+            
+            // Get status badge class
+            const getPatientStatusClass = (status) => {
+              switch(status) {
+                case 'Active': return 'patient-status-active'
+                case 'Inactive': return 'patient-status-inactive'
+                case 'New': return 'patient-status-new'
+                case 'Archived': return 'patient-status-archived'
+                case 'Pending': return 'patient-status-pending'
+                default: return ''
+              }
+            }
+            
+            // Handle action menu
+            const handlePatientAction = (action, patient) => {
+              setOpenPatientActionMenu(null)
+              switch(action) {
+                case 'view':
+                  setSelectedPatientId(patient.id)
+                  setPatientModalStep(1)
+                  setShowPatientModal(true)
+                  break
+                case 'edit':
+                  alert(`Edit details: ${patient.name}`)
+                  break
+                case 'viewAppointments':
+                  alert(`View appointments for: ${patient.name}`)
+                  break
+                case 'createAppointment':
+                  alert(`Create appointment for: ${patient.name}`)
+                  break
+                case 'archive':
+                  alert(`Archive patient: ${patient.name}`)
+                  break
+                default:
+                  break
+              }
+            }
+            
+            return (
+              <div className="patients-page-container" onClick={() => setOpenPatientActionMenu(null)}>
+                {/* Top Bar with Filters */}
+                <div className="patient-top-bar">
+                  <div className="patient-top-bar-content">
+                    {/* Search Bar */}
+                    <div className="patient-search-wrapper">
+                      <svg className="patient-search-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                        <circle cx="11" cy="11" r="8"/>
+                        <path d="m21 21-4.35-4.35"/>
+                      </svg>
+                      <input
+                        type="text"
+                        placeholder="Search by name, ID, or status"
+                        className="patient-search-input"
+                        value={patientSearch}
+                        onChange={(e) => {
+                          setPatientSearch(e.target.value)
+                          setPatientsPage(1)
+                        }}
+                      />
+                    </div>
+
+                    <div className="patient-actions">
+                      {/* More filter button */}
+                      <button className="patient-filter-btn">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                          <polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"/>
+                        </svg>
+                        More filter
+                      </button>
+                      
+                      {/* Create Patient button */}
                 <button 
-                  className="create-btn"
+                        className="patient-create-btn"
                   onClick={() => alert('Create Patient clicked')}
                 >
-                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                     <line x1="12" y1="5" x2="12" y2="19"/>
                     <line x1="5" y1="12" x2="19" y2="12"/>
                   </svg>
-                  <span>Add Patient</span>
+                        Create Patient
                 </button>
               </div>
-              <div className="patients-list">
-                <div className="patient-item">
-                  <div className="patient-avatar">
-                    <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                      <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
-                      <circle cx="12" cy="7" r="4"/>
+                  </div>
+                  </div>
+
+                {/* Patients Section */}
+                <div className="patient-section">
+                  <div className="patient-section-header">
+                    <h2 className="patient-section-title">
+                      All Patients ({filteredPatients.length})
+                    </h2>
+                    <button className="patient-download-csv-btn" onClick={handleDownloadPatientsCSV}>
+                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+                        <polyline points="7 10 12 15 17 10"/>
+                        <line x1="12" y1="15" x2="12" y2="3"/>
+                      </svg>
+                      Download CSV
+                    </button>
+                  </div>
+                  
+                  {/* Table */}
+                  <div className="patients-table-container">
+                  <table className="patients-data-table">
+                    <thead>
+                      <tr>
+                        <th className="patients-th-id">Patient ID</th>
+                        <th className="patients-th-name">Patient Name</th>
+                        <th>Age</th>
+                        <th>Gender</th>
+                        <th>Last Visit</th>
+                        <th>Next Appointment</th>
+                        <th>Status</th>
+                        <th>Registered</th>
+                        <th className="patients-th-action">Action</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {paginatedPatients.map(patient => {
+                        return (
+                          <tr key={patient.id}>
+                            <td className="patients-td-id">
+                              <span className="patients-id-badge">P-{String(patient.id).padStart(4, '0')}</span>
+                            </td>
+                            <td className="patients-td-name">
+                              <span className="patients-name">{patient.name}</span>
+                            </td>
+                            <td className="patients-td-age">{patient.age}</td>
+                            <td className="patients-td-gender">{patient.gender}</td>
+                            <td className="patients-td-lastvisit">
+                              {patient.lastVisit 
+                                ? (
+                                  <span className="patients-visit-datetime">
+                                    <span className="patients-visit-date">
+                                      {(() => {
+                                        const d = new Date(patient.lastVisit)
+                                        const day = String(d.getDate()).padStart(2, '0')
+                                        const month = String(d.getMonth() + 1).padStart(2, '0')
+                                        const year = String(d.getFullYear()).slice(-2)
+                                        return `${day}/${month}/${year}`
+                                      })()}
+                                    </span>
+                                    <span className="patients-visit-time">{patient.lastVisitTime}</span>
+                                  </span>
+                                )
+                                : <span className="patients-no-visit">No visits yet</span>
+                              }
+                            </td>
+                            <td className="patients-td-nextappt">
+                              {patient.nextAppointment 
+                                ? (() => {
+                                    const d = new Date(patient.nextAppointment)
+                                    const day = String(d.getDate()).padStart(2, '0')
+                                    const month = String(d.getMonth() + 1).padStart(2, '0')
+                                    const year = String(d.getFullYear()).slice(-2)
+                                    return `${day}/${month}/${year}`
+                                  })()
+                                : <span className="patients-no-visit">No upcoming appointment</span>
+                              }
+                            </td>
+                            <td>
+                              <span className={`patient-status-badge ${getPatientStatusClass(patient.status)}`}>
+                                {patient.status}
+                              </span>
+                            </td>
+                            <td className="patients-td-registered">
+                              {(() => {
+                                const d = new Date(patient.registeredDate)
+                                const day = String(d.getDate()).padStart(2, '0')
+                                const month = String(d.getMonth() + 1).padStart(2, '0')
+                                const year = String(d.getFullYear()).slice(-2)
+                                return `${day}/${month}/${year}`
+                              })()}
+                            </td>
+                            <td className="patients-td-actions">
+                              <div className="patients-action-wrapper">
+                                <div className="patients-action-buttons">
+                                  <button 
+                                    className="patients-view-btn"
+                                    onClick={(e) => {
+                                      e.stopPropagation()
+                                      handlePatientAction('view', patient)
+                                    }}
+                                  >
+                                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                                      <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
+                                      <circle cx="12" cy="12" r="3"/>
+                                    </svg>
+                                    View
+                                  </button>
+                                  <button 
+                                    className="patients-edit-btn"
+                                    onClick={(e) => {
+                                      e.stopPropagation()
+                                      handlePatientAction('edit', patient)
+                                    }}
+                                  >
+                                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                                      <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/>
+                                      <path d="m18.5 2.5 3 3L12 15l-4 1 1-4 9.5-9.5z"/>
+                                    </svg>
+                                    Edit
+                                  </button>
+                                  <button 
+                                    className="patients-delete-btn"
+                                    onClick={(e) => {
+                                      e.stopPropagation()
+                                      handlePatientAction('delete', patient)
+                                    }}
+                                  >
+                                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                                      <polyline points="3 6 5 6 21 6"/>
+                                      <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>
+                                      <line x1="10" y1="11" x2="10" y2="17"/>
+                                      <line x1="14" y1="11" x2="14" y2="17"/>
+                                    </svg>
+                                    Delete
+                                  </button>
+                                </div>
+                  </div>
+                            </td>
+                          </tr>
+                        )
+                      })}
+                    </tbody>
+                  </table>
+                  
+                  {paginatedPatients.length === 0 && (
+                    <div className="patients-table-empty">
+                      <p>No patients found matching your search criteria.</p>
+                  </div>
+                  )}
+                </div>
+                
+                  {/* Pagination */}
+                  {patientsTotalPages > 1 && (
+                    <div className="patients-pagination">
+                      <button
+                        className="patients-pagination-btn"
+                        onClick={() => setPatientsPage(prev => Math.max(prev - 1, 1))}
+                        disabled={patientsPage === 1}
+                      >
+                        Previous
+                      </button>
+                      <div className="patients-pagination-numbers">
+                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                          <polyline points="15 18 9 12 15 6"/>
+                        </svg>
+                        <span>Page {patientsPage}</span>
+                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                          <polyline points="9 18 15 12 9 6"/>
                     </svg>
                   </div>
-                  <div className="patient-details">
-                    <h3>John Doe</h3>
-                    <p>Age: 45 | Gender: Male</p>
-                    <p className="patient-contact">Email: john.doe@example.com</p>
+                      <button
+                        className="patients-pagination-btn"
+                        onClick={() => setPatientsPage(prev => Math.min(prev + 1, patientsTotalPages))}
+                        disabled={patientsPage === patientsTotalPages}
+                      >
+                        Next
+                      </button>
                   </div>
-                  <div className="patient-actions">
-                    <button className="patient-action-btn">View</button>
-                    <button className="patient-action-btn">Edit</button>
-                  </div>
-                </div>
-                <div className="patient-item">
-                  <div className="patient-avatar">
-                    <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                      <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
-                      <circle cx="12" cy="7" r="4"/>
-                    </svg>
-                  </div>
-                  <div className="patient-details">
-                    <h3>Mary Smith</h3>
-                    <p>Age: 38 | Gender: Female</p>
-                    <p className="patient-contact">Email: mary.smith@example.com</p>
-                  </div>
-                  <div className="patient-actions">
-                    <button className="patient-action-btn">View</button>
-                    <button className="patient-action-btn">Edit</button>
+                  )}
                   </div>
                 </div>
-                <div className="patient-item">
-                  <div className="patient-avatar">
-                    <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                      <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
-                      <circle cx="12" cy="7" r="4"/>
-                    </svg>
-                  </div>
-                  <div className="patient-details">
-                    <h3>Sarah Johnson</h3>
-                    <p>Age: 52 | Gender: Female</p>
-                    <p className="patient-contact">Email: sarah.johnson@example.com</p>
-                  </div>
-                  <div className="patient-actions">
-                    <button className="patient-action-btn">View</button>
-                    <button className="patient-action-btn">Edit</button>
-                  </div>
-                </div>
-                <div className="patient-item">
-                  <div className="patient-avatar">
-                    <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                      <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
-                      <circle cx="12" cy="7" r="4"/>
-                    </svg>
-                  </div>
-                  <div className="patient-details">
-                    <h3>Michael Brown</h3>
-                    <p>Age: 34 | Gender: Male</p>
-                    <p className="patient-contact">Email: michael.brown@example.com</p>
-                  </div>
-                  <div className="patient-actions">
-                    <button className="patient-action-btn">View</button>
-                    <button className="patient-action-btn">Edit</button>
-                  </div>
-                </div>
-              </div>
-            </div>
-          )}
+            )
+          })()}
 
           {dashboardView === 'settings' && (
             <div className="view-container">
