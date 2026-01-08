@@ -140,6 +140,13 @@ function App() {
     medicationNotes: ''
   })
   
+  // Settings page states
+  const [settingsTab, setSettingsTab] = useState('security')
+  const [twoStepVerification, setTwoStepVerification] = useState(true)
+  const [userEmail, setUserEmail] = useState('alex.assenmacher@gmail.com')
+  const [emailVerified, setEmailVerified] = useState(false)
+  const [profileEditMode, setProfileEditMode] = useState(false)
+  
   // Patient form data states
   const [patientFormData, setPatientFormData] = useState({
     // General Information
@@ -1170,21 +1177,11 @@ function App() {
           onClick={() => handleNavigation('main')}
           style={{ cursor: 'pointer' }}
         >
-          <div className="logo-icon">J</div>
           <span className="logo-text">Jejakra.</span>
         </div>
         
         {/* Navigation Links - Right Side */}
         <div className="nav-links">
-          <a href="#" className="nav-link" onClick={(e) => { e.preventDefault(); handleNavigation('main'); }}>
-            Home
-          </a>
-          <a href="#" className="nav-link" onClick={(e) => { e.preventDefault(); console.log('Pricing clicked'); }}>
-            Pricing
-          </a>
-          <a href="#" className="nav-link" onClick={(e) => { e.preventDefault(); console.log('Feature clicked'); }}>
-            Feature
-          </a>
           <button
             type="button"
             className="nav-button"
@@ -1540,22 +1537,6 @@ function App() {
             <h3 className="footer-title">Jejakra</h3>
             <p className="footer-text">Understand your body,one habit at a time</p>
           </div>
-          <div className="footer-section">
-            <h4 className="footer-heading">Quick Links</h4>
-            <ul className="footer-links">
-              <li><a href="#" onClick={(e) => { e.preventDefault(); console.log('Pricing clicked'); }}>Pricing</a></li>
-              <li><a href="#" onClick={(e) => { e.preventDefault(); console.log('Feature clicked'); }}>Feature</a></li>
-              <li><a href="#" onClick={(e) => { e.preventDefault(); handleNavigation('login'); }}>Login</a></li>
-              <li><a href="#" onClick={(e) => { e.preventDefault(); handleNavigation('main'); }}>Home</a></li>
-            </ul>
-          </div>
-          <div className="footer-section">
-            <h4 className="footer-heading">Contact</h4>
-            <ul className="footer-links">
-              <li><a href="mailto:contact@jejakra.com">contact@jejakra.com</a></li>
-              <li><a href="#">Support</a></li>
-            </ul>
-          </div>
         </div>
         <div className="footer-bottom">
           <p className="footer-copyright">© 2025 Jejakra. All rights reserved.</p>
@@ -1582,7 +1563,6 @@ function App() {
           onClick={() => handleNavigation('main')}
           style={{ cursor: 'pointer' }}
         >
-          <div className="logo-icon">J</div>
           <span className="logo-text">Jejakra.</span>
         </div>
         <div className="login-content">
@@ -1605,30 +1585,10 @@ function App() {
       <div className="dashboard-layout">
         {/* Left Sidebar */}
         <aside className={`dashboard-sidebar ${isSidebarCollapsed ? 'collapsed' : ''}`}>
-          <div className="sidebar-header">
-            <button 
-              className="sidebar-menu-btn"
-              onClick={() => setIsSidebarCollapsed(!isSidebarCollapsed)}
-              aria-label="Toggle sidebar"
-            >
-              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                {isSidebarCollapsed ? (
-                  <path d="M9 18l6-6-6-6"/>
-                ) : (
-                  <>
-                    <line x1="3" y1="6" x2="21" y2="6"/>
-                    <line x1="3" y1="12" x2="21" y2="12"/>
-                    <line x1="3" y1="18" x2="21" y2="18"/>
-                  </>
-                )}
-              </svg>
-            </button>
+          {/* Logo */}
+          <div className="sidebar-logo">
             {!isSidebarCollapsed && (
-              <input 
-                type="text" 
-                className="sidebar-search" 
-                placeholder="Search..."
-              />
+              <span className="logo-text">Jejakra</span>
             )}
           </div>
           
@@ -1730,201 +1690,323 @@ function App() {
         <main className="dashboard-main">
           {dashboardView === 'home' && (
             <div className="dashboard-page-container">
-              {/* Top Row - 3 Stats Cards */}
+              {/* Welcome Header */}
+              <div className="dashboard-welcome-header">
+                <div className="welcome-header-left">
+                  <h1 className="welcome-title">Welcome back, Megat Jun</h1>
+                  <p className="welcome-subtitle">Here's what's happening in your practice currently</p>
+                </div>
+                <div className="welcome-header-right">
+                  <button className="welcome-export-btn">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                      <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+                      <polyline points="17 8 12 3 7 8"/>
+                      <line x1="12" y1="3" x2="12" y2="15"/>
+                    </svg>
+                    Export
+                  </button>
+                </div>
+              </div>
+
+              {/* Stats Cards Row */}
               <div className="dashboard-stats-row">
-                {/* Progress Tracking Card */}
-                <div className="dashboard-stat-card">
-                  <h3 className="stat-card-title">Progress Tracking</h3>
-                  <div className="stat-card-value-row">
-                    <span className="stat-card-value">14</span>
-                    <span className="stat-badge stat-badge-green">+15%</span>
-              </div>
-                  <p className="stat-card-description">Therapy goals achieved over the last 3 months</p>
-                  <div className="stat-progress-bar">
-                    <div className="stat-progress-fill" style={{width: '70%'}}></div>
+                {/* Overall Visitors Card - Featured */}
+                <div className="dashboard-stat-card stat-card-featured">
+                  <div className="stat-card-header-row">
+                    <div className="stat-card-header-left">
+                      <div className="stat-card-icon-small">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                          <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
+                          <circle cx="12" cy="12" r="3"/>
+                        </svg>
+                      </div>
+                      <span className="stat-card-label">Overall visitors</span>
+                    </div>
                   </div>
+                  <div className="stat-card-value-row">
+                    <span className="stat-card-value-large">{appointments.length.toLocaleString()}</span>
+                    <span className="stat-card-badge stat-card-badge-light">+{((appointments.filter(a => a.status === 'Scheduled').length / appointments.length) * 100).toFixed(1)}%</span>
+                  </div>
+                  <p className="stat-card-description-light">Visitors increased from {appointments.filter(a => a.status === 'Completed').length} to {appointments.length}.</p>
+                  <div className="stat-card-progress">
+                    <div className="stat-card-progress-bar">
+                      <div className="stat-card-progress-fill" style={{width: `${(appointments.filter(a => a.status === 'Completed').length / appointments.length) * 100}%`}}></div>
+                    </div>
+                  </div>
+                  <div className="stat-card-footer">
+                    <span className="stat-card-today">{appointments.filter(a => a.isToday).length} today</span>
+                  </div>
+                </div>
+
+                {/* Total Patient Card */}
+                <div className="dashboard-stat-card">
+                  <div className="stat-card-header-row">
+                    <div className="stat-card-header-left">
+                      <div className="stat-card-icon-small stat-icon-blue">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                          <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
+                          <circle cx="9" cy="7" r="4"/>
+                          <path d="M23 21v-2a4 4 0 0 0-3-3.87"/>
+                          <path d="M16 3.13a4 4 0 0 1 0 7.75"/>
+                        </svg>
+                      </div>
+                      <span className="stat-card-label">Total patient</span>
+                    </div>
+                  </div>
+                  <div className="stat-card-value-row">
+                    <span className="stat-card-value-large">{Object.keys(patientsData).length.toLocaleString()}</span>
+                    <span className="stat-card-badge stat-card-badge-green">+{((Object.values(patientsData).filter(p => p.status === 'Active').length / Object.keys(patientsData).length) * 100).toFixed(1)}%</span>
+                  </div>
+                  <p className="stat-card-description">Increase in data by {Object.values(patientsData).filter(p => p.status === 'Active').length} active patients in the last 7 days</p>
                 </div>
                 
-                {/* Educational Sources Card */}
+                {/* Appointments Card */}
                 <div className="dashboard-stat-card">
-                  <h3 className="stat-card-title">Educational Sources</h3>
-                  <div className="stat-card-value-row">
-                    <span className="stat-card-value">22</span>
-                    <span className="stat-badge stat-badge-red">-30%</span>
-                  </div>
-                  <ul className="stat-card-list">
-                    <li>
-                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#3b82f6" strokeWidth="2">
-                      <polyline points="20 6 9 17 4 12"/>
-                    </svg>
-                      Breathing and meditation techniques
-                    </li>
-                    <li>
-                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#3b82f6" strokeWidth="2">
-                        <polyline points="20 6 9 17 4 12"/>
-                      </svg>
-                      Identifying sources of stress
-                    </li>
-                  </ul>
-                  </div>
-
-                {/* Therapeutic Sessions Card */}
-                <div className="dashboard-stat-card">
-                  <h3 className="stat-card-title">Therapeutic Sessions</h3>
-                  <div className="stat-card-value-row">
-                    <span className="stat-card-value">6</span>
-                    <span className="stat-badge stat-badge-green">+5%</span>
-                  </div>
-                  <p className="stat-card-description">Sessions were held this month</p>
-                  </div>
-                </div>
-                
-              {/* Middle Row - Chart and Support Card */}
-              <div className="dashboard-middle-row">
-                {/* Emotional State Card */}
-                <div className="dashboard-chart-card">
-                  <div className="chart-card-header">
-                    <div>
-                      <h3 className="chart-card-title">Emotional State</h3>
-                      <p className="chart-card-subtitle">Based on data collected during sessions with a therapist, self-tests and feedback</p>
-                  </div>
-                    <div className="chart-tabs">
-                      <button className="chart-tab">Week</button>
-                      <button className="chart-tab active">Month</button>
-                      <button className="chart-tab">Year</button>
-                    </div>
-                  </div>
-                  <div className="chart-container">
-                    <div className="chart-y-axis">
-                      <span>100</span>
-                      <span>80</span>
-                      <span>60</span>
-                      <span>40</span>
-                      <span>20</span>
-                      <span>0</span>
-                    </div>
-                    <div className="chart-bars">
-                      <div className="chart-bar-group">
-                        <div className="chart-bar" style={{height: '25%'}}></div>
-                        <span className="chart-bar-label">16 Aug</span>
-                      </div>
-                      <div className="chart-bar-group">
-                        <div className="chart-bar" style={{height: '45%'}}></div>
-                        <span className="chart-bar-label">17 Aug</span>
-                      </div>
-                      <div className="chart-bar-group">
-                        <div className="chart-bar" style={{height: '65%'}}></div>
-                        <span className="chart-bar-label">18 Aug</span>
-                      </div>
-                      <div className="chart-bar-group">
-                        <div className="chart-bar" style={{height: '80%'}}></div>
-                        <span className="chart-bar-label">19 Aug</span>
-                      </div>
-                      <div className="chart-bar-group">
-                        <div className="chart-bar chart-bar-striped" style={{height: '70%'}}></div>
-                        <span className="chart-bar-label">20 Aug</span>
-                      </div>
-                      <div className="chart-bar-group">
-                        <div className="chart-bar chart-bar-striped" style={{height: '55%'}}></div>
-                        <span className="chart-bar-label">21 Aug</span>
-                      </div>
-                      <div className="chart-bar-group">
-                        <div className="chart-bar chart-bar-striped" style={{height: '40%'}}></div>
-                        <span className="chart-bar-label">22 Aug</span>
-                      </div>
-                  </div>
-                </div>
-              </div>
-
-                {/* Urgent Support Card */}
-                <div className="dashboard-support-card">
-                  <h3 className="support-card-title">Urgent Support</h3>
-                  <p className="support-card-description">Quick access to crisis hotlines when you need immediate help</p>
-                  <button className="support-card-btn">Get help now</button>
-                  <div className="support-card-image">
-                    <svg viewBox="0 0 100 100" width="120" height="120">
-                      <ellipse cx="50" cy="85" rx="40" ry="8" fill="rgba(255,255,255,0.3)"/>
-                      <circle cx="50" cy="50" r="25" fill="#f8e8e0"/>
-                      <ellipse cx="50" cy="50" rx="18" ry="15" fill="#fdf4f0"/>
-                      <ellipse cx="42" cy="45" rx="6" ry="8" fill="#fce4d8"/>
-                      <ellipse cx="58" cy="45" rx="6" ry="8" fill="#fce4d8"/>
-                      <ellipse cx="50" cy="55" rx="4" ry="5" fill="#f5d0c0"/>
-                    </svg>
-                  </div>
-                </div>
-              </div>
-
-              {/* Bottom Row - Exercises Table */}
-              <div className="dashboard-exercises-card">
-                <h3 className="exercises-card-title">My exercises</h3>
-                <p className="exercises-card-subtitle">Exercises to help maintain good physical health and support the progress of therapy</p>
-                
-                <div className="exercises-table">
-                  <div className="exercises-row">
-                    <div className="exercise-info">
-                      <div className="exercise-icon exercise-icon-blue">
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                          <path d="M12 20h9"/>
-                          <path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/>
-                    </svg>
-                </div>
-                      <span className="exercise-name">Gratitude journal</span>
-                    </div>
-                    <div className="exercise-progress">
-                      <span className="exercise-percent">98%</span>
-                      <div className="exercise-progress-bar">
-                        <div className="exercise-progress-fill" style={{width: '98%'}}></div>
-                      </div>
-                    </div>
-                    <div className="exercise-duration">6h 32min</div>
-                    <div className="exercise-category">Positive thinking</div>
-                    <div className="exercise-stats">
-                      <span className="exercise-stat">
-                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                  <div className="stat-card-header-row">
+                    <div className="stat-card-header-left">
+                      <div className="stat-card-icon-small stat-icon-purple">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                           <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/>
                           <line x1="16" y1="2" x2="16" y2="6"/>
                           <line x1="8" y1="2" x2="8" y2="6"/>
                           <line x1="3" y1="10" x2="21" y2="10"/>
-                    </svg>
-                        16
-                      </span>
-                      <span className="exercise-stat">
-                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                          <path d="M21.44 11.05l-9.19 9.19a6 6 0 0 1-8.49-8.49l9.19-9.19a4 4 0 0 1 5.66 5.66l-9.2 9.19a2 2 0 0 1-2.83-2.83l8.49-8.48"/>
-                    </svg>
-                        3
-                      </span>
+                        </svg>
+                      </div>
+                      <span className="stat-card-label">Appointments</span>
+                    </div>
+                  </div>
+                  <div className="stat-card-value-row">
+                    <span className="stat-card-value-large">{appointments.filter(a => a.status === 'Scheduled').length}</span>
+                    <span className="stat-card-badge stat-card-badge-green">+{appointments.filter(a => !a.isToday && a.status === 'Scheduled').length}</span>
+                  </div>
+                  <p className="stat-card-description">Scheduled appointments. {appointments.filter(a => a.status === 'Completed').length} completed, {appointments.filter(a => a.status === 'Cancelled').length} cancelled.</p>
+                  <div className="stat-card-progress stat-card-progress-dark">
+                    <div className="stat-card-progress-bar">
+                      <div className="stat-card-progress-fill-blue" style={{width: `${(appointments.filter(a => a.status === 'Scheduled').length / appointments.length) * 100}%`}}></div>
+                    </div>
+                  </div>
+                  <div className="stat-card-footer">
+                    <span className="stat-card-today-dark">{appointments.filter(a => a.isToday && a.status === 'Scheduled').length} today</span>
+                  </div>
+                </div>
+
+                {/* Current Patient Status Card */}
+                <div className="dashboard-stat-card">
+                  <div className="stat-card-header-row">
+                    <div className="stat-card-header-left">
+                      <div className="stat-card-icon-small stat-icon-green">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                          <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/>
+                          <polyline points="22 4 12 14.01 9 11.01"/>
+                        </svg>
+                      </div>
+                      <span className="stat-card-label">Current Patient Status</span>
+                    </div>
+                  </div>
+                  <div className="stat-card-value-row">
+                    <span className="stat-card-value-large">{Object.values(patientsData).filter(p => p.status === 'Active').length}</span>
+                    <span className="stat-card-badge stat-card-badge-green">+{Object.values(patientsData).filter(p => p.status === 'Active').length}</span>
+                  </div>
+                  <div className="stat-card-status-list">
+                    <div className="stat-card-status-item">
+                      <span className="status-dot status-dot-green"></span>
+                      <span className="status-label">Active</span>
+                      <span className="status-value">{Object.values(patientsData).filter(p => p.status === 'Active').length}</span>
+                    </div>
+                    <div className="stat-card-status-divider"></div>
+                    <div className="stat-card-status-item">
+                      <span className="status-dot status-dot-orange"></span>
+                      <span className="status-label">Inactive</span>
+                      <span className="status-value">{Object.values(patientsData).filter(p => p.status === 'Inactive').length}</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+                
+              {/* Middle Row - Chart and Support Card */}
+              <div className="dashboard-middle-row">
+                {/* Appointment Activity Heatmap */}
+                <div className="dashboard-chart-card heatmap-card-compact">
+                  <h3 className="heatmap-title">Appointment Activity</h3>
+                  
+                  {/* Stats Summary */}
+                  <div className="heatmap-stats">
+                    <div className="heatmap-stat">
+                      <span className="heatmap-stat-value">{appointments.length}</span>
+                      <span className="heatmap-stat-label">Total Appointments</span>
+                    </div>
+                    <div className="heatmap-stat">
+                      <span className="heatmap-stat-value">{appointments.filter(a => a.isToday).length}</span>
+                      <span className="heatmap-stat-label">Today's Sessions</span>
+                    </div>
+                    <div className="heatmap-stat">
+                      <span className="heatmap-stat-value">{((appointments.filter(a => a.status === 'Completed').length / appointments.length) * 100).toFixed(0)}%</span>
+                      <span className="heatmap-stat-label">Completion Rate</span>
+                    </div>
+                    <div className="heatmap-stat">
+                      <span className="heatmap-stat-value">{appointments.filter(a => a.status === 'Scheduled').length}</span>
+                      <span className="heatmap-stat-label">Upcoming</span>
                     </div>
                   </div>
 
-                  <div className="exercises-row">
-                    <div className="exercise-info">
-                      <div className="exercise-icon exercise-icon-pink">
-                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                      <circle cx="12" cy="12" r="10"/>
-                          <path d="M12 16v-4"/>
-                          <path d="M12 8h.01"/>
-                    </svg>
-                </div>
-                      <span className="exercise-name">The power of awareness</span>
-              </div>
-                    <div className="exercise-progress">
-                      <span className="exercise-percent">55%</span>
-                      <div className="exercise-progress-bar">
-                        <div className="exercise-progress-fill" style={{width: '55%'}}></div>
+                  {/* Heatmap Grid */}
+                  <div className="heatmap-container">
+                    <div className="heatmap-grid">
+                      {/* Time labels row */}
+                      <div className="heatmap-row heatmap-time-labels">
+                        <div className="heatmap-day-label"></div>
+                        <div className="heatmap-time-label">8</div>
+                        <div className="heatmap-time-label">9</div>
+                        <div className="heatmap-time-label">10</div>
+                        <div className="heatmap-time-label">11</div>
+                        <div className="heatmap-time-label">12</div>
+                        <div className="heatmap-time-label">1</div>
+                        <div className="heatmap-time-label">2</div>
+                        <div className="heatmap-time-label">3</div>
+                        <div className="heatmap-time-label">4</div>
                       </div>
+                      
+                      {/* Data rows - Weekdays only */}
+                      {['Mon', 'Tue', 'Wed', 'Thu', 'Fri'].map((day, dayIndex) => (
+                        <div key={day} className="heatmap-row">
+                          <div className="heatmap-day-label">{day}</div>
+                          {[0, 1, 2, 3, 4, 5, 6, 7, 8].map((hour) => {
+                            // Generate activity level based on day and time (hourly intervals)
+                            const activityLevels = [
+                              [1, 2, 2, 3, 2, 2, 2, 1, 1], // MON
+                              [2, 2, 3, 3, 4, 3, 2, 2, 2], // TUE
+                              [2, 3, 3, 4, 4, 3, 3, 2, 2], // WED
+                              [3, 3, 4, 4, 4, 4, 3, 3, 2], // THU
+                              [2, 2, 3, 3, 2, 2, 1, 1, 1], // FRI
+                            ]
+                            const level = activityLevels[dayIndex][hour]
+                            const displayHour = hour < 4 ? `${8 + hour} AM` : hour === 4 ? '12 PM' : `${hour - 4} PM`
+                            return (
+                              <div 
+                                key={hour} 
+                                className={`heatmap-cell heatmap-level-${level}`}
+                                title={`${day} - ${displayHour} - ${level} appointments`}
+                              ></div>
+                            )
+                          })}
+                        </div>
+                      ))}
                     </div>
-                    <div className="exercise-duration">11h 40min</div>
-                    <div className="exercise-category">Mindfulness</div>
-                    <div className="exercise-stats">
-                      <span className="exercise-stat">
-                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                          <path d="M21.44 11.05l-9.19 9.19a6 6 0 0 1-8.49-8.49l9.19-9.19a4 4 0 0 1 5.66 5.66l-9.2 9.19a2 2 0 0 1-2.83-2.83l8.49-8.48"/>
-                        </svg>
-                        1
-                      </span>
+
+                    {/* Enhanced Legend */}
+                    <div className="heatmap-legend-enhanced">
+                      <span className="heatmap-legend-label">Less</span>
+                      <div className="heatmap-legend-scale">
+                        <div className="heatmap-legend-box heatmap-level-1"></div>
+                        <div className="heatmap-legend-box heatmap-level-2"></div>
+                        <div className="heatmap-legend-box heatmap-level-3"></div>
+                        <div className="heatmap-legend-box heatmap-level-4"></div>
+                      </div>
+                      <span className="heatmap-legend-label">More</span>
                     </div>
                   </div>
+                </div>
+
+                {/* Recent Patients Card */}
+                <div className="dashboard-recent-patients-card">
+                  <h3 className="recent-patients-title">Recent Patients</h3>
+                  <div className="recent-patients-list">
+                    {Object.entries(patientsData)
+                      .sort((a, b) => new Date(b[1].lastVisit) - new Date(a[1].lastVisit))
+                      .map(([id, patient]) => (
+                        <div 
+                          key={id} 
+                          className="recent-patient-item"
+                          onClick={() => {
+                            const fullPatientData = { id: parseInt(id), ...patient }
+                            setSelectedPatient(fullPatientData)
+                            setPatientFormData({
+                              name: fullPatientData.name || '',
+                              gender: fullPatientData.gender || '',
+                              age: fullPatientData.age || '',
+                              address: fullPatientData.address || '',
+                              registeredDate: fullPatientData.registeredDate || '',
+                              disease: fullPatientData.disease || '',
+                              weight: fullPatientData.weight || '',
+                              height: fullPatientData.height || '',
+                              bmi: fullPatientData.bmi || '',
+                              bodyTemperature: fullPatientData.bodyTemperature || '',
+                              heartRate: fullPatientData.heartRate || '',
+                              chronicConditions: fullPatientData.chronicConditions || [],
+                              pastMajorIllnesses: fullPatientData.pastMajorIllnesses || 'No',
+                              pastMajorIllnessesDetails: fullPatientData.pastMajorIllnessesDetails || '',
+                              previousSurgeries: fullPatientData.previousSurgeries || 'No',
+                              prescriptionDrugs: fullPatientData.prescriptionDrugs || [],
+                              overTheCounterMeds: fullPatientData.overTheCounterMeds || [],
+                              medicationNotes: fullPatientData.medicationNotes || ''
+                            })
+                            setPatientModalStep(1)
+                            setIsEditMode(false)
+                            setShowViewPatientModal(true)
+                          }}
+                        >
+                          <div className="recent-patient-info">
+                            <span className="recent-patient-name">{patient.name}</span>
+                            <span className="recent-patient-visit">{patient.disease || 'General'}</span>
+                          </div>
+                          <span className={`recent-patient-status status-${patient.status?.toLowerCase()}`}>
+                            {patient.status}
+                          </span>
+                        </div>
+                      ))
+                    }
+                  </div>
+                </div>
+              </div>
+
+              {/* Bottom Row - Upcoming Appointments Table */}
+              <div className="dashboard-appointments-card">
+                <div className="dashboard-appointments-header">
+                  <div>
+                    <h3 className="dashboard-appointments-title">Upcoming Appointments</h3>
+                    <p className="dashboard-appointments-subtitle">Stay connected with your patients — see who's coming in today</p>
+                  </div>
+                  <button 
+                    className="dashboard-see-all-link"
+                    onClick={() => setDashboardView('appointment')}
+                  >
+                    See All
+                  </button>
+                </div>
+                
+                <div className="dashboard-appointments-table-container">
+                  <table className="dashboard-appointments-table">
+                    <thead>
+                      <tr>
+                        <th>Patient Name</th>
+                        <th>Type</th>
+                        <th>Date</th>
+                        <th>Time</th>
+                        <th>Visit Type</th>
+                        <th>Status</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {appointments.slice(0, 5).map((apt) => (
+                        <tr key={apt.id}>
+                          <td>{apt.patientName || apt.name}</td>
+                          <td>{apt.appointmentType || apt.sessionType}</td>
+                          <td>{apt.date}</td>
+                          <td>{apt.time}</td>
+                          <td>
+                            <span className={`dashboard-apt-visit-badge ${apt.visitType === 'Virtual' ? 'virtual' : 'in-person'}`}>
+                              {apt.visitType}
+                            </span>
+                          </td>
+                          <td>
+                            <span className={`dashboard-apt-status-badge status-${apt.status?.toLowerCase().replace(' ', '-')}`}>
+                              {apt.status}
+                            </span>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
                 </div>
               </div>
             </div>
@@ -2155,7 +2237,11 @@ function App() {
                               </div>
                             </div>
                         <div className={`appointment-table-col appointment-col-therapy appointment-col-center ${getTextColor(apt.status)}`}>{apt.appointmentType}</div>
-                        <div className={`appointment-table-col appointment-col-contact appointment-col-center ${getTextColor(apt.status)}`}>{apt.visitType}</div>
+                        <div className={`appointment-table-col appointment-col-contact appointment-col-center ${getTextColor(apt.status)}`}>
+                          <span className={`appointment-visit-badge ${apt.visitType === 'Virtual' ? 'virtual' : 'in-person'}`}>
+                            {apt.visitType}
+                          </span>
+                        </div>
                         <div className={`appointment-table-col appointment-col-status appointment-col-center ${getStatusColor(apt.status)}`}>
                           {editingStatusId === apt.id ? (
                             <select
@@ -2354,7 +2440,11 @@ function App() {
                               </div>
                             </div>
                         <div className="appointment-table-col appointment-col-therapy appointment-col-center appointment-text-dark">{apt.appointmentType}</div>
-                        <div className="appointment-table-col appointment-col-contact appointment-col-center appointment-text-dark">{apt.visitType}</div>
+                        <div className="appointment-table-col appointment-col-contact appointment-col-center appointment-text-dark">
+                          <span className={`appointment-visit-badge ${apt.visitType === 'Virtual' ? 'virtual' : 'in-person'}`}>
+                            {apt.visitType}
+                          </span>
+                        </div>
                         <div className={`appointment-table-col appointment-col-status appointment-col-center ${getStatusColor(apt.status)}`}>
                           {editingStatusId === apt.id ? (
                             <select
@@ -4055,41 +4145,631 @@ function App() {
           })()}
 
           {dashboardView === 'settings' && (
-            <div className="view-container">
-              <h2 className="view-title">Settings</h2>
-              <div className="settings-menu">
-                <button className="settings-item" onClick={() => alert('Change Profile clicked')}>
-                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                    <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
-                    <circle cx="12" cy="7" r="4"/>
-                  </svg>
-                  <span>Change Profile</span>
-                </button>
-                <button className="settings-item" onClick={() => alert('Change Password clicked')}>
-                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                    <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/>
-                    <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
-                  </svg>
-                  <span>Change Password</span>
-                </button>
-                <button className="settings-item" onClick={() => alert('Unbind Email clicked')}>
-                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                    <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/>
-                    <polyline points="22,6 12,13 2,6"/>
-                  </svg>
-                  <span>Unbind Email</span>
-                </button>
-                <button 
-                  className="settings-item settings-logout"
-                  onClick={handleLogout}
-                >
-                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                    <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/>
-                    <polyline points="16 17 21 12 16 7"/>
-                    <line x1="21" y1="12" x2="9" y2="12"/>
-                  </svg>
-                  <span>Log Out</span>
-                </button>
+            <div className="view-container settings-page-container">
+              <h2 className="view-title">Account Settings</h2>
+              
+              <div className="settings-layout">
+                {/* Settings Sidebar */}
+                <div className="settings-sidebar">
+                  <button 
+                    className={`settings-nav-item ${settingsTab === 'profile' ? 'active' : ''}`}
+                    onClick={() => setSettingsTab('profile')}
+                  >
+                    My Profile
+                  </button>
+                  <button 
+                    className={`settings-nav-item ${settingsTab === 'security' ? 'active' : ''}`}
+                    onClick={() => setSettingsTab('security')}
+                  >
+                    Security
+                  </button>
+                  <button 
+                    className={`settings-nav-item ${settingsTab === 'teams' ? 'active' : ''}`}
+                    onClick={() => setSettingsTab('teams')}
+                  >
+                    Teams
+                  </button>
+                  <button 
+                    className={`settings-nav-item ${settingsTab === 'members' ? 'active' : ''}`}
+                    onClick={() => setSettingsTab('members')}
+                  >
+                    Team Member
+                  </button>
+                  <button 
+                    className={`settings-nav-item ${settingsTab === 'notifications' ? 'active' : ''}`}
+                    onClick={() => setSettingsTab('notifications')}
+                  >
+                    Notifications
+                  </button>
+                  <button 
+                    className={`settings-nav-item ${settingsTab === 'billing' ? 'active' : ''}`}
+                    onClick={() => setSettingsTab('billing')}
+                  >
+                    Billing
+                  </button>
+                  <button 
+                    className={`settings-nav-item ${settingsTab === 'export' ? 'active' : ''}`}
+                    onClick={() => setSettingsTab('export')}
+                  >
+                    Data Export
+                  </button>
+                  <button 
+                    className="settings-nav-item settings-nav-danger"
+                    onClick={handleLogout}
+                  >
+                    Sign Out
+                  </button>
+                </div>
+                
+                {/* Settings Content */}
+                <div className="settings-content">
+                  {/* Security Tab */}
+                  {settingsTab === 'security' && (
+                    <div className="settings-section">
+                      <h3 className="settings-section-title">Security</h3>
+                      
+                      {/* Email Address */}
+                      <div className="settings-row">
+                        <div className="settings-row-info">
+                          <h4 className="settings-row-title">Email address</h4>
+                          <p className="settings-row-desc">The email address associated with your account.</p>
+                        </div>
+                        <div className="settings-row-action">
+                          <div className="settings-email-info">
+                            <span className="settings-email">{userEmail}</span>
+                            <span className={`settings-email-status ${emailVerified ? 'verified' : 'unverified'}`}>
+                              {emailVerified ? 'Verified' : 'Unverified'}
+                            </span>
+                          </div>
+                          <button className="settings-btn settings-btn-outline">
+                            Edit
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                              <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/>
+                              <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/>
+                            </svg>
+                          </button>
+                        </div>
+                      </div>
+                      
+                      {/* Password */}
+                      <div className="settings-row">
+                        <div className="settings-row-info">
+                          <h4 className="settings-row-title">Password</h4>
+                          <p className="settings-row-desc">Set a unique password to protect your account.</p>
+                        </div>
+                        <div className="settings-row-action">
+                          <button className="settings-btn settings-btn-outline">
+                            Change Password
+                          </button>
+                        </div>
+                      </div>
+                      
+                      {/* 2-Step Verification */}
+                      <div className="settings-row">
+                        <div className="settings-row-info">
+                          <h4 className="settings-row-title">2-step verification</h4>
+                          <p className="settings-row-desc">Make your account extra secure. Along with your password, you'll need to enter a code</p>
+                        </div>
+                        <div className="settings-row-action">
+                          <label className="settings-toggle">
+                            <input 
+                              type="checkbox" 
+                              checked={twoStepVerification}
+                              onChange={(e) => setTwoStepVerification(e.target.checked)}
+                            />
+                            <span className="settings-toggle-slider"></span>
+                          </label>
+                        </div>
+                      </div>
+                      
+                      {/* Restricted Members */}
+                      <div className="settings-row">
+                        <div className="settings-row-info">
+                          <h4 className="settings-row-title">Restricted Members</h4>
+                          <p className="settings-row-desc">This will shut down your account. Your account will be reactive when you sign in again.</p>
+                        </div>
+                        <div className="settings-row-action">
+                          <span className="settings-row-value">None</span>
+                        </div>
+                      </div>
+                      
+                      {/* Deactivate Account */}
+                      <div className="settings-row">
+                        <div className="settings-row-info">
+                          <h4 className="settings-row-title">Deactivate my account</h4>
+                          <p className="settings-row-desc">This will shut down your account. Your account will be reactive when you sign in again.</p>
+                        </div>
+                        <div className="settings-row-action">
+                          <button className="settings-btn settings-btn-text">Deactivate</button>
+                        </div>
+                      </div>
+                      
+                      {/* Delete Account */}
+                      <div className="settings-row">
+                        <div className="settings-row-info">
+                          <h4 className="settings-row-title">Delete Account</h4>
+                          <p className="settings-row-desc">This will delete your account. Your account will be permanently deleted from Jejakra.</p>
+                        </div>
+                        <div className="settings-row-action">
+                          <button className="settings-btn settings-btn-danger">Delete</button>
+                        </div>
+                      </div>
+                    </div>
+                  )}
+                  
+                  {/* Profile Tab */}
+                  {settingsTab === 'profile' && (
+                    <div className="settings-section">
+                      <div className="settings-section-header">
+                        <h3 className="settings-section-title">My Profile</h3>
+                        {!profileEditMode && (
+                          <button 
+                            className="settings-btn settings-btn-primary"
+                            onClick={() => setProfileEditMode(true)}
+                          >
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                              <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/>
+                              <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/>
+                            </svg>
+                            Edit Profile
+                          </button>
+                        )}
+                      </div>
+                      
+                      {/* View Mode */}
+                      {!profileEditMode && (
+                        <>
+                          {/* Personal Section - View */}
+                          <div className="settings-profile-view-section">
+                            <h4 className="settings-profile-view-title">Personal</h4>
+                            <div className="settings-profile-view-grid">
+                              <div className="settings-profile-view-item">
+                                <span className="settings-profile-view-label">First name</span>
+                                <span className="settings-profile-view-value">Megat</span>
+                              </div>
+                              <div className="settings-profile-view-item">
+                                <span className="settings-profile-view-label">Last name</span>
+                                <span className="settings-profile-view-value">Jun</span>
+                              </div>
+                              <div className="settings-profile-view-item">
+                                <span className="settings-profile-view-label">Role</span>
+                                <span className="settings-profile-view-value">Dietitian</span>
+                              </div>
+                              <div className="settings-profile-view-item">
+                                <span className="settings-profile-view-label">Email</span>
+                                <span className="settings-profile-view-value">megat.jun@jejakra.com</span>
+                              </div>
+                            </div>
+                          </div>
+                          
+                          {/* Contact Information - View */}
+                          <div className="settings-profile-view-section">
+                            <h4 className="settings-profile-view-title">Contact Information</h4>
+                            <div className="settings-profile-view-grid">
+                              <div className="settings-profile-view-item">
+                                <span className="settings-profile-view-label">Email</span>
+                                <span className="settings-profile-view-value">megat.jun@jejakra.com</span>
+                              </div>
+                              <div className="settings-profile-view-item">
+                                <span className="settings-profile-view-label">Mobile Phone</span>
+                                <span className="settings-profile-view-value">+60 12-345 6789</span>
+                              </div>
+                            </div>
+                          </div>
+                          
+                          {/* Timezone - View */}
+                          <div className="settings-profile-view-section">
+                            <h4 className="settings-profile-view-title">Timezone</h4>
+                            <div className="settings-profile-view-grid">
+                              <div className="settings-profile-view-item">
+                                <span className="settings-profile-view-label">Timezone</span>
+                                <span className="settings-profile-view-value">Malaysia Time (UTC+8:00)</span>
+                              </div>
+                            </div>
+                          </div>
+                          
+                          {/* Emergency Contact - View */}
+                          <div className="settings-profile-view-section">
+                            <h4 className="settings-profile-view-title">Emergency Contact</h4>
+                            <div className="settings-profile-view-grid">
+                              <div className="settings-profile-view-item">
+                                <span className="settings-profile-view-label">Name</span>
+                                <span className="settings-profile-view-value">Ahmad bin Abdullah</span>
+                              </div>
+                              <div className="settings-profile-view-item">
+                                <span className="settings-profile-view-label">Phone Number</span>
+                                <span className="settings-profile-view-value">+60 19-876 5432</span>
+                              </div>
+                              <div className="settings-profile-view-item">
+                                <span className="settings-profile-view-label">Email</span>
+                                <span className="settings-profile-view-value">ahmad.abdullah@email.com</span>
+                              </div>
+                            </div>
+                          </div>
+                        </>
+                      )}
+                      
+                      {/* Edit Mode */}
+                      {profileEditMode && (
+                        <>
+                          {/* Personal Section - Edit */}
+                          <div className="settings-form-section">
+                            <div className="settings-form-header">
+                              <h4 className="settings-form-title">Personal</h4>
+                              <p className="settings-form-desc">These details can't be changed. Ask your supervisor to make any updates.</p>
+                            </div>
+                            <div className="settings-form-content">
+                              <div className="settings-form-row">
+                                <div className="settings-form-field">
+                                  <label className="settings-form-label">First name</label>
+                                  <input 
+                                    type="text" 
+                                    className="settings-form-input" 
+                                    defaultValue="Megat" 
+                                    readOnly
+                                  />
+                                </div>
+                                <div className="settings-form-field">
+                                  <label className="settings-form-label">Last name</label>
+                                  <input 
+                                    type="text" 
+                                    className="settings-form-input" 
+                                    defaultValue="Jun" 
+                                    readOnly
+                                  />
+                                </div>
+                              </div>
+                              <div className="settings-form-row">
+                                <div className="settings-form-field">
+                                  <label className="settings-form-label">Role</label>
+                                  <input 
+                                    type="text" 
+                                    className="settings-form-input" 
+                                    defaultValue="Dietitian" 
+                                    readOnly
+                                  />
+                                </div>
+                                <div className="settings-form-field">
+                                  <label className="settings-form-label">Email</label>
+                                  <input 
+                                    type="email" 
+                                    className="settings-form-input" 
+                                    defaultValue="megat.jun@jejakra.com" 
+                                    readOnly
+                                  />
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+                          
+                          {/* Contact Information Section - Edit */}
+                          <div className="settings-form-section">
+                            <div className="settings-form-header">
+                              <h4 className="settings-form-title">Contact Information</h4>
+                              <p className="settings-form-desc">Your contact details for communication.</p>
+                            </div>
+                            <div className="settings-form-content">
+                              <div className="settings-form-row">
+                                <div className="settings-form-field">
+                                  <label className="settings-form-label">Email</label>
+                                  <input 
+                                    type="email" 
+                                    className="settings-form-input" 
+                                    defaultValue="megat.jun@jejakra.com" 
+                                  />
+                                </div>
+                                <div className="settings-form-field">
+                                  <label className="settings-form-label">Mobile Phone</label>
+                                  <input 
+                                    type="tel" 
+                                    className="settings-form-input" 
+                                    defaultValue="+60 12-345 6789" 
+                                  />
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+                          
+                          {/* Timezone Section - Edit */}
+                          <div className="settings-form-section">
+                            <div className="settings-form-header">
+                              <h4 className="settings-form-title">Timezone</h4>
+                              <p className="settings-form-desc">Set up your working timezone</p>
+                            </div>
+                            <div className="settings-form-content">
+                              <div className="settings-form-field settings-form-field-wide">
+                                <label className="settings-form-label">Timezone</label>
+                                <select className="settings-form-select">
+                                  <option value="UTC+8">Malaysia Time (UTC+8:00)</option>
+                                  <option value="UTC+0">Greenwich Mean Time (UTC+0:00)</option>
+                                  <option value="UTC-5">Eastern Time (UTC-5:00)</option>
+                                  <option value="UTC-8">Pacific Time (UTC-8:00)</option>
+                                  <option value="UTC+9">Japan Time (UTC+9:00)</option>
+                                  <option value="UTC+5:30">India Time (UTC+5:30)</option>
+                                </select>
+                              </div>
+                            </div>
+                          </div>
+                          
+                          {/* Emergency Contact Section - Edit */}
+                          <div className="settings-form-section">
+                            <div className="settings-form-header">
+                              <h4 className="settings-form-title">Emergency Contact</h4>
+                              <p className="settings-form-desc">Person to contact in case of emergency.</p>
+                            </div>
+                            <div className="settings-form-content">
+                              <div className="settings-form-field settings-form-field-wide">
+                                <label className="settings-form-label">Name</label>
+                                <input 
+                                  type="text" 
+                                  className="settings-form-input" 
+                                  defaultValue="Ahmad bin Abdullah" 
+                                />
+                              </div>
+                              <div className="settings-form-row">
+                                <div className="settings-form-field">
+                                  <label className="settings-form-label">Phone Number</label>
+                                  <input 
+                                    type="tel" 
+                                    className="settings-form-input" 
+                                    defaultValue="+60 19-876 5432" 
+                                  />
+                                </div>
+                                <div className="settings-form-field">
+                                  <label className="settings-form-label">Email</label>
+                                  <input 
+                                    type="email" 
+                                    className="settings-form-input" 
+                                    defaultValue="ahmad.abdullah@email.com" 
+                                  />
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+                          
+                          {/* Edit Actions */}
+                          <div className="settings-form-actions">
+                            <button 
+                              className="settings-btn settings-btn-outline"
+                              onClick={() => setProfileEditMode(false)}
+                            >
+                              Cancel
+                            </button>
+                            <button 
+                              className="settings-btn settings-btn-primary"
+                              onClick={() => {
+                                setProfileEditMode(false)
+                                setSuccessModalMessage('Profile updated successfully!')
+                                setShowSuccessModal(true)
+                              }}
+                            >
+                              Save Changes
+                            </button>
+                          </div>
+                        </>
+                      )}
+                    </div>
+                  )}
+                  
+                  {/* Teams Tab */}
+                  {settingsTab === 'teams' && (
+                    <div className="settings-section">
+                      <h3 className="settings-section-title">Teams</h3>
+                      <div className="settings-empty-state">
+                        <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#9ca3af" strokeWidth="1.5">
+                          <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
+                          <circle cx="9" cy="7" r="4"/>
+                          <path d="M23 21v-2a4 4 0 0 0-3-3.87"/>
+                          <path d="M16 3.13a4 4 0 0 1 0 7.75"/>
+                        </svg>
+                        <p>No teams created yet</p>
+                        <button className="settings-btn settings-btn-primary">Create Team</button>
+                      </div>
+                    </div>
+                  )}
+                  
+                  {/* Team Members Tab */}
+                  {settingsTab === 'members' && (
+                    <div className="settings-section">
+                      <h3 className="settings-section-title">Team Members</h3>
+                      <div className="settings-empty-state">
+                        <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#9ca3af" strokeWidth="1.5">
+                          <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/>
+                          <circle cx="9" cy="7" r="4"/>
+                          <line x1="19" y1="8" x2="19" y2="14"/>
+                          <line x1="22" y1="11" x2="16" y2="11"/>
+                        </svg>
+                        <p>No team members added</p>
+                        <button className="settings-btn settings-btn-primary">Invite Member</button>
+                      </div>
+                    </div>
+                  )}
+                  
+                  {/* Notifications Tab */}
+                  {settingsTab === 'notifications' && (
+                    <div className="settings-section">
+                      <h3 className="settings-section-title">Notifications</h3>
+                      
+                      <div className="settings-row">
+                        <div className="settings-row-info">
+                          <h4 className="settings-row-title">Email Notifications</h4>
+                          <p className="settings-row-desc">Receive email notifications for important updates.</p>
+                        </div>
+                        <div className="settings-row-action">
+                          <label className="settings-toggle">
+                            <input type="checkbox" defaultChecked />
+                            <span className="settings-toggle-slider"></span>
+                          </label>
+                        </div>
+                      </div>
+                      
+                      <div className="settings-row">
+                        <div className="settings-row-info">
+                          <h4 className="settings-row-title">Appointment Reminders</h4>
+                          <p className="settings-row-desc">Get reminded about upcoming appointments.</p>
+                        </div>
+                        <div className="settings-row-action">
+                          <label className="settings-toggle">
+                            <input type="checkbox" defaultChecked />
+                            <span className="settings-toggle-slider"></span>
+                          </label>
+                        </div>
+                      </div>
+                      
+                      <div className="settings-row">
+                        <div className="settings-row-info">
+                          <h4 className="settings-row-title">Patient Updates</h4>
+                          <p className="settings-row-desc">Receive notifications when patient information is updated.</p>
+                        </div>
+                        <div className="settings-row-action">
+                          <label className="settings-toggle">
+                            <input type="checkbox" defaultChecked />
+                            <span className="settings-toggle-slider"></span>
+                          </label>
+                        </div>
+                      </div>
+                      
+                      <div className="settings-row">
+                        <div className="settings-row-info">
+                          <h4 className="settings-row-title">Marketing Emails</h4>
+                          <p className="settings-row-desc">Receive promotional emails and newsletters.</p>
+                        </div>
+                        <div className="settings-row-action">
+                          <label className="settings-toggle">
+                            <input type="checkbox" />
+                            <span className="settings-toggle-slider"></span>
+                          </label>
+                        </div>
+                      </div>
+                    </div>
+                  )}
+                  
+                  {/* Billing Tab */}
+                  {settingsTab === 'billing' && (
+                    <div className="settings-section">
+                      <h3 className="settings-section-title">Billing</h3>
+                      
+                      <div className="settings-row">
+                        <div className="settings-row-info">
+                          <h4 className="settings-row-title">Current Plan</h4>
+                          <p className="settings-row-desc">Your current subscription plan.</p>
+                        </div>
+                        <div className="settings-row-action">
+                          <span className="settings-plan-badge">Professional</span>
+                          <button className="settings-btn settings-btn-outline">Upgrade</button>
+                        </div>
+                      </div>
+                      
+                      <div className="settings-row">
+                        <div className="settings-row-info">
+                          <h4 className="settings-row-title">Payment Method</h4>
+                          <p className="settings-row-desc">Manage your payment methods.</p>
+                        </div>
+                        <div className="settings-row-action">
+                          <span className="settings-row-value">•••• •••• •••• 4242</span>
+                          <button className="settings-btn settings-btn-outline">Update</button>
+                        </div>
+                      </div>
+                      
+                      <div className="settings-row">
+                        <div className="settings-row-info">
+                          <h4 className="settings-row-title">Billing History</h4>
+                          <p className="settings-row-desc">View your past invoices and payments.</p>
+                        </div>
+                        <div className="settings-row-action">
+                          <button className="settings-btn settings-btn-outline">View History</button>
+                        </div>
+                      </div>
+                    </div>
+                  )}
+                  
+                  {/* Data Export Tab */}
+                  {settingsTab === 'export' && (
+                    <div className="settings-section">
+                      <h3 className="settings-section-title">Data Export</h3>
+                      
+                      <div className="settings-row">
+                        <div className="settings-row-info">
+                          <h4 className="settings-row-title">Export Patient Data</h4>
+                          <p className="settings-row-desc">Download all your patient data in CSV format.</p>
+                        </div>
+                        <div className="settings-row-action">
+                          <button className="settings-btn settings-btn-primary">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                              <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+                              <polyline points="7 10 12 15 17 10"/>
+                              <line x1="12" y1="15" x2="12" y2="3"/>
+                            </svg>
+                            Export CSV
+                          </button>
+                        </div>
+                      </div>
+                      
+                      <div className="settings-row">
+                        <div className="settings-row-info">
+                          <h4 className="settings-row-title">Export Appointments</h4>
+                          <p className="settings-row-desc">Download your appointment history.</p>
+                        </div>
+                        <div className="settings-row-action">
+                          <button className="settings-btn settings-btn-primary">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                              <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+                              <polyline points="7 10 12 15 17 10"/>
+                              <line x1="12" y1="15" x2="12" y2="3"/>
+                            </svg>
+                            Export CSV
+                          </button>
+                        </div>
+                      </div>
+                      
+                      <div className="settings-row">
+                        <div className="settings-row-info">
+                          <h4 className="settings-row-title">Full Account Export</h4>
+                          <p className="settings-row-desc">Download all your account data including settings.</p>
+                        </div>
+                        <div className="settings-row-action">
+                          <button className="settings-btn settings-btn-outline">Request Export</button>
+                        </div>
+                      </div>
+                    </div>
+                  )}
+                  
+                  {/* Delete Account Tab */}
+                  {settingsTab === 'delete' && (
+                    <div className="settings-section">
+                      <h3 className="settings-section-title settings-section-danger">Delete Account</h3>
+                      
+                      <div className="settings-danger-box">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#ef4444" strokeWidth="2">
+                          <circle cx="12" cy="12" r="10"/>
+                          <line x1="12" y1="8" x2="12" y2="12"/>
+                          <line x1="12" y1="16" x2="12.01" y2="16"/>
+                        </svg>
+                        <div>
+                          <h4>This action is irreversible</h4>
+                          <p>Once you delete your account, there is no going back. All your data, including patients, appointments, and settings will be permanently removed.</p>
+                        </div>
+                      </div>
+                      
+                      <div className="settings-row">
+                        <div className="settings-row-info">
+                          <h4 className="settings-row-title">Confirm Account Deletion</h4>
+                          <p className="settings-row-desc">To delete your account, please type "DELETE" to confirm.</p>
+                        </div>
+                        <div className="settings-row-action settings-row-action-vertical">
+                          <input 
+                            type="text" 
+                            placeholder='Type "DELETE" to confirm'
+                            className="settings-delete-input"
+                          />
+                          <button className="settings-btn settings-btn-danger">
+                            Delete My Account
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                  )}
+                </div>
               </div>
             </div>
           )}
