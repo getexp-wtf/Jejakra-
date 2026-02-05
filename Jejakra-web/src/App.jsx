@@ -948,9 +948,9 @@ function App() {
     setWarningModalConfig({
       message: 'Are you sure you want to logout?',
       onConfirm: () => {
-        setIsLoggedIn(false)
-        setUserRole(null)
-        handleNavigation('main')
+    setIsLoggedIn(false)
+    setUserRole(null)
+    handleNavigation('main')
       }
     })
     setShowWarningModal(true)
@@ -1726,7 +1726,7 @@ function App() {
                   <div className="stat-card-value-row">
                     <span className="stat-card-value-large">{appointments.length.toLocaleString()}</span>
                     <span className="stat-card-badge stat-card-badge-light">+{((appointments.filter(a => a.status === 'Scheduled').length / appointments.length) * 100).toFixed(1)}%</span>
-                  </div>
+              </div>
                   <p className="stat-card-description-light">Visitors increased from {appointments.filter(a => a.status === 'Completed').length} to {appointments.length}.</p>
                   <div className="stat-card-progress">
                     <div className="stat-card-progress-bar">
@@ -1737,7 +1737,7 @@ function App() {
                     <span className="stat-card-today">{appointments.filter(a => a.isToday).length} today</span>
                   </div>
                 </div>
-
+                
                 {/* Total Patient Card */}
                 <div className="dashboard-stat-card">
                   <div className="stat-card-header-row">
@@ -1758,8 +1758,8 @@ function App() {
                     <span className="stat-card-badge stat-card-badge-green">+{((Object.values(patientsData).filter(p => p.status === 'Active').length / Object.keys(patientsData).length) * 100).toFixed(1)}%</span>
                   </div>
                   <p className="stat-card-description">Increase in data by {Object.values(patientsData).filter(p => p.status === 'Active').length} active patients in the last 7 days</p>
-                </div>
-                
+                  </div>
+
                 {/* Appointments Card */}
                 <div className="dashboard-stat-card">
                   <div className="stat-card-header-row">
@@ -1771,10 +1771,10 @@ function App() {
                           <line x1="8" y1="2" x2="8" y2="6"/>
                           <line x1="3" y1="10" x2="21" y2="10"/>
                         </svg>
-                      </div>
-                      <span className="stat-card-label">Appointments</span>
-                    </div>
                   </div>
+                      <span className="stat-card-label">Appointments</span>
+                  </div>
+                </div>
                   <div className="stat-card-value-row">
                     <span className="stat-card-value-large">{appointments.filter(a => a.status === 'Scheduled').length}</span>
                     <span className="stat-card-badge stat-card-badge-green">+{appointments.filter(a => !a.isToday && a.status === 'Scheduled').length}</span>
@@ -1787,8 +1787,8 @@ function App() {
                   </div>
                   <div className="stat-card-footer">
                     <span className="stat-card-today-dark">{appointments.filter(a => a.isToday && a.status === 'Scheduled').length} today</span>
-                  </div>
-                </div>
+                    </div>
+                      </div>
 
                 {/* Current Patient Status Card */}
                 <div className="dashboard-stat-card">
@@ -1801,28 +1801,28 @@ function App() {
                         </svg>
                       </div>
                       <span className="stat-card-label">Current Patient Status</span>
-                    </div>
-                  </div>
+                      </div>
+                      </div>
                   <div className="stat-card-value-row">
                     <span className="stat-card-value-large">{Object.values(patientsData).filter(p => p.status === 'Active').length}</span>
                     <span className="stat-card-badge stat-card-badge-green">+{Object.values(patientsData).filter(p => p.status === 'Active').length}</span>
-                  </div>
+                      </div>
                   <div className="stat-card-status-list">
                     <div className="stat-card-status-item">
                       <span className="status-dot status-dot-green"></span>
                       <span className="status-label">Active</span>
                       <span className="status-value">{Object.values(patientsData).filter(p => p.status === 'Active').length}</span>
-                    </div>
+                      </div>
                     <div className="stat-card-status-divider"></div>
                     <div className="stat-card-status-item">
                       <span className="status-dot status-dot-orange"></span>
                       <span className="status-label">Inactive</span>
                       <span className="status-value">{Object.values(patientsData).filter(p => p.status === 'Inactive').length}</span>
-                    </div>
+                      </div>
                   </div>
                 </div>
               </div>
-                
+
               {/* Middle Row - Chart and Support Card */}
               <div className="dashboard-middle-row">
                 {/* Appointment Activity Heatmap */}
@@ -1834,7 +1834,7 @@ function App() {
                     <div className="heatmap-stat">
                       <span className="heatmap-stat-value">{appointments.length}</span>
                       <span className="heatmap-stat-label">Total Appointments</span>
-                    </div>
+                  </div>
                     <div className="heatmap-stat">
                       <span className="heatmap-stat-value">{appointments.filter(a => a.isToday).length}</span>
                       <span className="heatmap-stat-label">Today's Sessions</span>
@@ -1846,8 +1846,8 @@ function App() {
                     <div className="heatmap-stat">
                       <span className="heatmap-stat-value">{appointments.filter(a => a.status === 'Scheduled').length}</span>
                       <span className="heatmap-stat-label">Upcoming</span>
-                    </div>
-                  </div>
+                </div>
+              </div>
 
                   {/* Heatmap Grid */}
                   <div className="heatmap-container">
@@ -1889,7 +1889,7 @@ function App() {
                               ></div>
                             )
                           })}
-                        </div>
+                </div>
                       ))}
                     </div>
 
@@ -1904,8 +1904,8 @@ function App() {
                       </div>
                       <span className="heatmap-legend-label">More</span>
                     </div>
+                    </div>
                   </div>
-                </div>
 
                 {/* Recent Patients Card */}
                 <div className="dashboard-recent-patients-card">
@@ -1948,16 +1948,16 @@ function App() {
                           <div className="recent-patient-info">
                             <span className="recent-patient-name">{patient.name}</span>
                             <span className="recent-patient-visit">{patient.disease || 'General'}</span>
-                          </div>
+                </div>
                           <span className={`recent-patient-status status-${patient.status?.toLowerCase()}`}>
                             {patient.status}
                           </span>
-                        </div>
+              </div>
                       ))
                     }
-                  </div>
-                </div>
-              </div>
+                      </div>
+                    </div>
+                    </div>
 
               {/* Bottom Row - Upcoming Appointments Table */}
               <div className="dashboard-appointments-card">
@@ -3142,16 +3142,16 @@ function App() {
               {showDeleteModal && appointmentToDelete && (
                 <div className="appointment-modal-overlay" onClick={() => setShowDeleteModal(false)}>
                   <div className="action-modal" onClick={(e) => e.stopPropagation()}>
-                    <button
-                      onClick={() => setShowDeleteModal(false)}
+                      <button
+                        onClick={() => setShowDeleteModal(false)}
                       className="action-modal-close"
-                      type="button"
-                    >
+                        type="button"
+                      >
                       <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                        <line x1="18" y1="6" x2="6" y2="18"/>
-                        <line x1="6" y1="6" x2="18" y2="18"/>
-                      </svg>
-                    </button>
+                          <line x1="18" y1="6" x2="6" y2="18"/>
+                          <line x1="6" y1="6" x2="18" y2="18"/>
+                        </svg>
+                      </button>
                     <div className="action-modal-icon action-modal-icon-delete">
                       <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                         <polyline points="3 6 5 6 21 6"></polyline>
@@ -3797,11 +3797,11 @@ function App() {
                             setShowPatientFilterDropdown(!showPatientFilterDropdown)
                           }}
                         >
-                          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                            <polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"/>
-                          </svg>
-                          More filter
-                        </button>
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                          <polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"/>
+                        </svg>
+                        More filter
+                      </button>
                         
                         {/* Filter Dropdown */}
                         {showPatientFilterDropdown && (
@@ -3945,17 +3945,17 @@ function App() {
                       </div>
                       
                       {/* Create Patient button */}
-                      <button 
+                <button 
                         className="patient-create-btn"
                         onClick={handleOpenCreatePatientModal}
-                      >
+                >
                         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                          <line x1="12" y1="5" x2="12" y2="19"/>
-                          <line x1="5" y1="12" x2="19" y2="12"/>
-                        </svg>
+                    <line x1="12" y1="5" x2="12" y2="19"/>
+                    <line x1="5" y1="12" x2="19" y2="12"/>
+                  </svg>
                         Create Patient
-                      </button>
-                    </div>
+                </button>
+              </div>
                   </div>
                   </div>
 
@@ -4156,7 +4156,7 @@ function App() {
                     onClick={() => setSettingsTab('profile')}
                   >
                     My Profile
-                  </button>
+                </button>
                   <button 
                     className={`settings-nav-item ${settingsTab === 'security' ? 'active' : ''}`}
                     onClick={() => setSettingsTab('security')}
@@ -4226,8 +4226,8 @@ function App() {
                             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                               <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/>
                               <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/>
-                            </svg>
-                          </button>
+                  </svg>
+                </button>
                         </div>
                       </div>
                       
@@ -4310,9 +4310,9 @@ function App() {
                             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                               <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/>
                               <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/>
-                            </svg>
+                  </svg>
                             Edit Profile
-                          </button>
+                </button>
                         )}
                       </div>
                       
@@ -4529,7 +4529,7 @@ function App() {
                           
                           {/* Edit Actions */}
                           <div className="settings-form-actions">
-                            <button 
+                <button 
                               className="settings-btn settings-btn-outline"
                               onClick={() => setProfileEditMode(false)}
                             >
@@ -4561,7 +4561,7 @@ function App() {
                           <circle cx="9" cy="7" r="4"/>
                           <path d="M23 21v-2a4 4 0 0 0-3-3.87"/>
                           <path d="M16 3.13a4 4 0 0 1 0 7.75"/>
-                        </svg>
+                  </svg>
                         <p>No teams created yet</p>
                         <button className="settings-btn settings-btn-primary">Create Team</button>
                       </div>
@@ -4701,7 +4701,7 @@ function App() {
                               <line x1="12" y1="15" x2="12" y2="3"/>
                             </svg>
                             Export CSV
-                          </button>
+                </button>
                         </div>
                       </div>
                       

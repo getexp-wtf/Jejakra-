@@ -8409,8 +8409,8 @@ p, span, label, input, textarea, select, button {
     white-space: nowrap;
     border-left: none;
     border-bottom: 3px solid transparent;
-  }
-  
+}
+
   .settings-nav-item.active {
     border-left-color: transparent;
     border-bottom-color: #2563eb;
@@ -8418,8 +8418,8 @@ p, span, label, input, textarea, select, button {
   
   .settings-content {
     padding: 24px 20px;
-  }
-  
+}
+
   .settings-row {
     flex-direction: column;
     gap: 16px;
@@ -8445,8 +8445,8 @@ p, span, label, input, textarea, select, button {
   .settings-row-action {
     width: 100%;
     justify-content: flex-start;
-  }
-  
+}
+
   .settings-profile-view-grid {
     grid-template-columns: repeat(2, 1fr);
   }
@@ -8465,8 +8465,8 @@ p, span, label, input, textarea, select, button {
   
   .dashboard-stats-row {
     grid-template-columns: 1fr;
-  }
-  
+}
+
   .settings-form-actions {
     flex-direction: column;
   }

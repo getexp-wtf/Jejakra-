@@ -1,0 +1,161 @@
+// Prisma schema for Jejakra
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum UserRole {
+  doctor
+  user
+  admin
+}
+
+enum PatientGender {
+  Male
+  Female
+  Other
+}
+
+enum PatientStatus {
+  Active
+  Inactive
+  New
+  Archived
+  Pending
+}
+
+enum AppointmentType {
+  Consultation
+  Follow_Up
+  Routine_Checkup
+}
+
+enum SessionType {
+  TREATMENT
+  INTAKE_INTERVIEW
+  FOLLOW_UP
+  FINAL_SESSION
+}
+
+enum VisitType {
+  In_person
+  Virtual
+}
+
+enum AppointmentStatus {
+  Scheduled
+  Ongoing
+  Completed
+  Cancelled
+  No_show
+}
+
+model User {
+  id            String    @id @default(uuid())
+  email         String    @unique
+  passwordHash  String    @map("password_hash")
+  name          String
+  role          UserRole  @default(doctor)
+  avatar        String?
+  createdAt     DateTime  @default(now()) @map("created_at")
+  updatedAt     DateTime  @updatedAt @map("updated_at")
+
+  patients      Patient[]      @relation("CreatedPatients")
+  appointments  Appointment[]  @relation("CreatedAppointments")
+  activityLogs  ActivityLog[]
+
+  @@map("users")
+}
+
+model Patient {
+  id               String         @id @default(uuid())
+  name             String
+  gender           PatientGender?
+  age              Int?
+  address          String?
+  contactNumber    String?        @map("contact_number")
+  disease          String?
+  status           PatientStatus  @default(Active)
+  registeredDate   DateTime       @db.Date @map("registered_date")
+  lastVisit        DateTime?      @db.Date @map("last_visit")
+  lastVisitTime    String?        @map("last_visit_time")
+  nextAppointment  DateTime?      @db.Date @map("next_appointment")
+  createdBy        String?        @map("created_by")
+  createdAt        DateTime       @default(now()) @map("created_at")
+  updatedAt        DateTime       @updatedAt @map("updated_at")
+
+  createdByUser User?          @relation("CreatedPatients", fields: [createdBy], references: [id])
+  details       PatientDetails?
+  appointments  Appointment[]
+
+  @@index([status])
+  @@index([gender])
+  @@index([registeredDate])
+  @@map("patients")
+}
+
+model PatientDetails {
+  id                        String   @id @default(uuid())
+  patientId                 String   @unique @map("patient_id")
+  weight                    Decimal? @db.Decimal(5, 2)
+  height                    Decimal? @db.Decimal(5, 2)
+  bmi                       Decimal? @db.Decimal(4, 2)
+  bodyTemperature           Decimal? @map("body_temperature") @db.Decimal(4, 2)
+  heartRate                 Int?
+  chronicConditions         Json?    @map("chronic_conditions")
+  pastMajorIllnesses        String?  @map("past_major_illnesses")
+  pastMajorIllnessesDetails String?  @map("past_major_illnesses_details")
+  previousSurgeries         String?  @map("previous_surgeries")
+  prescriptionDrugs         Json?    @map("prescription_drugs")
+  overTheCounterMeds        Json?    @map("over_the_counter_meds")
+  medicationNotes           String?  @map("medication_notes")
+  createdAt                 DateTime @default(now()) @map("created_at")
+  updatedAt                 DateTime @updatedAt @map("updated_at")
+
+  patient Patient @relation(fields: [patientId], references: [id], onDelete: Cascade)
+
+  @@map("patient_details")
+}
+
+model Appointment {
+  id              String            @id @default(uuid())
+  patientId       String            @map("patient_id")
+  appointmentType AppointmentType   @map("appointment_type")
+  sessionType     SessionType?      @map("session_type")
+  date            DateTime          @db.Date
+  time            String
+  visitType       VisitType         @map("visit_type")
+  status          AppointmentStatus @default(Scheduled)
+  notes           String?
+  reason          String?
+  createdBy       String?           @map("created_by")
+  createdAt       DateTime         @default(now()) @map("created_at")
+  updatedAt       DateTime         @updatedAt @map("updated_at")
+
+  patient      Patient  @relation(fields: [patientId], references: [id], onDelete: Cascade)
+  createdByUser User?   @relation("CreatedAppointments", fields: [createdBy], references: [id])
+
+  @@index([patientId])
+  @@index([date, time])
+  @@index([status])
+  @@map("appointments")
+}
+
+model ActivityLog {
+  id         String   @id @default(uuid())
+  entityType String   @map("entity_type")
+  entityId   String   @map("entity_id")
+  action     String
+  userId     String?  @map("user_id")
+  metadata   Json?
+  createdAt  DateTime @default(now()) @map("created_at")
+
+  user User? @relation(fields: [userId], references: [id])
+
+  @@index([createdAt(sort: Desc)])
+  @@map("activity_log")
+}
