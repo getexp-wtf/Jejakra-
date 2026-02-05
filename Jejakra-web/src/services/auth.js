@@ -3,7 +3,6 @@
  * Handles user authentication and session management
  */
 
-import * as api from './api'
 import * as storage from './storage'
 
 const AUTH_TOKEN_KEY = 'auth_token'
